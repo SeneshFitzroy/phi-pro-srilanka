@@ -1,0 +1,17 @@
+# PHI-PRO: Digital Health Enforcement & Integrated Intelligence System
+
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=nextdotjs)](https://nextjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-orange?logo=firebase)](https://firebase.google.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> A comprehensive digital solution for Sri Lanka's 1,793 Public Health Inspectors (PHIs) to modernize health enforcement workflows, disease surveillance, and inter-agency coordination.
+
+## Overview
+
+PHI-PRO (Public Health Inspector - Professional Operations) transforms traditional paper-based health inspection processes into a unified digital platform. Built as a Progressive Web App (PWA), it supports offline-first operations critical for field inspectors working in areas with limited connectivity.
+
+### Key Highlights
+- **5 Domain Modules**: Food Safety, School Health, Epidemiology, Occupational Health, Administration
+- **4 User Roles**: Public, PHI Officer, SPHI (Supervisory), MOH Administrator
+- **30+ Digital Forms**: Based on official Sri Lankan MOH forms (H800, H795, H796, etc.)
