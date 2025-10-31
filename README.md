@@ -15,3 +15,18 @@ PHI-PRO (Public Health Inspector - Professional Operations) transforms tradition
 - **5 Domain Modules**: Food Safety, School Health, Epidemiology, Occupational Health, Administration
 - **4 User Roles**: Public, PHI Officer, SPHI (Supervisory), MOH Administrator
 - **30+ Digital Forms**: Based on official Sri Lankan MOH forms (H800, H795, H796, etc.)
+- **Trilingual Support**: English, Sinhala, Tamil
+- **Offline-First**: Service worker with IndexedDB for field operations
+- **Real-time Dashboards**: Firebase-powered analytics and reporting
+
+## Architecture
+
+```
+phi-pro-srilanka/
+├── apps/
+│   └── web/              # Next.js 14 App Router
+├── packages/
+│   └── shared/           # Shared types, validation, utilities
+├── turbo.json            # Turborepo configuration
+└── pnpm-workspace.yaml
+```
