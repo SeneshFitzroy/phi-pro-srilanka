@@ -30,3 +30,20 @@ phi-pro-srilanka/
 ├── turbo.json            # Turborepo configuration
 └── pnpm-workspace.yaml
 ```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Framework** | Next.js 14 (App Router) |
+| **Language** | TypeScript 5.x |
+| **Styling** | Tailwind CSS + shadcn/ui |
+| **Auth** | Firebase Auth |
+| **Database** | Cloud Firestore |
+| **Storage** | Firebase Storage |
+| **Forms** | React Hook Form + Zod |
+| **Charts** | Recharts |
+| **i18n** | i18next |
+| **Build** | Turborepo + pnpm |
+
+## Modules
