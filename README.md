@@ -47,3 +47,20 @@ phi-pro-srilanka/
 | **Build** | Turborepo + pnpm |
 
 ## Modules
+
+### Food Safety - H800 inspection (100-point A/B/C), H801 registration, H802 sampling, H803 calendar
+### School Health - H1214 monthly, H1046 defects, H1015 WASH, H1247 vaccination, H1014 activity
+### Epidemiology - H399 weekly, H411 monthly, Health-160 notification, SIV investigation, GIS map
+### Occupational Health - H1203 factory, H1204 safety, H1205 worker survey, OHS checklist
+### Administration - H795 GN mapping, H796 statistics, PHI-1 monthly, H1200 survey, spot map
+### Public Portal - Food grades, complaints, alerts, verification, payments
+### Management - Approvals, users, complaints, permits, analytics
+
+## Getting Started
+
+```bash
+git clone https://github.com/SeneshFitzroy/phi-pro-srilanka.git
+cd phi-pro-srilanka
+pnpm install
+cp apps/web/.env.local.example apps/web/.env.local
+pnpm dev
