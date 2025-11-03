@@ -64,3 +64,19 @@ cd phi-pro-srilanka
 pnpm install
 cp apps/web/.env.local.example apps/web/.env.local
 pnpm dev
+```
+
+## Project Structure
+
+```
+apps/web/src/
+├── app/              # Next.js App Router pages
+├── components/       # UI components (shadcn/ui)
+├── contexts/         # Auth + i18n providers
+├── i18n/             # en, si, ta translations
+└── lib/              # Firebase, Firestore, utils
+```
+
+## Auth & Roles
+
+| Role | Access |
