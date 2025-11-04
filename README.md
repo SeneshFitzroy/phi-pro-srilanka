@@ -80,3 +80,18 @@ apps/web/src/
 ## Auth & Roles
 
 | Role | Access |
+|------|--------|
+| Public | Food grades, complaints, alerts |
+| PHI | All modules, forms, reports |
+| SPHI | + approvals, user management |
+| MOH Admin | Full admin + analytics |
+
+## License
+
+MIT License - see [LICENSE](LICENSE)
+
+## Author
+
+**Dinura Senesh Mendis (Senesh Fitzroy)** - Student ID: 10952757
+University of Plymouth - PUSL3190 Computing Project
+GitHub: [@SeneshFitzroy](https://github.com/SeneshFitzroy)
