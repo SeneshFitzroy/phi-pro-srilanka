@@ -1,0 +1,14 @@
+{
+  "name": "phi-pro-srilanka",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PHI-PRO: Digital Health Enforcement & Integrated Intelligence System for Sri Lanka's Public Health Inspectors",
+  "author": "Dinura Mendis <10952757@students.plymouth.ac.uk>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "turbo run dev --filter=@phi-pro/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rimraf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
