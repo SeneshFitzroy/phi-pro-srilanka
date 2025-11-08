@@ -1,0 +1,26 @@
+{
+  "name": "@phi-pro/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@phi-pro/shared": "workspace:*",
+    "next": "14.2.29",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "firebase": "^11.7.1",
+    "next-pwa": "^5.6.0",
+    "@hookform/resolvers": "^5.0.1",
+    "react-hook-form": "^7.56.4",
+    "zod": "^3.25.20",
+    "i18next": "^25.2.1",
+    "react-i18next": "^15.5.2",
+    "i18next-browser-languagedetector": "^8.0.5",
+    "recharts": "^2.15.3",
+    "mapbox-gl": "^3.12.0",
