@@ -51,20 +51,3 @@ module.exports = {
         },
         // PHI-PRO domain colors
         food: {
-          DEFAULT: '#22c55e',
-          light: '#dcfce7',
-          dark: '#15803d',
-        },
-        school: {
-          DEFAULT: '#3b82f6',
-          light: '#dbeafe',
-          dark: '#1d4ed8',
-        },
-        epidemiology: {
-          DEFAULT: '#ef4444',
-          light: '#fee2e2',
-          dark: '#b91c1c',
-        },
-        occupational: {
-          DEFAULT: '#f59e0b',
-          light: '#fef3c7',
