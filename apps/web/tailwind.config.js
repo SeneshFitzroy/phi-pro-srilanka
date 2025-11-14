@@ -51,3 +51,38 @@ module.exports = {
         },
         // PHI-PRO domain colors
         food: {
+          DEFAULT: '#22c55e',
+          light: '#dcfce7',
+          dark: '#15803d',
+        },
+        school: {
+          DEFAULT: '#3b82f6',
+          light: '#dbeafe',
+          dark: '#1d4ed8',
+        },
+        epidemiology: {
+          DEFAULT: '#ef4444',
+          light: '#fee2e2',
+          dark: '#b91c1c',
+        },
+        occupational: {
+          DEFAULT: '#f59e0b',
+          light: '#fef3c7',
+          dark: '#b45309',
+        },
+        administration: {
+          DEFAULT: '#8b5cf6',
+          light: '#ede9fe',
+          dark: '#6d28d9',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans Sinhala', 'Noto Sans Tamil', 'sans-serif'],
+      },
+      keyframes: {
+        'accordion-down': {
