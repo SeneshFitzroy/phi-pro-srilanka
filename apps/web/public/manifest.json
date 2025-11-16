@@ -1,0 +1,19 @@
+{
+  "name": "PHI-PRO",
+  "short_name": "PHI-PRO",
+  "description": "Digital Health Enforcement & Integrated Intelligence System for Sri Lanka's Public Health Inspectors",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "categories": ["health", "government", "productivity"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
