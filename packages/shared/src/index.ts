@@ -12,3 +12,15 @@ export * from './types/school';
 export * from './types/epidemiology';
 export * from './types/occupational';
 export * from './types/administration';
+export * from './types/complaints';
+export * from './types/permits';
+export * from './types/common';
+
+// --- Validation Schemas ---
+export * from './validation';
+
+// --- Constants ---
+export * from './constants';
+
+// --- Utilities ---
+export * from './utils';
