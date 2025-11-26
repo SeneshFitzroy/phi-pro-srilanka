@@ -20,3 +20,24 @@ export interface SystemAlert {
   targetMohAreas?: string[];
   targetPhiAreas?: string[];
   isPublic: boolean;           // Visible on public portal
+  
+  // Display
+  isActive: boolean;
+  expiresAt?: string;
+  actionUrl?: string;
+  
+  // Source
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Audit log entry */
+export interface AuditLog {
+  id: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  
+  action: string;              // e.g., "CREATE", "UPDATE", "DELETE", "APPROVE"
+  resource: string;            // e.g., "FoodInspection", "Permit"
