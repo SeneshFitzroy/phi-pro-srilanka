@@ -47,3 +47,101 @@ export enum InspectionStatus {
   SUBMITTED = 'SUBMITTED',
   UNDER_REVIEW = 'UNDER_REVIEW',
   APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  REQUIRES_FOLLOWUP = 'REQUIRES_FOLLOWUP',
+}
+
+/** Complaint status lifecycle */
+export enum ComplaintStatus {
+  RECEIVED = 'RECEIVED',
+  ASSIGNED = 'ASSIGNED',
+  UNDER_INVESTIGATION = 'UNDER_INVESTIGATION',
+  ACTION_TAKEN = 'ACTION_TAKEN',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+  ESCALATED = 'ESCALATED',
+}
+
+/** Permit types managed by MOH */
+export enum PermitType {
+  SEPTIC_TANK = 'SEPTIC_TANK',
+  WELL_CONSTRUCTION = 'WELL_CONSTRUCTION',
+  FOOD_PREMISES = 'FOOD_PREMISES',
+  TRADE_LICENSE_HEALTH = 'TRADE_LICENSE_HEALTH',
+  CONSTRUCTION_HEALTH = 'CONSTRUCTION_HEALTH',
+}
+
+/** Permit status lifecycle */
+export enum PermitStatus {
+  APPLIED = 'APPLIED',
+  INSPECTION_SCHEDULED = 'INSPECTION_SCHEDULED',
+  INSPECTED = 'INSPECTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  PAYMENT_PENDING = 'PAYMENT_PENDING',
+  ISSUED = 'ISSUED',
+  EXPIRED = 'EXPIRED',
+  REVOKED = 'REVOKED',
+}
+
+/** Enforcement notice types */
+export enum NoticeType {
+  IMPROVEMENT = 'IMPROVEMENT',   // 7-day compliance
+  CLOSURE = 'CLOSURE',           // Immediate
+  WARNING = 'WARNING',
+  COURT_SUMMONS = 'COURT_SUMMONS',
+}
+
+/** Notifiable disease groups (Epid Unit) */
+export enum DiseaseGroup {
+  GROUP_A = 'GROUP_A', // International quarantine (Cholera, Yellow Fever, Plague)
+  GROUP_B = 'GROUP_B', // National notifiable
+}
+
+/** School grades targeted for medical inspection */
+export enum TargetedSchoolGrade {
+  GRADE_1 = 1,
+  GRADE_4 = 4,
+  GRADE_7 = 7,
+  GRADE_10 = 10,
+}
+
+/** School vaccine types */
+export enum SchoolVaccineType {
+  HPV = 'HPV',          // Girls Grade 6, 2 doses 6 months apart
+  AP_DT = 'AP_DT',      // Grade 7, 1 dose
+  MEBENDAZOLE = 'MEBENDAZOLE',  // Twice yearly
+  IRON_VIT_C = 'IRON_VIT_C',     // 24-month cycle Grades 5-9 girls
+}
+
+/** Factory size classification */
+export enum FactoryScale {
+  SMALL = 'SMALL',     // Sulu Paimana: <50 workers
+  MEDIUM = 'MEDIUM',   // Madya Paimana: 50-250 workers
+  LARGE = 'LARGE',     // Mahapaimana: 250+ workers
+}
+
+/** Sync status for offline-first */
+export enum SyncStatus {
+  SYNCED = 'SYNCED',
+  PENDING = 'PENDING',
+  FAILED = 'FAILED',
+  CONFLICT = 'CONFLICT',
+}
+
+/** Supported languages */
+export enum Language {
+  EN = 'en',
+  SI = 'si',
+  TA = 'ta',
+}
+
+/** GN Division area type */
+export enum AreaType {
+  URBAN = 'URBAN',
+  RURAL = 'RURAL',
+  ESTATE = 'ESTATE',
+}
+
+/** Priority levels */
+export enum Priority {
