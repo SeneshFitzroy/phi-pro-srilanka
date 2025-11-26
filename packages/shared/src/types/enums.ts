@@ -145,3 +145,26 @@ export enum AreaType {
 
 /** Priority levels */
 export enum Priority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  CRITICAL = 'CRITICAL',
+}
+
+/** Payment status */
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+}
+
+/** Alert types */
+export enum AlertType {
+  OUTBREAK = 'OUTBREAK',
+  FOOD_SAFETY = 'FOOD_SAFETY',
+  DEADLINE = 'DEADLINE',
+  SYSTEM = 'SYSTEM',
+  ASSIGNMENT = 'ASSIGNMENT',
+}
