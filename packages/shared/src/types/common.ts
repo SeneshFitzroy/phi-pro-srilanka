@@ -41,3 +41,23 @@ export interface AuditLog {
   
   action: string;              // e.g., "CREATE", "UPDATE", "DELETE", "APPROVE"
   resource: string;            // e.g., "FoodInspection", "Permit"
+  resourceId: string;
+  
+  details?: string;
+  previousValue?: string;      // JSON
+  newValue?: string;           // JSON
+  
+  ipAddress?: string;
+  userAgent?: string;
+  
+  createdAt: string;
+}
+
+/** Dashboard analytics data point */
+export interface AnalyticsDataPoint {
+  label: string;
+  value: number;
+  previousValue?: number;
+  changePercent?: number;
+  trend?: 'UP' | 'DOWN' | 'STABLE';
+}
