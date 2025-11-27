@@ -84,24 +84,3 @@ export interface UserNotification {
   type: AlertType;
   
   // Action
-  actionUrl?: string;
-  relatedEntityId?: string;
-  relatedEntityType?: string;
-  
-  isRead: boolean;
-  readAt?: string;
-  
-  createdAt: string;
-}
-
-/** API response wrapper */
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
-  pagination?: {
-    page: number;
