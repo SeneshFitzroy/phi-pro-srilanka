@@ -105,23 +105,3 @@ export interface ApiResponse<T> {
   };
   pagination?: {
     page: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-  };
-}
-
-/** Search / filter parameters */
-export interface SearchParams {
-  query?: string;
-  domain?: string;
-  status?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  phiAreaId?: string;
-  gnDivision?: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
