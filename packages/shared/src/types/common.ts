@@ -61,3 +61,67 @@ export interface AnalyticsDataPoint {
   changePercent?: number;
   trend?: 'UP' | 'DOWN' | 'STABLE';
 }
+
+/** Dashboard card metric */
+export interface DashboardMetric {
+  id: string;
+  title: string;
+  value: number | string;
+  subtitle?: string;
+  icon?: string;
+  color?: string;
+  trend?: 'UP' | 'DOWN' | 'STABLE';
+  changePercent?: number;
+  period?: string;
+}
+
+/** Notification for individual users */
+export interface UserNotification {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  type: AlertType;
+  
+  // Action
+  actionUrl?: string;
+  relatedEntityId?: string;
+  relatedEntityType?: string;
+  
+  isRead: boolean;
+  readAt?: string;
+  
+  createdAt: string;
+}
+
+/** API response wrapper */
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+  pagination?: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+/** Search / filter parameters */
+export interface SearchParams {
+  query?: string;
+  domain?: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  phiAreaId?: string;
+  gnDivision?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
