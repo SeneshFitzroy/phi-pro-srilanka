@@ -55,3 +55,17 @@ export interface UserProfile extends BaseDocument {
   nic?: string;            // National Identity Card
   avatarUrl?: string;
   preferredLanguage: Language;
+  
+  // Role-specific
+  phiArea?: PHIArea;               // PHI
+  assignedPHIAreas?: string[];      // SPHI: multiple PHI areas
+  mohAreaId?: string;               // MOH Admin
+  domains?: PHIDomain[];            // Enabled domains
+  
+  // Security
+  lastLoginAt?: string;
+  deviceTokens?: string[];          // FCM tokens for push notifications
+  failedLoginAttempts?: number;
+}
+
+/** Public user (anonymous or registered complaint submitter) */
