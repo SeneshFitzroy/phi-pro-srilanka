@@ -41,3 +41,17 @@ export interface PHIArea {
   assignedPhiId: string;
   supervisingPhiId: string;
 }
+
+/** User profile stored in Firestore */
+export interface UserProfile extends BaseDocument {
+  uid: string;             // Firebase Auth UID
+  email: string;
+  displayName: string;
+  nameInSinhala?: string;
+  nameInTamil?: string;
+  role: UserRole;
+  status: AccountStatus;
+  phone?: string;
+  nic?: string;            // National Identity Card
+  avatarUrl?: string;
+  preferredLanguage: Language;
