@@ -45,18 +45,3 @@ export interface BaseForm {
   domain: PHIDomain;
   title: string;
   
-  // PHI info
-  phiId: string;
-  phiName: string;
-  phiAreaId: string;
-  gnDivisionCode?: string;
-  
-  // Status
-  status: InspectionStatus;
-  syncStatus: SyncStatus;
-  
-  // Timestamps
-  inspectionDate: string;
-  submittedAt?: string;
-  reviewedAt?: string;
-  reviewedBy?: string;
