@@ -75,18 +75,3 @@ export interface BaseForm {
   createdAt: string;
   updatedAt: string;
 }
-
-/** Monthly report summary */
-export interface MonthlyReportSummary {
-  year: number;
-  month: number; // 1-12
-  phiId: string;
-  phiAreaId: string;
-  domain: PHIDomain;
-  totalInspections: number;
-  totalApproved: number;
-  totalRejected: number;
-  totalPending: number;
-  submittedAt?: string;
-  dueDate: string;         // 5th of next month
-}
