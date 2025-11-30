@@ -22,3 +22,26 @@ export interface H800Section {
 /** H800 Premises & Structure section items */
 export interface H800PremisesChecks {
   wallsCondition: number;       // 0-5
+  floorsCondition: number;      // 0-5
+  ceilingCondition: number;     // 0-5
+  ventilation: number;          // 0-5
+  lighting: number;             // 0-5
+  pestProofing: number;         // 0-5
+  notes?: string;
+}
+
+/** H800 Personal Hygiene section */
+export interface H800HygieneChecks {
+  staffUniforms: number;        // 0-5
+  handWashing: number;          // 0-5
+  healthCertificates: number;   // 0-5
+  personalCleanliness: number;  // 0-5
+  notes?: string;
+}
+
+/** H800 Food Handling section */
+export interface H800FoodHandling {
+  coldStorage: number;          // 0-5 (temp <5°C)
+  hotHolding: number;           // 0-5 (temp >60°C)
+  crossContamination: number;   // 0-5
+  rawCookedSeparation: number;  // 0-5
