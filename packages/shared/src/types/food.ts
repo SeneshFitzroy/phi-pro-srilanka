@@ -45,3 +45,49 @@ export interface H800FoodHandling {
   hotHolding: number;           // 0-5 (temp >60°C)
   crossContamination: number;   // 0-5
   rawCookedSeparation: number;  // 0-5
+  dateLabeling: number;         // 0-5
+  notes?: string;
+}
+
+/** H800 Equipment section */
+export interface H800Equipment {
+  cleanliness: number;          // 0-5
+  calibration: number;          // 0-5
+  condition: number;            // 0-5
+  rustFree: number;             // 0-5
+  notes?: string;
+}
+
+/** H800 Waste & Sanitation section */
+export interface H800WasteSanitation {
+  wasteDisposal: number;        // 0-5
+  drainageSystem: number;       // 0-5
+  toiletAccess: number;         // 0-5
+  binCondition: number;         // 0-5
+  notes?: string;
+}
+
+/** H800 Documentation section */
+export interface H800Documentation {
+  supplierRecords: number;      // 0-5
+  pestControlLog: number;       // 0-5
+  cleaningSchedule: number;     // 0-5
+  staffTraining: number;        // 0-5
+  notes?: string;
+}
+
+/** Complete H800 Food Premises Inspection Form */
+export interface FoodInspectionForm extends BaseForm {
+  formCode: 'H800';
+  
+  // Premises info
+  premisesId: string;
+  premisesName: string;
+  premisesNameSi?: string;
+  ownerName: string;
+  ownerNic?: string;
+  address: string;
+  gnDivision: string;
+  riskLevel: FoodRiskLevel;
+  registrationNo?: string;
+  
