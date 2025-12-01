@@ -30,3 +30,34 @@ export interface SchoolProfile {
   isPreschool: boolean;
   
   // Principal
+  principalName?: string;
+  principalPhone?: string;
+  
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// H1046 – School Medical Examination Record of Health Problems
+// ---------------------------------------------------------------------------
+
+/** Individual student health examination record */
+export interface StudentHealthRecord {
+  id: string;
+  studentId?: string;
+  studentName: string;
+  dateOfBirth?: string;
+  gender: 'M' | 'F';
+  grade: number;
+  className?: string;
+  
+  // Measurements
+  heightCm: number;
+  weightKg: number;
+  bmi: number;               // auto-calculated: kg/m²
+  bmiCategory: 'UNDERWEIGHT' | 'NORMAL' | 'OVERWEIGHT' | 'OBESE';
+  
+  // Medical checks
+  visionLeft?: string;       // e.g., "6/6"
+  visionRight?: string;
