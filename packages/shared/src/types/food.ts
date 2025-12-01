@@ -91,3 +91,72 @@ export interface FoodInspectionForm extends BaseForm {
   riskLevel: FoodRiskLevel;
   registrationNo?: string;
   
+  // Location
+  geoPoint?: GeoPoint;
+  
+  // Scoring sections (100-mark system)
+  premises: H800PremisesChecks;
+  hygiene: H800HygieneChecks;
+  foodHandling: H800FoodHandling;
+  equipment: H800Equipment;
+  wasteSanitation: H800WasteSanitation;
+  documentation: H800Documentation;
+  
+  // Auto-calculated
+  totalScore: number;          // 0-100
+  grade: FoodHygieneGrade;     // A/B/C
+  previousGrade?: FoodHygieneGrade;
+  
+  // Enforcement
+  noticeIssued?: NoticeType;
+  noticeDetails?: string;
+  followUpDate?: string;
+  courtSummonsRef?: string;
+  
+  // Compliance
+  improvementItems?: string[];
+  criticalViolations?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// H801 – Food Premises Registration
+// ---------------------------------------------------------------------------
+
+export interface FoodPremisesRegistration {
+  id: string;
+  registrationNo: string;
+  premisesName: string;
+  premisesNameSi?: string;
+  ownerName: string;
+  ownerNic: string;
+  ownerPhone?: string;
+  ownerEmail?: string;
+  address: string;
+  gnDivision: string;
+  phiAreaId: string;
+  foodType: string;          // e.g., "Restaurant", "Bakery", "Grocery"
+  foodTypeDetail?: string;
+  riskLevel: FoodRiskLevel;
+  registeredDate: string;
+  expiryDate: string;        // valid 1 year
+  certificateNo?: string;
+  geoPoint?: GeoPoint;
+  isActive: boolean;
+  lastInspectionDate?: string;
+  lastGrade?: FoodHygieneGrade;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// H802 – Food Sample Submission
+// ---------------------------------------------------------------------------
+
+export interface FoodSampleSubmission {
+  id: string;
+  sampleRefNo: string;
+  premisesId: string;
+  premisesName: string;
+  phiId: string;
+  phiAreaId: string;
+  
