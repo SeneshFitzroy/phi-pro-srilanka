@@ -160,3 +160,48 @@ export interface FoodSampleSubmission {
   phiId: string;
   phiAreaId: string;
   
+  // Sample details
+  sampleType: string;        // e.g., "Milk", "Oil", "Spices"
+  sampleDescription: string;
+  collectionDate: string;
+  collectionMethod: 'RANDOM' | 'COMPLAINT_BASED' | 'ROUTINE';
+  
+  // Lab info
+  sentToLab: string;         // Usually "MRI" (Medical Research Institute)
+  sentDate: string;
+  labRefNo?: string;
+  resultReceived: boolean;
+  resultDate?: string;
+  resultSummary?: string;
+  adulterantFound?: string;
+  isCompliant: boolean | null;
+  
+  // Actions
+  enforcementAction?: NoticeType;
+  notes?: string;
+  photos: PhotoAttachment[];
+  
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// H803 – Food Inspection Calendar / Schedule
+// ---------------------------------------------------------------------------
+
+export interface FoodInspectionSchedule {
+  id: string;
+  phiId: string;
+  phiAreaId: string;
+  premisesId: string;
+  premisesName: string;
+  riskLevel: FoodRiskLevel;
+  scheduledDate: string;
+  scheduledTime?: string;
+  inspectionType: 'ROUTINE' | 'FOLLOW_UP' | 'COMPLAINT' | 'RE_INSPECTION';
+  isCompleted: boolean;
+  completedInspectionId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
