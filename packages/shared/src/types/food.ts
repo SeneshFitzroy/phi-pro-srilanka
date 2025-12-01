@@ -183,25 +183,3 @@ export interface FoodSampleSubmission {
   
   createdAt: string;
   updatedAt: string;
-}
-
-// ---------------------------------------------------------------------------
-// H803 – Food Inspection Calendar / Schedule
-// ---------------------------------------------------------------------------
-
-export interface FoodInspectionSchedule {
-  id: string;
-  phiId: string;
-  phiAreaId: string;
-  premisesId: string;
-  premisesName: string;
-  riskLevel: FoodRiskLevel;
-  scheduledDate: string;
-  scheduledTime?: string;
-  inspectionType: 'ROUTINE' | 'FOLLOW_UP' | 'COMPLAINT' | 'RE_INSPECTION';
-  isCompleted: boolean;
-  completedInspectionId?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
