@@ -123,3 +123,66 @@ export interface SchoolMedicalExamForm extends BaseForm {
   
   // Individual records
   studentRecords: StudentHealthRecord[];
+}
+
+// ---------------------------------------------------------------------------
+// H1214 – Summary of School Medical Inspection (Monthly)
+// ---------------------------------------------------------------------------
+
+export interface SchoolInspectionSummary extends BaseForm {
+  formCode: 'H1214';
+  
+  // Report period
+  year: number;
+  month: number;
+  
+  // One entry per school
+  schoolSummaries: SchoolSummaryEntry[];
+  
+  // Area totals
+  areaTotal: {
+    totalSchoolsVisited: number;
+    totalStudentsExamined: number;
+    totalMale: number;
+    totalFemale: number;
+    totalDefectsFound: number;
+    totalReferrals: number;
+    anemiaTotal: number;
+    visionTotal: number;
+    dentalTotal: number;
+    malnutritionTotal: number;
+  };
+}
+
+export interface SchoolSummaryEntry {
+  schoolId: string;
+  schoolName: string;
+  gradeInspected: TargetedSchoolGrade;
+  totalExamined: number;
+  male: number;
+  female: number;
+  defectsFound: number;
+  referralsIssued: number;
+  followUpsCompleted: number;
+}
+
+// ---------------------------------------------------------------------------
+// H1015 – School Health Survey (WASH & Environment)
+// ---------------------------------------------------------------------------
+
+export interface SchoolHealthSurvey extends BaseForm {
+  formCode: 'H1015';
+  schoolId: string;
+  schoolName: string;
+  surveyDate: string;
+  
+  // Student count
+  totalStudents: number;
+  totalMale: number;
+  totalFemale: number;
+  
+  // WASH Assessment
+  wash: {
+    totalToilets: number;
+    maleToilets: number;
+    femaleToilets: number;
