@@ -61,3 +61,158 @@ export interface StudentHealthRecord {
   // Medical checks
   visionLeft?: string;       // e.g., "6/6"
   visionRight?: string;
+  colorBlindness: boolean;
+  squint: boolean;
+  dentalCaries: boolean;
+  oralHygieneScore?: number; // 1-5
+  goiterCheck: boolean;
+  pallor: boolean;            // anemia indicator
+  skinCondition?: string;
+  hairCondition?: string;
+  
+  // Defects found
+  defectsFound: StudentDefect[];
+  
+  // Referral
+  referralIssued: boolean;
+  referralType?: string;      // e.g., "Eye Hospital", "Dental", "MOH Clinic"
+  referralDate?: string;
+  referralFollowUpDate?: string;
+  referralOutcome?: string;
+  
+  // Parent
+  parentConsentGiven: boolean;
+  parentName?: string;
+  parentPhone?: string;
+}
+
+/** Student health defect tracking */
+export interface StudentDefect {
+  defectType: string;         // e.g., "Anemia", "Vision", "Dental Caries", "Malnutrition"
+  severity: 'MILD' | 'MODERATE' | 'SEVERE';
+  detectedDate: string;
+  referredTo?: string;
+  followUpDate?: string;
+  resolved: boolean;
+  resolvedDate?: string;
+  notes?: string;
+}
+
+/** H1046 form – batch of student records for a school visit */
+export interface SchoolMedicalExamForm extends BaseForm {
+  formCode: 'H1046';
+  schoolId: string;
+  schoolName: string;
+  targetGrade: TargetedSchoolGrade;
+  examDate: string;
+  
+  // Summary counts
+  totalExamined: number;
+  totalMale: number;
+  totalFemale: number;
+  
+  // Defect summary
+  anemiaCount: number;
+  visionDefectCount: number;
+  dentalCariesCount: number;
+  malnutritionCount: number;
+  otherDefectsCount: number;
+  
+  // Referral summary
+  totalReferrals: number;
+  
+  // Individual records
+  studentRecords: StudentHealthRecord[];
+}
+
+// ---------------------------------------------------------------------------
+// H1214 – Summary of School Medical Inspection (Monthly)
+// ---------------------------------------------------------------------------
+
+export interface SchoolInspectionSummary extends BaseForm {
+  formCode: 'H1214';
+  
+  // Report period
+  year: number;
+  month: number;
+  
+  // One entry per school
+  schoolSummaries: SchoolSummaryEntry[];
+  
+  // Area totals
+  areaTotal: {
+    totalSchoolsVisited: number;
+    totalStudentsExamined: number;
+    totalMale: number;
+    totalFemale: number;
+    totalDefectsFound: number;
+    totalReferrals: number;
+    anemiaTotal: number;
+    visionTotal: number;
+    dentalTotal: number;
+    malnutritionTotal: number;
+  };
+}
+
+export interface SchoolSummaryEntry {
+  schoolId: string;
+  schoolName: string;
+  gradeInspected: TargetedSchoolGrade;
+  totalExamined: number;
+  male: number;
+  female: number;
+  defectsFound: number;
+  referralsIssued: number;
+  followUpsCompleted: number;
+}
+
+// ---------------------------------------------------------------------------
+// H1015 – School Health Survey (WASH & Environment)
+// ---------------------------------------------------------------------------
+
+export interface SchoolHealthSurvey extends BaseForm {
+  formCode: 'H1015';
+  schoolId: string;
+  schoolName: string;
+  surveyDate: string;
+  
+  // Student count
+  totalStudents: number;
+  totalMale: number;
+  totalFemale: number;
+  
+  // WASH Assessment
+  wash: {
+    totalToilets: number;
+    maleToilets: number;
+    femaleToilets: number;
+    toiletWaterAvailable: boolean;
+    toiletCleanliness: number;    // 1-5
+    drinkingWaterAvailable: boolean;
+    drinkingWaterSafe: boolean;
+    handwashStations: number;
+    soapAvailable: boolean;
+    washScore: number;            // auto-calculated
+  };
+  
+  // Classroom environment
+  classroom: {
+    ventilationAdequate: boolean;
+    lightingAdequate: boolean;
+    desksAdequate: boolean;
+    overcrowding: boolean;
+    classroomCleanliness: number; // 1-5
+  };
+  
+  // General campus
+  campus: {
+    playgroundAvailable: boolean;
+    wasteDisposal: boolean;
+    pestIssues: boolean;
+    canteenHygiene?: number;      // 1-5
+    firstAidKit: boolean;
+  };
+  
+  overallScore: number;
+  recommendations: string[];
+}
