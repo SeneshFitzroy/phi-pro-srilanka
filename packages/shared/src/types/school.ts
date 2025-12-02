@@ -92,3 +92,66 @@ export interface StudentDefect {
   severity: 'MILD' | 'MODERATE' | 'SEVERE';
   detectedDate: string;
   referredTo?: string;
+  followUpDate?: string;
+  resolved: boolean;
+  resolvedDate?: string;
+  notes?: string;
+}
+
+/** H1046 form – batch of student records for a school visit */
+export interface SchoolMedicalExamForm extends BaseForm {
+  formCode: 'H1046';
+  schoolId: string;
+  schoolName: string;
+  targetGrade: TargetedSchoolGrade;
+  examDate: string;
+  
+  // Summary counts
+  totalExamined: number;
+  totalMale: number;
+  totalFemale: number;
+  
+  // Defect summary
+  anemiaCount: number;
+  visionDefectCount: number;
+  dentalCariesCount: number;
+  malnutritionCount: number;
+  otherDefectsCount: number;
+  
+  // Referral summary
+  totalReferrals: number;
+  
+  // Individual records
+  studentRecords: StudentHealthRecord[];
+}
+
+// ---------------------------------------------------------------------------
+// H1214 – Summary of School Medical Inspection (Monthly)
+// ---------------------------------------------------------------------------
+
+export interface SchoolInspectionSummary extends BaseForm {
+  formCode: 'H1214';
+  
+  // Report period
+  year: number;
+  month: number;
+  
+  // One entry per school
+  schoolSummaries: SchoolSummaryEntry[];
+  
+  // Area totals
+  areaTotal: {
+    totalSchoolsVisited: number;
+    totalStudentsExamined: number;
+    totalMale: number;
+    totalFemale: number;
+    totalDefectsFound: number;
+    totalReferrals: number;
+    anemiaTotal: number;
+    visionTotal: number;
+    dentalTotal: number;
+    malnutritionTotal: number;
+  };
+}
+
+export interface SchoolSummaryEntry {
