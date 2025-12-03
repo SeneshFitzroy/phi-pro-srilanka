@@ -247,3 +247,34 @@ export interface SchoolActivity {
 // ---------------------------------------------------------------------------
 // H1247 – Vaccination & Consent
 // ---------------------------------------------------------------------------
+
+export interface SchoolVaccinationForm extends BaseForm {
+  formCode: 'H1247';
+  schoolId: string;
+  schoolName: string;
+  vaccineType: SchoolVaccineType;
+  targetGrade: number;
+  
+  // Vaccination records
+  vaccinationRecords: VaccinationRecord[];
+  
+  // Summary
+  totalEligible: number;
+  totalConsented: number;
+  totalVaccinated: number;
+  totalAbsent: number;
+  totalRefused: number;
+  doseNumber: number;         // For HPV: 1 or 2
+}
+
+export interface VaccinationRecord {
+  studentId?: string;
+  studentName: string;
+  gender: 'M' | 'F';
+  parentConsentGiven: boolean;
+  consentDate?: string;
+  vaccinated: boolean;
+  vaccinationDate?: string;
+  batchNo?: string;
+  reason?: string;            // if not vaccinated
+}
