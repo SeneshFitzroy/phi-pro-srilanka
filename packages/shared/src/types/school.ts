@@ -186,3 +186,64 @@ export interface SchoolHealthSurvey extends BaseForm {
     totalToilets: number;
     maleToilets: number;
     femaleToilets: number;
+    toiletWaterAvailable: boolean;
+    toiletCleanliness: number;    // 1-5
+    drinkingWaterAvailable: boolean;
+    drinkingWaterSafe: boolean;
+    handwashStations: number;
+    soapAvailable: boolean;
+    washScore: number;            // auto-calculated
+  };
+  
+  // Classroom environment
+  classroom: {
+    ventilationAdequate: boolean;
+    lightingAdequate: boolean;
+    desksAdequate: boolean;
+    overcrowding: boolean;
+    classroomCleanliness: number; // 1-5
+  };
+  
+  // General campus
+  campus: {
+    playgroundAvailable: boolean;
+    wasteDisposal: boolean;
+    pestIssues: boolean;
+    canteenHygiene?: number;      // 1-5
+    firstAidKit: boolean;
+  };
+  
+  overallScore: number;
+  recommendations: string[];
+}
+
+// ---------------------------------------------------------------------------
+// H1014 – Monthly Statement of School Health Activities
+// ---------------------------------------------------------------------------
+
+export interface SchoolHealthActivities extends BaseForm {
+  formCode: 'H1014';
+  year: number;
+  month: number;
+  
+  activities: SchoolActivity[];
+  
+  totalSchoolVisits: number;
+  totalTrainingSessions: number;
+  totalFollowUps: number;
+  totalHomeVisits: number;
+}
+
+export interface SchoolActivity {
+  date: string;
+  schoolId?: string;
+  schoolName?: string;
+  activityType: 'VISIT' | 'TRAINING' | 'FOLLOW_UP' | 'HOME_VISIT' | 'VACCINATION' | 'OTHER';
+  description: string;
+  outcome?: string;
+  attendees?: number;
+}
+
+// ---------------------------------------------------------------------------
+// H1247 – Vaccination & Consent
+// ---------------------------------------------------------------------------
