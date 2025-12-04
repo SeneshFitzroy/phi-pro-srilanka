@@ -106,30 +106,3 @@ export interface SpecialInvestigationForm extends BaseForm {
   caseGeoPoint?: GeoPoint;
   spotMapUpdated: boolean;
   clusterIdentified: boolean;
-  clusterRadius?: number;         // metres
-  
-  // Actions taken
-  quarantineIssued: boolean;
-  quarantineDays?: number;        // typically 14
-  boostProgramLaunched: boolean;
-  boostDetails?: string;
-  followUpScheduled: boolean;
-  followUpDates?: string[];
-  
-  // Priority
-  priority: Priority;
-}
-
-export interface ContactPerson {
-  name: string;
-  relationship: string;
-  address?: string;
-  phone?: string;
-  symptomatic: boolean;
-  monitoredFrom?: string;
-  monitoredUntil?: string;
-}
-
-export interface EnvironmentalCheck {
-  checkType: string;              // e.g., "Water containers", "Breeding sites"
-  location: string;
