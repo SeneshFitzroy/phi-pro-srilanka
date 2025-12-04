@@ -106,3 +106,83 @@ export interface SpecialInvestigationForm extends BaseForm {
   caseGeoPoint?: GeoPoint;
   spotMapUpdated: boolean;
   clusterIdentified: boolean;
+  clusterRadius?: number;         // metres
+  
+  // Actions taken
+  quarantineIssued: boolean;
+  quarantineDays?: number;        // typically 14
+  boostProgramLaunched: boolean;
+  boostDetails?: string;
+  followUpScheduled: boolean;
+  followUpDates?: string[];
+  
+  // Priority
+  priority: Priority;
+}
+
+export interface ContactPerson {
+  name: string;
+  relationship: string;
+  address?: string;
+  phone?: string;
+  symptomatic: boolean;
+  monitoredFrom?: string;
+  monitoredUntil?: string;
+}
+
+export interface EnvironmentalCheck {
+  checkType: string;              // e.g., "Water containers", "Breeding sites"
+  location: string;
+  finding: string;
+  actionTaken: string;
+  photo?: PhotoAttachment;
+}
+
+// ---------------------------------------------------------------------------
+// H399 – Weekly Return of Communicable Diseases (WRCD)
+// ---------------------------------------------------------------------------
+
+export interface WeeklyDiseaseReturn extends BaseForm {
+  formCode: 'H399';
+  
+  // Report period
+  year: number;
+  weekNumber: number;
+  weekStartDate: string;
+  weekEndDate: string;
+  
+  // Disease counts
+  diseaseCounts: DiseaseCount[];
+  
+  // Summary
+  totalNewCases: number;
+  totalDeaths: number;
+  totalInvestigations: number;
+  
+  // Notes
+  outbreakNotes?: string;
+  actionsTaken?: string;
+}
+
+export interface DiseaseCount {
+  diseaseCode: string;
+  diseaseName: string;
+  newCases: number;
+  deaths: number;
+  maleCount: number;
+  femaleCount: number;
+  ageGroups: {
+    under5: number;
+    age5to14: number;
+    age15to24: number;
+    age25to44: number;
+    age45to64: number;
+    over65: number;
+  };
+  investigated: number;
+  pendingInvestigation: number;
+}
+
+// ---------------------------------------------------------------------------
+// H411 – Monthly Communicable Disease Report
+// ---------------------------------------------------------------------------
