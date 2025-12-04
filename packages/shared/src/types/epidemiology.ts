@@ -79,3 +79,57 @@ export interface SpecialInvestigationForm extends BaseForm {
   patientAddress: string;
   patientGN: string;
   patientPhone?: string;
+  workplace?: string;
+  
+  // Disease details
+  diseaseCode: string;
+  diseaseName: string;
+  diseaseGroup: DiseaseGroup;
+  symptomsObserved: string[];
+  onsetDate: string;
+  diagnosisDate?: string;
+  
+  // Investigation
+  investigationDate: string;
+  investigationBy: string;        // PHI name
+  travelHistory?: string;
+  contactsList: ContactPerson[];
+  foodWaterHistory?: string;
+  possibleSource?: string;
+  
+  // Environmental check
+  environmentalChecks: EnvironmentalCheck[];
+  breedingSitesFound?: number;    // For dengue
+  waterContainersChecked?: number;
+  
+  // Location / mapping
+  caseGeoPoint?: GeoPoint;
+  spotMapUpdated: boolean;
+  clusterIdentified: boolean;
+  clusterRadius?: number;         // metres
+  
+  // Actions taken
+  quarantineIssued: boolean;
+  quarantineDays?: number;        // typically 14
+  boostProgramLaunched: boolean;
+  boostDetails?: string;
+  followUpScheduled: boolean;
+  followUpDates?: string[];
+  
+  // Priority
+  priority: Priority;
+}
+
+export interface ContactPerson {
+  name: string;
+  relationship: string;
+  address?: string;
+  phone?: string;
+  symptomatic: boolean;
+  monitoredFrom?: string;
+  monitoredUntil?: string;
+}
+
+export interface EnvironmentalCheck {
+  checkType: string;              // e.g., "Water containers", "Breeding sites"
+  location: string;
