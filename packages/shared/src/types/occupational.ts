@@ -80,31 +80,3 @@ export interface FactoryHealthInspection extends BaseForm {
     temperatureAdequate: boolean;
     temperatureReading?: string;
     ventilationAdequate: boolean;
-    dustExposure: boolean;
-    chemicalExposure: boolean;
-    chemicalDetails?: string;
-    biologicalHazards: boolean;
-    environmentalScore: number;  // 1-10
-  };
-  
-  // Safety
-  safety: {
-    machineryGuards: boolean;
-    ppeAvailable: boolean;
-    ppeUsed: boolean;
-    fireExtinguishers: boolean;
-    fireExits: boolean;
-    emergencyPlan: boolean;
-    childLaborAbsent: boolean;   // Must be true
-    safetyScore: number;         // 1-10
-  };
-  
-  // Overall
-  overallScore: number;          // aggregate
-  overallCompliance: boolean;
-  
-  // Enforcement
-  noticeIssued?: NoticeType;
-  noticeDetails?: string;
-  followUpDate?: string;
-  improvementItems?: string[];
