@@ -160,3 +160,83 @@ export interface WeeklyDiseaseReturn extends BaseForm {
   totalInvestigations: number;
   
   // Notes
+  outbreakNotes?: string;
+  actionsTaken?: string;
+}
+
+export interface DiseaseCount {
+  diseaseCode: string;
+  diseaseName: string;
+  newCases: number;
+  deaths: number;
+  maleCount: number;
+  femaleCount: number;
+  ageGroups: {
+    under5: number;
+    age5to14: number;
+    age15to24: number;
+    age25to44: number;
+    age45to64: number;
+    over65: number;
+  };
+  investigated: number;
+  pendingInvestigation: number;
+}
+
+// ---------------------------------------------------------------------------
+// H411 – Monthly Communicable Disease Report
+// ---------------------------------------------------------------------------
+
+export interface MonthlyDiseaseReport extends BaseForm {
+  formCode: 'H411';
+  year: number;
+  month: number;
+  
+  // Monthly summary of all diseases
+  diseaseMonthlyCounts: DiseaseMonthlyEntry[];
+  
+  // Outbreak events
+  outbreakEvents: OutbreakEvent[];
+  
+  // Immunization campaigns
+  immunizationCampaigns: ImmunizationCampaign[];
+  
+  // Summary
+  totalCases: number;
+  totalDeaths: number;
+  totalInvestigationsCompleted: number;
+  outbreakResponsesLaunched: number;
+}
+
+export interface DiseaseMonthlyEntry {
+  diseaseCode: string;
+  diseaseName: string;
+  totalCasesThisMonth: number;
+  totalCasesYTD: number;       // Year to date
+  totalDeaths: number;
+  investigationRate: number;    // % completed within 48hrs
+}
+
+export interface OutbreakEvent {
+  id: string;
+  diseaseCode: string;
+  startDate: string;
+  endDate?: string;
+  affectedArea: string;
+  totalCases: number;
+  totalDeaths: number;
+  responseMeasures: string[];
+  status: 'ACTIVE' | 'CONTAINED' | 'RESOLVED';
+  geoPoint?: GeoPoint;
+}
+
+export interface ImmunizationCampaign {
+  campaignName: string;
+  vaccineType: string;
+  targetPopulation: string;
+  targetCount: number;
+  vaccinatedCount: number;
+  startDate: string;
+  endDate?: string;
+  coveragePercent: number;
+}
