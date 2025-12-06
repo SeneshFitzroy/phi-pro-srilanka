@@ -80,3 +80,85 @@ export interface FactoryHealthInspection extends BaseForm {
     temperatureAdequate: boolean;
     temperatureReading?: string;
     ventilationAdequate: boolean;
+    dustExposure: boolean;
+    chemicalExposure: boolean;
+    chemicalDetails?: string;
+    biologicalHazards: boolean;
+    environmentalScore: number;  // 1-10
+  };
+  
+  // Safety
+  safety: {
+    machineryGuards: boolean;
+    ppeAvailable: boolean;
+    ppeUsed: boolean;
+    fireExtinguishers: boolean;
+    fireExits: boolean;
+    emergencyPlan: boolean;
+    childLaborAbsent: boolean;   // Must be true
+    safetyScore: number;         // 1-10
+  };
+  
+  // Overall
+  overallScore: number;          // aggregate
+  overallCompliance: boolean;
+  
+  // Enforcement
+  noticeIssued?: NoticeType;
+  noticeDetails?: string;
+  followUpDate?: string;
+  improvementItems?: string[];
+  criticalHazards?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// H1204 – Factory Safety Report
+// ---------------------------------------------------------------------------
+
+export interface FactorySafetyReport extends BaseForm {
+  formCode: 'H1204';
+  factoryId: string;
+  factoryName: string;
+  
+  // Machinery safety
+  machinerySafety: MachineryCheck[];
+  
+  // PPE compliance
+  ppeCompliance: {
+    helmets: boolean;
+    gloves: boolean;
+    goggles: boolean;
+    earProtection: boolean;
+    masks: boolean;
+    safetyShoes: boolean;
+    otherPPE?: string;
+    overallPPECompliance: number; // percentage
+  };
+  
+  // Fire safety
+  fireSafety: {
+    extinguishersCount: number;
+    extinguishersServiced: boolean;
+    fireExitsCount: number;
+    fireExitsClear: boolean;
+    evacuationPlanDisplayed: boolean;
+    lastDrillDate?: string;
+  };
+  
+  // Accident log
+  recentAccidents: AccidentRecord[];
+  
+  overallSafetyScore: number;
+  recommendations: string[];
+}
+
+export interface MachineryCheck {
+  machineName: string;
+  location: string;
+  guardPresent: boolean;
+  safetySwitch: boolean;
+  condition: 'GOOD' | 'FAIR' | 'POOR' | 'DANGEROUS';
+  notes?: string;
+}
+
+export interface AccidentRecord {
