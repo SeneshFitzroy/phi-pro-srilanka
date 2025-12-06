@@ -162,3 +162,31 @@ export interface MachineryCheck {
 }
 
 export interface AccidentRecord {
+  date: string;
+  description: string;
+  severity: 'MINOR' | 'MODERATE' | 'SERIOUS' | 'FATAL';
+  workersAffected: number;
+  actionTaken: string;
+  notifiedToDoL: boolean;       // Department of Labour
+  reportedWithin24hrs: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// H1205 – Worker Health Survey
+// ---------------------------------------------------------------------------
+
+export interface WorkerHealthSurvey extends BaseForm {
+  formCode: 'H1205';
+  factoryId: string;
+  factoryName: string;
+  surveyDate: string;
+  
+  // Worker demographics
+  totalWorkersSurveyed: number;
+  maleSurveyed: number;
+  femaleSurveyed: number;
+  
+  // Health checks
+  healthChecks: WorkerHealthCheck[];
+  
+  // Training
