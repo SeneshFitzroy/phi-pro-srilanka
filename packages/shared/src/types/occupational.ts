@@ -190,3 +190,29 @@ export interface WorkerHealthSurvey extends BaseForm {
   healthChecks: WorkerHealthCheck[];
   
   // Training
+  trainingRecords: WorkerTraining[];
+  
+  // Common issues found
+  commonIssues: string[];
+  referralsMade: number;
+  followUpRequired: number;
+}
+
+export interface WorkerHealthCheck {
+  workerId?: string;
+  workerName: string;
+  gender: 'M' | 'F';
+  ageGroup: string;
+  department: string;
+  healthStatus: 'FIT' | 'REQUIRES_FOLLOWUP' | 'REQUIRES_TREATMENT';
+  conditionsFound?: string[];
+  referralIssued: boolean;
+  notes?: string;
+}
+
+export interface WorkerTraining {
+  trainingDate: string;
+  topic: string;
+  attendees: number;
+  trainerName: string;
+}
