@@ -216,3 +216,30 @@ export interface WorkerTraining {
   attendees: number;
   trainerName: string;
 }
+
+// ---------------------------------------------------------------------------
+// OHS Checklist (EOHFS)
+// ---------------------------------------------------------------------------
+
+export interface OHSChecklist extends BaseForm {
+  formCode: 'OHS_CHECKLIST';
+  factoryId: string;
+  factoryName: string;
+  
+  items: OHSChecklistItem[];
+  
+  totalItems: number;
+  compliantItems: number;
+  nonCompliantItems: number;
+  compliancePercentage: number;
+}
+
+export interface OHSChecklistItem {
+  category: string;           // e.g., "Noise", "Lighting", "Temperature"
+  itemDescription: string;
+  standard: string;           // e.g., "<85dB", "<30°C"
+  measurement?: string;       // actual measurement
+  isCompliant: boolean;
+  notes?: string;
+  photo?: PhotoAttachment;
+}
