@@ -65,36 +65,3 @@ export interface PublicHealthStatisticsForm extends BaseForm {
 export interface YearlyStatEntry {
   year: number;
   population: number;
-  births: number;
-  deaths: number;
-  birthRate: number;
-  deathRate: number;
-  householdCount: number;
-  
-  // Communicable
-  totalCommunicableCases: number;
-  dengueCount: number;
-  typhoidCount: number;
-  leptospirosisCount: number;
-  
-  // Food safety
-  foodPremisesInspected: number;
-  gradeACount: number;
-  gradeBCount: number;
-  gradeCCount: number;
-  
-  // School
-  studentsExamined: number;
-  defectsFound: number;
-  
-  // OHS
-  factoriesInspected: number;
-  accidentsReported: number;
-}
-
-export interface DiseaseStatEntry {
-  diseaseCode: string;
-  diseaseName: string;
-  year1Count: number;
-  year2Count: number;
-  year3Count: number;
