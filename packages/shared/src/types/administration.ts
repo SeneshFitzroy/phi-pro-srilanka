@@ -65,3 +65,102 @@ export interface PublicHealthStatisticsForm extends BaseForm {
 export interface YearlyStatEntry {
   year: number;
   population: number;
+  births: number;
+  deaths: number;
+  birthRate: number;
+  deathRate: number;
+  householdCount: number;
+  
+  // Communicable
+  totalCommunicableCases: number;
+  dengueCount: number;
+  typhoidCount: number;
+  leptospirosisCount: number;
+  
+  // Food safety
+  foodPremisesInspected: number;
+  gradeACount: number;
+  gradeBCount: number;
+  gradeCCount: number;
+  
+  // School
+  studentsExamined: number;
+  defectsFound: number;
+  
+  // OHS
+  factoriesInspected: number;
+  accidentsReported: number;
+}
+
+export interface DiseaseStatEntry {
+  diseaseCode: string;
+  diseaseName: string;
+  year1Count: number;
+  year2Count: number;
+  year3Count: number;
+  year4Count: number;
+  year5Count: number;
+  trend: 'INCREASING' | 'DECREASING' | 'STABLE';
+}
+
+export interface FacilityStatEntry {
+  facilityType: string;       // e.g., "Restaurants", "Schools", "Factories"
+  year1Count: number;
+  year2Count: number;
+  year3Count: number;
+  year4Count: number;
+  year5Count: number;
+}
+
+// ---------------------------------------------------------------------------
+// PHI-1 – PHI Monthly Report Form
+// ---------------------------------------------------------------------------
+
+export interface PHIMonthlyReport extends BaseForm {
+  formCode: 'PHI-1';
+  year: number;
+  month: number;
+  
+  // Food Safety Summary
+  foodSafety: {
+    premisesInspected: number;
+    gradeA: number;
+    gradeB: number;
+    gradeC: number;
+    newRegistrations: number;
+    samplesTaken: number;
+    noticesIssued: number;
+    courtCases: number;
+    followUpsCompleted: number;
+  };
+  
+  // School Health Summary
+  schoolHealth: {
+    schoolsVisited: number;
+    studentsExamined: number;
+    defectsFound: number;
+    referralsIssued: number;
+    vaccinationsGiven: number;
+    homeVisits: number;
+    trainingSessions: number;
+  };
+  
+  // Epidemiology Summary
+  epidemiology: {
+    notificationsReceived: number;
+    investigationsCompleted: number;
+    investigationsWithin48hrs: number;
+    outbreaksIdentified: number;
+    quarantinesIssued: number;
+    immunizationsConducted: number;
+  };
+  
+  // Occupational Health Summary
+  occupationalHealth: {
+    factoriesInspected: number;
+    workersExamined: number;
+    hazardsIdentified: number;
+    noticesIssued: number;
+    accidentsReported: number;
+    trainingsSessions: number;
+  };
