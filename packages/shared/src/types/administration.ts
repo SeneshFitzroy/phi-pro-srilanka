@@ -230,3 +230,68 @@ export interface AreaHealthSurvey extends BaseForm {
   
   // 5-year comparison
   previousYearData?: {
+    year: number;
+    births: number;
+    deaths: number;
+    totalFacilities: number;
+  }[];
+}
+
+// ---------------------------------------------------------------------------
+// Spot Map / GIS Layer
+// ---------------------------------------------------------------------------
+
+export interface SpotMapEntry {
+  id: string;
+  phiAreaId: string;
+  gnDivision: string;
+  entryType: 'DISEASE_CASE' | 'FOOD_PREMISES' | 'SCHOOL' | 'FACTORY' | 'TEMPLE' | 'COMPLAINT' | 'OTHER';
+  label: string;
+  description?: string;
+  geoPoint: GeoPoint;
+  color: string;              // hex color for pin
+  icon?: string;
+  metadata?: Record<string, unknown>;
+  relatedFormId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Activity / Task Tracking
+// ---------------------------------------------------------------------------
+
+export interface PHITask {
+  id: string;
+  phiId: string;
+  phiAreaId: string;
+  
+  title: string;
+  description?: string;
+  domain: string;             // PHIDomain
+  taskType: 'INSPECTION' | 'FOLLOW_UP' | 'INVESTIGATION' | 'MEETING' | 'REPORT' | 'OTHER';
+  
+  scheduledDate: string;
+  scheduledTime?: string;
+  dueDate?: string;
+  
+  // Status
+  isCompleted: boolean;
+  completedAt?: string;
+  
+  // Assignment
+  assignedBy?: string;        // SPHI userId
+  reassignedFrom?: string;
+  
+  // Related
+  relatedFormId?: string;
+  relatedPremisesId?: string;
+  relatedSchoolId?: string;
+  relatedFactoryId?: string;
+  
+  priority: string;           // Priority enum
+  notes?: string;
+  
+  createdAt: string;
+  updatedAt: string;
+}
