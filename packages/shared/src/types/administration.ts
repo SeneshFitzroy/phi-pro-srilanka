@@ -263,35 +263,3 @@ export interface SpotMapEntry {
 
 export interface PHITask {
   id: string;
-  phiId: string;
-  phiAreaId: string;
-  
-  title: string;
-  description?: string;
-  domain: string;             // PHIDomain
-  taskType: 'INSPECTION' | 'FOLLOW_UP' | 'INVESTIGATION' | 'MEETING' | 'REPORT' | 'OTHER';
-  
-  scheduledDate: string;
-  scheduledTime?: string;
-  dueDate?: string;
-  
-  // Status
-  isCompleted: boolean;
-  completedAt?: string;
-  
-  // Assignment
-  assignedBy?: string;        // SPHI userId
-  reassignedFrom?: string;
-  
-  // Related
-  relatedFormId?: string;
-  relatedPremisesId?: string;
-  relatedSchoolId?: string;
-  relatedFactoryId?: string;
-  
-  priority: string;           // Priority enum
-  notes?: string;
-  
-  createdAt: string;
-  updatedAt: string;
-}
