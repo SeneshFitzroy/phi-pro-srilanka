@@ -164,3 +164,69 @@ export interface PHIMonthlyReport extends BaseForm {
     accidentsReported: number;
     trainingsSessions: number;
   };
+  
+  // Administration
+  administration: {
+    gnVisits: number;
+    mapsUpdated: number;
+    reportsCompiled: number;
+    meetingsAttended: number;
+    permitsProcessed: number;
+    complaintsHandled: number;
+  };
+  
+  // Overall
+  totalWorkDays: number;
+  totalFieldVisits: number;
+  notes?: string;
+}
+
+// ---------------------------------------------------------------------------
+// H1200 – Area Health Survey Form
+// ---------------------------------------------------------------------------
+
+export interface AreaHealthSurvey extends BaseForm {
+  formCode: 'H1200';
+  phiAreaId: string;
+  year: number;
+  
+  // Vital stats
+  births: number;
+  deaths: number;
+  infantDeaths: number;
+  maternalDeaths: number;
+  
+  // Sanitary facilities
+  sanitaryFacilities: {
+    publicToiletsTotal: number;
+    publicToiletsMale: number;
+    publicToiletsFemale: number;
+    safeWaterSources: number;
+    unsafeWaterSources: number;
+    potableWaterPercent: number;
+  };
+  
+  // Facility counts
+  facilities: {
+    restaurants: number;
+    hotels: number;
+    bars: number;
+    groceryStores: number;
+    bakeries: number;
+    meatShops: number;
+    schools: number;
+    pirivenas: number;
+    preschools: number;
+    factoriesSmall: number;
+    factoriesMedium: number;
+    factoriesLarge: number;
+    privateHospitals: number;
+    publicHospitals: number;
+    pharmacies: number;
+    welfareCenters: number;
+    religiousPlaces: number;
+    other: number;
+  };
+  
+  // 5-year comparison
+  previousYearData?: {
