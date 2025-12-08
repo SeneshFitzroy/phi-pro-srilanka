@@ -13,3 +13,18 @@ export interface Complaint {
   isAnonymous: boolean;
   complainantName?: string;
   complainantPhone?: string;
+  complainantEmail?: string;
+  
+  // Complaint details
+  category: ComplaintCategory;
+  subject: string;
+  description: string;
+  location?: string;
+  gnDivision?: string;
+  geoPoint?: GeoPoint;
+  photos?: PhotoAttachment[];
+  
+  // Target (if known)
+  targetPremisesName?: string;
+  targetPremisesAddress?: string;
+  targetPremisesId?: string;
