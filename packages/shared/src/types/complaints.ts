@@ -58,18 +58,3 @@ export interface Complaint {
 export type ComplaintCategory =
   | 'FOOD_HYGIENE'
   | 'FOOD_ADULTERATION'
-  | 'DISEASE_OUTBREAK'
-  | 'MOSQUITO_BREEDING'
-  | 'WORKPLACE_HAZARD'
-  | 'WATER_CONTAMINATION'
-  | 'SANITATION'
-  | 'NOISE_POLLUTION'
-  | 'UNLICENSED_FOOD_VENDOR'
-  | 'OTHER';
-
-/** Chat message between PHI and SPHI */
-export interface ChatMessage {
-  id: string;
-  senderId: string;
-  senderName: string;
-  senderRole: string;
