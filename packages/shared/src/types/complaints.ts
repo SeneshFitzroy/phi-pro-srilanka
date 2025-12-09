@@ -28,3 +28,18 @@ export interface Complaint {
   targetPremisesName?: string;
   targetPremisesAddress?: string;
   targetPremisesId?: string;
+  
+  // Routing
+  mohAreaId: string;
+  assignedPhiId?: string;
+  assignedDate?: string;
+  
+  // Status
+  status: ComplaintStatus;
+  priority: Priority;
+  
+  // Investigation
+  investigationNotes?: string;
+  actionTaken?: string;
+  inspectionFormId?: string;    // Linked inspection form
+  
