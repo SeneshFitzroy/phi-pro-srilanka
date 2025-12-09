@@ -18,23 +18,3 @@ export interface PermitApplication {
   applicantAddress: string;
   
   // Property / Location
-  propertyAddress: string;
-  gnDivision: string;
-  phiAreaId: string;
-  mohAreaId: string;
-  geoPoint?: GeoPoint;
-  
-  // Application details
-  description: string;
-  documents: PermitDocument[];
-  
-  // Inspection
-  inspectionScheduledDate?: string;
-  inspectedByPhiId?: string;
-  inspectionDate?: string;
-  inspectionReport?: string;
-  inspectionPhotos?: PhotoAttachment[];
-  inspectionPassed?: boolean;
-  
-  // Approval
-  status: PermitStatus;
