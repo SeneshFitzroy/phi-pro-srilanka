@@ -73,16 +73,3 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderRole: string;
-  recipientId: string;
-  recipientRole: string;
-  
-  message: string;
-  attachments?: PhotoAttachment[];
-  
-  // Context
-  relatedFormId?: string;
-  relatedComplaintId?: string;
-  
-  readAt?: string;
-  createdAt: string;
-}
