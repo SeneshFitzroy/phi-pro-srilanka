@@ -78,3 +78,43 @@ export interface PaymentRecord {
   payerEmail?: string;
   payerPhone?: string;
   
+  // Amount
+  amount: number;               // LKR
+  currency: 'LKR';
+  
+  // Related entity
+  relatedPermitId?: string;
+  relatedNoticeId?: string;
+  description: string;
+  
+  // Payment method
+  paymentMethod: 'GOVPAY_QR' | 'GOVPAY_ONLINE' | 'BANK_TRANSFER';
+  
+  // Status
+  status: PaymentStatus;
+  initiatedAt: string;
+  completedAt?: string;
+  failedReason?: string;
+  receiptNo?: string;
+  receiptUrl?: string;
+  
+  // Audit
+  processedBy?: string;        // MOH admin userId
+  verifiedAt?: string;
+  
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Certificate (Hygiene cert, permit cert, etc.) */
+export interface Certificate {
+  id: string;
+  certificateNo: string;
+  certificateType: 'HYGIENE' | 'PERMIT' | 'COMPLIANCE' | 'REGISTRATION';
+  
+  // Details
+  issuedTo: string;
+  issuedToNic?: string;
+  premisesName?: string;
+  premisesAddress?: string;
+  
