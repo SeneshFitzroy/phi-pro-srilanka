@@ -57,3 +57,44 @@ export interface PermitApplication {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PermitDocument {
+  id: string;
+  documentType: string;          // e.g., "Building Plan", "NIC Copy"
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: string;
+}
+
+/** GovPay payment record */
+export interface PaymentRecord {
+  id: string;
+  govPayRefNo?: string;         // GovPay reference
+  transactionType: 'PERMIT_FEE' | 'FINE' | 'RENEWAL_FEE' | 'OTHER';
+  
+  // Payer
+  payerName: string;
+  payerNic?: string;
+  payerEmail?: string;
+  payerPhone?: string;
+  
+  // Amount
+  amount: number;               // LKR
+  currency: 'LKR';
+  
+  // Related entity
+  relatedPermitId?: string;
+  relatedNoticeId?: string;
+  description: string;
+  
+  // Payment method
+  paymentMethod: 'GOVPAY_QR' | 'GOVPAY_ONLINE' | 'BANK_TRANSFER';
+  
+  // Status
+  status: PaymentStatus;
+  initiatedAt: string;
+  completedAt?: string;
+  failedReason?: string;
+  receiptNo?: string;
+  receiptUrl?: string;
+  
