@@ -118,3 +118,21 @@ export interface Certificate {
   premisesName?: string;
   premisesAddress?: string;
   
+  // Validity
+  issuedDate: string;
+  expiryDate: string;
+  isValid: boolean;
+  
+  // QR / Barcode
+  qrCodeData: string;          // Encoded verification URL
+  barcodeData?: string;
+  
+  // Signatures
+  signatures: DigitalSignature[];
+  
+  // PDF
+  pdfUrl?: string;
+  
+  createdAt: string;
+  updatedAt: string;
+}
