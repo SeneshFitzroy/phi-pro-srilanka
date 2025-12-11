@@ -43,3 +43,25 @@ export const SCHOOL_VACCINES = {
   MEBENDAZOLE: { frequency: 'TWICE_YEARLY', name: 'Mebendazole (Panu Beheth)' },
   IRON_VIT_C: { targetGrades: [5, 6, 7, 8, 9], gender: 'F', cycleMonths: 24, name: 'Iron + Vitamin C' },
 } as const;
+
+/** Epidemiology investigation timeline */
+export const INVESTIGATION_TIMELINE_HOURS = 48;
+
+/** Dengue cluster radius (metres) */
+export const DENGUE_CLUSTER_RADIUS_METRES = 150;
+
+/** Factory scale thresholds */
+export const FACTORY_SCALE_THRESHOLDS = {
+  SMALL: { maxWorkers: 49, label: 'Small (Sulu Paimana)' },
+  MEDIUM: { minWorkers: 50, maxWorkers: 249, label: 'Medium (Madya Paimana)' },
+  LARGE: { minWorkers: 250, label: 'Large (Mahapaimana)' },
+} as const;
+
+/** Monthly report due date */
+export const MONTHLY_REPORT_DUE_DAY = 5; // 5th of next month
+
+/** Quarantine default days */
+export const DEFAULT_QUARANTINE_DAYS = 14;
+
+/** Supported languages with labels */
+export const SUPPORTED_LANGUAGES = [
