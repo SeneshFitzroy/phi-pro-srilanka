@@ -65,3 +65,47 @@ export const DEFAULT_QUARANTINE_DAYS = 14;
 
 /** Supported languages with labels */
 export const SUPPORTED_LANGUAGES = [
+  { code: 'en', label: 'English', nativeLabel: 'English' },
+  { code: 'si', label: 'Sinhala', nativeLabel: 'සිංහල' },
+  { code: 'ta', label: 'Tamil', nativeLabel: 'தமிழ்' },
+] as const;
+
+/** Role display labels */
+export const ROLE_LABELS = {
+  PUBLIC: { en: 'Public User', si: 'පොදු පරිශීලක', ta: 'பொது பயனர்' },
+  PHI: { en: 'Public Health Inspector', si: 'මහජන සෞඛ්‍ය පරීක්ෂක', ta: 'பொது சுகாதார ஆய்வாளர்' },
+  SPHI: { en: 'Supervising PHI', si: 'අධීක්ෂණ PHI', ta: 'மேற்பார்வை PHI' },
+  MOH_ADMIN: { en: 'MOH Administrator', si: 'MOH පරිපාලක', ta: 'MOH நிர்வாகி' },
+} as const;
+
+/** Domain labels */
+export const DOMAIN_LABELS = {
+  FOOD_SAFETY: { en: 'Food Safety', si: 'ආහාර සුරක්ෂිතතාව', ta: 'உணவு பாதுகாப்பு', icon: 'utensils' },
+  SCHOOL_HEALTH: { en: 'School Health', si: 'පාසල් සෞඛ්‍ය', ta: 'பள்ளி சுகாதாரம்', icon: 'school' },
+  EPIDEMIOLOGY: { en: 'Epidemiology', si: 'වසංගත විද්‍යාව', ta: 'தொற்றுநோயியல்', icon: 'activity' },
+  OCCUPATIONAL_HEALTH: { en: 'Occupational Health', si: 'වෘත්තීය සෞඛ්‍ය', ta: 'தொழில்சார் சுகாதாரம்', icon: 'hard-hat' },
+  ADMINISTRATION: { en: 'Administration', si: 'පරිපාලනය', ta: 'நிர்வாகம்', icon: 'clipboard-list' },
+} as const;
+
+/** Group A notifiable diseases (International Quarantine) */
+export const GROUP_A_DISEASES = [
+  { code: 'CHOLERA', en: 'Cholera', si: 'කොලරාව' },
+  { code: 'YELLOW_FEVER', en: 'Yellow Fever', si: 'කහ උණ' },
+  { code: 'PLAGUE', en: 'Plague', si: 'ප්ලේගය' },
+] as const;
+
+/** Group B notifiable diseases (National) */
+export const GROUP_B_DISEASES = [
+  { code: 'DENGUE', en: 'Dengue', si: 'ඩෙංගු' },
+  { code: 'DHF', en: 'Dengue Haemorrhagic Fever', si: 'ඩෙංගු රක්තපාත උණ' },
+  { code: 'TYPHOID', en: 'Typhoid', si: 'ටයිපොයිඩ්' },
+  { code: 'POLIO', en: 'Polio', si: 'පෝලියෝ' },
+  { code: 'CHICKEN_POX', en: 'Chicken Pox', si: 'සුළු වසූරිය' },
+  { code: 'MEASLES', en: 'Measles', si: 'සරම්ප' },
+  { code: 'FOOD_POISONING', en: 'Food Poisoning', si: 'ආහාර විෂවීම' },
+  { code: 'RABIES', en: 'Human Rabies', si: 'බලු උන්මාදය' },
+  { code: 'LEPTOSPIROSIS', en: 'Leptospirosis', si: 'මී වැඩියා' },
+  { code: 'MALARIA', en: 'Malaria', si: 'මැලේරියා' },
+  { code: 'HIV', en: 'HIV/AIDS', si: 'එච්.අයි.වී.' },
+  { code: 'TB', en: 'Tuberculosis', si: 'ක්ෂය රෝගය' },
+  { code: 'MUMPS', en: 'Mumps', si: 'මම්ස්' },
