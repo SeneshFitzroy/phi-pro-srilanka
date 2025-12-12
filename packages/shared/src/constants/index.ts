@@ -109,3 +109,25 @@ export const GROUP_B_DISEASES = [
   { code: 'HIV', en: 'HIV/AIDS', si: 'එච්.අයි.වී.' },
   { code: 'TB', en: 'Tuberculosis', si: 'ක්ෂය රෝගය' },
   { code: 'MUMPS', en: 'Mumps', si: 'මම්ස්' },
+  { code: 'LEPROSY', en: 'Leprosy', si: 'ලාදුරු' },
+  { code: 'ENTERIC_FEVER', en: 'Enteric Fever', si: 'ආන්ත්‍ර ජ්වරය' },
+] as const;
+
+/** Environmental check standards */
+export const OHS_STANDARDS = {
+  maxNoiseLevelDB: 85,
+  maxTemperatureCelsius: 30,
+  minLightingLux: 300,
+} as const;
+
+/** Map defaults (Sri Lanka center) */
+export const MAP_DEFAULTS = {
+  center: { lat: 7.8731, lng: 80.7718 },
+  zoom: 7,
+  minZoom: 5,
+  maxZoom: 18,
+  style: 'mapbox://styles/mapbox/streets-v12',
+} as const;
+
+/** Pagination defaults */
+export const PAGINATION = {
