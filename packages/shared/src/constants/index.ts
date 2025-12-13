@@ -131,3 +131,24 @@ export const MAP_DEFAULTS = {
 
 /** Pagination defaults */
 export const PAGINATION = {
+  defaultPageSize: 20,
+  maxPageSize: 100,
+} as const;
+
+/** API endpoints */
+export const API_ROUTES = {
+  AUTH: '/api/auth',
+  USERS: '/api/users',
+  FOOD: '/api/food',
+  SCHOOL: '/api/school',
+  EPIDEMIOLOGY: '/api/epidemiology',
+  OCCUPATIONAL: '/api/occupational',
+  ADMINISTRATION: '/api/administration',
+  COMPLAINTS: '/api/complaints',
+  PERMITS: '/api/permits',
+  PAYMENTS: '/api/payments',
+  ALERTS: '/api/alerts',
+  ANALYTICS: '/api/analytics',
+  GIS: '/api/gis',
+  EXPORT: '/api/export',
+} as const;
