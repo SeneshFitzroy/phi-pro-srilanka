@@ -56,3 +56,22 @@ export function generateRefNo(prefix: string): string {
 }
 
 /** Format date as Sri Lankan display format (DD/MM/YYYY) */
+export function formatDateSL(isoDate: string): string {
+  const d = new Date(isoDate);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/** Check if a date is within 48 hours from now */
+export function isWithin48Hours(dateString: string): boolean {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+  return diffHours <= 48;
+}
+
+/** Get the due date for monthly report (5th of next month) */
+export function getMonthlyReportDueDate(year: number, month: number): Date {
