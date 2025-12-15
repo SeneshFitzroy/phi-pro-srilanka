@@ -113,3 +113,21 @@ export function isWithinRadius(
   lat2: number, lon2: number,
   radiusMetres: number,
 ): boolean {
+  return haversineDistance(lat1, lon1, lat2, lon2) <= radiusMetres;
+}
+
+/** Truncate string with ellipsis */
+export function truncate(str: string, maxLength: number): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 3) + '...';
+}
+
+/** Delay utility for sync */
+export function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/** Sanitize string for search */
+export function sanitizeSearch(query: string): string {
+  return query.trim().toLowerCase().replace(/[^a-z0-9\s]/gi, '');
+}
