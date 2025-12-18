@@ -59,22 +59,3 @@ export async function createDocument<T extends DocumentData>(
 ): Promise<string> {
   const docRef = await addDoc(collection(db, collectionName), {
     ...data,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
-  return docRef.id;
-}
-
-/**
- * Create or overwrite a document with specific ID
- */
-export async function setDocument<T extends DocumentData>(
-  collectionName: string,
-  docId: string,
-  data: T,
-): Promise<void> {
-  await setDoc(doc(db, collectionName, docId), {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
-}
