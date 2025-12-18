@@ -78,24 +78,3 @@ export async function setDocument<T extends DocumentData>(
     updatedAt: new Date().toISOString(),
   });
 }
-
-/**
- * Partial update of a document
- */
-export async function updateDocument(
-  collectionName: string,
-  docId: string,
-  data: Partial<DocumentData>,
-): Promise<void> {
-  await updateDoc(doc(db, collectionName, docId), {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
-}
-
-/**
- * Delete a document
- */
-export async function removeDocument(
-  collectionName: string,
-  docId: string,
