@@ -59,3 +59,63 @@ export async function createDocument<T extends DocumentData>(
 ): Promise<string> {
   const docRef = await addDoc(collection(db, collectionName), {
     ...data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  return docRef.id;
+}
+
+/**
+ * Create or overwrite a document with specific ID
+ */
+export async function setDocument<T extends DocumentData>(
+  collectionName: string,
+  docId: string,
+  data: T,
+): Promise<void> {
+  await setDoc(doc(db, collectionName, docId), {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+/**
+ * Partial update of a document
+ */
+export async function updateDocument(
+  collectionName: string,
+  docId: string,
+  data: Partial<DocumentData>,
+): Promise<void> {
+  await updateDoc(doc(db, collectionName, docId), {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+/**
+ * Delete a document
+ */
+export async function removeDocument(
+  collectionName: string,
+  docId: string,
+): Promise<void> {
+  await deleteDoc(doc(db, collectionName, docId));
+}
+
+/**
+ * Listen for real-time updates to a document
+ */
+export function subscribeToDocument<T>(
+  collectionName: string,
+  docId: string,
+  callback: (data: T | null) => void,
+): () => void {
+  const docRef = doc(db, collectionName, docId);
+  return onSnapshot(docRef, (snapshot) => {
+    if (snapshot.exists()) {
+      callback({ id: snapshot.id, ...snapshot.data() } as T);
+    } else {
+      callback(null);
+    }
+  });
