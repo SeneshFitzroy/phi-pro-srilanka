@@ -26,3 +26,31 @@ interface AuthContextValue extends AuthState {
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+async function fetchUserProfile(firebaseUser: FirebaseUser): Promise<UserProfile | null> {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+    if (userDoc.exists()) {
+      const data = userDoc.data() as UserProfile;
+      await updateDoc(doc(db, 'users', firebaseUser.uid), {
+        lastLoginAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      return { ...data, id: firebaseUser.uid, uid: firebaseUser.uid };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+}
+
+async function createUserProfile(
+  firebaseUser: FirebaseUser,
+  displayName: string,
+  role: UserRole,
+): Promise<UserProfile> {
+  const now = new Date().toISOString();
+  const profile: UserProfile = {
