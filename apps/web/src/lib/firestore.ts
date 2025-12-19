@@ -119,3 +119,22 @@ export function subscribeToDocument<T>(
       callback(null);
     }
   });
+}
+
+/**
+ * Listen for real-time updates to a collection query
+ */
+export function subscribeToCollection<T>(
+  collectionName: string,
+  constraints: QueryConstraint[],
+  callback: (data: T[]) => void,
+): () => void {
+  const q = query(collection(db, collectionName), ...constraints);
+  return onSnapshot(q, (snapshot) => {
+    const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as T));
+    callback(items);
+  });
+}
+
+// Re-export query helpers for convenience
+export { where, orderBy, limit, startAfter, collection, doc, query };
