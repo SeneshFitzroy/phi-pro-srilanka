@@ -54,3 +54,59 @@ async function createUserProfile(
 ): Promise<UserProfile> {
   const now = new Date().toISOString();
   const profile: UserProfile = {
+    id: firebaseUser.uid,
+    uid: firebaseUser.uid,
+    email: firebaseUser.email || '',
+    displayName,
+    role,
+    status: role === UserRole.PUBLIC ? AccountStatus.ACTIVE : AccountStatus.PENDING_APPROVAL,
+    preferredLanguage: Language.EN,
+    domains: [],
+    createdAt: now,
+    updatedAt: now,
+    createdBy: firebaseUser.uid,
+    lastLoginAt: now,
+  };
+  await setDoc(doc(db, 'users', firebaseUser.uid), profile);
+  return profile;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+    error: null,
+  });
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          let profile = await fetchUserProfile(firebaseUser);
+          if (!profile) {
+            profile = await createUserProfile(
+              firebaseUser,
+              firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              UserRole.PHI,
+            );
+          }
+          setState({
+            user: profile,
+            isLoading: false,
+            isAuthenticated: true,
+            error: null,
+          });
+        } catch {
+          setState({
+            user: null,
+            isLoading: false,
+            isAuthenticated: false,
+            error: 'Failed to load user profile',
+          });
+        }
+      } else {
+        setState({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false,
