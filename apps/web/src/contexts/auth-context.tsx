@@ -110,3 +110,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           user: null,
           isLoading: false,
           isAuthenticated: false,
+          error: null,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign in failed';
+      let friendly = message;
+      if (message.includes('user-not-found') || message.includes('wrong-password') || message.includes('invalid-credential')) {
+        friendly = 'Invalid email or password';
+      } else if (message.includes('too-many-requests')) {
+        friendly = 'Too many attempts. Please try again later.';
+      }
+      setState((prev) => ({ ...prev, error: friendly, isLoading: false }));
+      throw new Error(friendly);
+    }
+  }, []);
+
+  const signUp = useCallback(async (email: string, password: string, name: string, role: UserRole) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
