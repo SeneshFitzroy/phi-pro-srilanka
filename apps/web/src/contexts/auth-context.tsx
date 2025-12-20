@@ -138,3 +138,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserProfile(cred.user, name, role);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign up failed';
+      let friendly = message;
+      if (message.includes('email-already-in-use')) {
+        friendly = 'This email is already registered';
+      } else if (message.includes('weak-password')) {
+        friendly = 'Password must be at least 6 characters';
+      }
+      setState((prev) => ({ ...prev, error: friendly, isLoading: false }));
+      throw new Error(friendly);
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await firebaseSignOut(auth);
+      setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign out failed';
+      setState((prev) => ({ ...prev, error: message }));
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
+  }, []);
