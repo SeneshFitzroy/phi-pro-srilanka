@@ -21,25 +21,3 @@ i18n
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-    },
-  });
-
-interface I18nContextValue {
-  language: string;
-  setLanguage: (lang: string) => void;
-}
-
-const I18nContext = createContext<I18nContextValue>({
-  language: 'en',
-  setLanguage: () => {},
-});
-
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState(i18n.language || 'en');
-
-  const setLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
