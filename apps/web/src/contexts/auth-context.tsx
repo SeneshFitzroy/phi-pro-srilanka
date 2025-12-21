@@ -82,3 +82,113 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        try {
+          let profile = await fetchUserProfile(firebaseUser);
+          if (!profile) {
+            profile = await createUserProfile(
+              firebaseUser,
+              firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              UserRole.PHI,
+            );
+          }
+          setState({
+            user: profile,
+            isLoading: false,
+            isAuthenticated: true,
+            error: null,
+          });
+        } catch {
+          setState({
+            user: null,
+            isLoading: false,
+            isAuthenticated: false,
+            error: 'Failed to load user profile',
+          });
+        }
+      } else {
+        setState({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false,
+          error: null,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign in failed';
+      let friendly = message;
+      if (message.includes('user-not-found') || message.includes('wrong-password') || message.includes('invalid-credential')) {
+        friendly = 'Invalid email or password';
+      } else if (message.includes('too-many-requests')) {
+        friendly = 'Too many attempts. Please try again later.';
+      }
+      setState((prev) => ({ ...prev, error: friendly, isLoading: false }));
+      throw new Error(friendly);
+    }
+  }, []);
+
+  const signUp = useCallback(async (email: string, password: string, name: string, role: UserRole) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserProfile(cred.user, name, role);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign up failed';
+      let friendly = message;
+      if (message.includes('email-already-in-use')) {
+        friendly = 'This email is already registered';
+      } else if (message.includes('weak-password')) {
+        friendly = 'Password must be at least 6 characters';
+      }
+      setState((prev) => ({ ...prev, error: friendly, isLoading: false }));
+      throw new Error(friendly);
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await firebaseSignOut(auth);
+      setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign out failed';
+      setState((prev) => ({ ...prev, error: message }));
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
+  }, []);
+
+  const updateProfile = useCallback(async (data: Partial<UserProfile>) => {
+    if (!state.user) throw new Error('Not authenticated');
+    await updateDoc(doc(db, 'users', state.user.uid), {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    });
+    setState((prev) => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...data } : null,
+    }));
+  }, [state.user]);
+
+  return (
+    <AuthContext.Provider
+      value={{ ...state, signIn, signUp, signOut, resetPassword, updateProfile }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}
