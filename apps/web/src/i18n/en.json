@@ -1,0 +1,62 @@
+{
+  "app": {
+    "name": "PHI-PRO",
+    "fullName": "Digital Health Enforcement & Integrated Intelligence System",
+    "tagline": "Unified digital platform for Sri Lanka's Public Health Inspectors"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "food": "Food Safety",
+    "school": "School Health",
+    "epidemiology": "Epidemiology",
+    "occupational": "Occupational Health",
+    "administration": "Administration",
+    "complaints": "Complaints",
+    "permits": "Permits",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "profile": "Profile",
+    "signOut": "Sign Out"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "email": "Email Address",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "welcome": "Welcome back"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "totalInspections": "Total Inspections",
+    "pendingReports": "Pending Reports",
+    "activeComplaints": "Active Complaints",
+    "upcomingTasks": "Upcoming Tasks",
+    "recentActivity": "Recent Activity"
+  },
+  "food": {
+    "title": "Food Safety",
+    "inspection": "Food Inspection",
+    "newInspection": "New Inspection",
+    "premises": "Food Premises",
+    "registration": "Registration",
+    "sampling": "Food Sampling",
+    "schedule": "Inspection Schedule",
+    "gradeA": "Grade A - Excellent",
+    "gradeB": "Grade B - Good",
+    "gradeC": "Grade C - Needs Improvement",
+    "totalScore": "Total Score"
+  },
+  "school": {
+    "title": "School Health",
+    "medicalExam": "Medical Examination",
+    "monthlySummary": "Monthly Summary",
+    "washSurvey": "WASH Survey",
+    "vaccination": "Vaccination",
+    "activities": "Activities"
+  },
+  "epidemiology": {
