@@ -19,3 +19,24 @@
     "profile": "Profile",
     "signOut": "Sign Out"
   },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "email": "Email Address",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "welcome": "Welcome back"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "totalInspections": "Total Inspections",
+    "pendingReports": "Pending Reports",
+    "activeComplaints": "Active Complaints",
+    "upcomingTasks": "Upcoming Tasks",
+    "recentActivity": "Recent Activity"
+  },
+  "food": {
+    "title": "Food Safety",
