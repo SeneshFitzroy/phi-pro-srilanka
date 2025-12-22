@@ -60,3 +60,24 @@
     "activities": "Activities"
   },
   "epidemiology": {
+    "title": "Epidemiology",
+    "notification": "Disease Notification",
+    "investigation": "Investigation",
+    "weeklyReturn": "Weekly Return",
+    "monthlyReport": "Monthly Report",
+    "outbreak": "Outbreak",
+    "hotspotMap": "Hotspot Map"
+  },
+  "occupational": {
+    "title": "Occupational Health",
+    "factoryInspection": "Factory Inspection",
+    "safetyReport": "Safety Report",
+    "workerSurvey": "Worker Survey",
+    "ohsChecklist": "OHS Checklist"
+  },
+  "administration": {
+    "title": "Administration",
+    "gnMapping": "GN Mapping",
+    "statistics": "Statistics",
+    "monthlyReport": "Monthly Report",
+    "areaSurvey": "Area Survey",
