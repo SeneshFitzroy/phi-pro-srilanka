@@ -102,3 +102,22 @@
     "back": "Back",
     "next": "Next",
     "date": "Date",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "status": {
+    "draft": "Draft",
+    "pending": "Pending Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "completed": "Completed"
+  },
+  "public": {
+    "title": "Public Portal",
+    "checkGrade": "Check Food Hygiene Grade",
+    "submitComplaint": "Submit a Complaint",
+    "diseaseAlerts": "Disease Alerts",
+    "payFine": "Pay Fine / Fee",
+    "verifyCertificate": "Verify Certificate"
+  }
+}
