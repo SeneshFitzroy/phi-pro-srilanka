@@ -40,23 +40,3 @@
   },
   "food": {
     "title": "ආහාර සුරක්ෂිතතාව",
-    "inspection": "ආහාර පරීක්ෂණය",
-    "newInspection": "නව පරීක්ෂණය",
-    "premises": "ආහාර පරිශ්‍රය",
-    "registration": "ලියාපදිංචිය",
-    "sampling": "ආහාර සාම්පල",
-    "schedule": "පරීක්ෂණ කාලසටහන",
-    "gradeA": "ශ්‍රේණිය A - විශිෂ්ට",
-    "gradeB": "ශ්‍රේණිය B - හොඳ",
-    "gradeC": "ශ්‍රේණිය C - වැඩිදියුණු කළ යුතුය",
-    "totalScore": "මුළු ලකුණු"
-  },
-  "school": {
-    "title": "පාසල් සෞඛ්‍ය",
-    "medicalExam": "වෛද්‍ය පරීක්ෂණය",
-    "monthlySummary": "මාසික සාරාංශය",
-    "washSurvey": "WASH සමීක්ෂණය",
-    "vaccination": "එන්නත්කරණය",
-    "activities": "ක්‍රියාකාරකම්"
-  },
-  "epidemiology": {
