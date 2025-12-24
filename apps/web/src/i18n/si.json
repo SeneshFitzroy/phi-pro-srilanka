@@ -60,24 +60,3 @@
     "activities": "ක්‍රියාකාරකම්"
   },
   "epidemiology": {
-    "title": "වසංගත විද්‍යාව",
-    "notification": "රෝග දැනුම්දීම",
-    "investigation": "විමර්ශනය",
-    "weeklyReturn": "සතිපතා ප්‍රත්‍යාවර්තය",
-    "monthlyReport": "මාසික වාර්තාව",
-    "outbreak": "පිපිරීම",
-    "hotspotMap": "හොට්ස්පොට් සිතියම"
-  },
-  "occupational": {
-    "title": "වෘත්තීය සෞඛ්‍ය",
-    "factoryInspection": "කර්මාන්තශාලා පරීක්ෂණය",
-    "safetyReport": "ආරක්ෂණ වාර්තාව",
-    "workerSurvey": "කම්කරු සමීක්ෂණය",
-    "ohsChecklist": "OHS පිරික්සුම් ලැයිස්තුව"
-  },
-  "administration": {
-    "title": "පරිපාලනය",
-    "gnMapping": "ග්‍රා.නි. සිතියම්ගත කිරීම",
-    "statistics": "සංඛ්‍යා ලේඛන",
-    "monthlyReport": "මාසික වාර්තාව",
-    "areaSurvey": "ප්‍රදේශ සමීක්ෂණය",
