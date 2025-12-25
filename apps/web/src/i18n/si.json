@@ -40,3 +40,84 @@
   },
   "food": {
     "title": "ආහාර සුරක්ෂිතතාව",
+    "inspection": "ආහාර පරීක්ෂණය",
+    "newInspection": "නව පරීක්ෂණය",
+    "premises": "ආහාර පරිශ්‍රය",
+    "registration": "ලියාපදිංචිය",
+    "sampling": "ආහාර සාම්පල",
+    "schedule": "පරීක්ෂණ කාලසටහන",
+    "gradeA": "ශ්‍රේණිය A - විශිෂ්ට",
+    "gradeB": "ශ්‍රේණිය B - හොඳ",
+    "gradeC": "ශ්‍රේණිය C - වැඩිදියුණු කළ යුතුය",
+    "totalScore": "මුළු ලකුණු"
+  },
+  "school": {
+    "title": "පාසල් සෞඛ්‍ය",
+    "medicalExam": "වෛද්‍ය පරීක්ෂණය",
+    "monthlySummary": "මාසික සාරාංශය",
+    "washSurvey": "WASH සමීක්ෂණය",
+    "vaccination": "එන්නත්කරණය",
+    "activities": "ක්‍රියාකාරකම්"
+  },
+  "epidemiology": {
+    "title": "වසංගත විද්‍යාව",
+    "notification": "රෝග දැනුම්දීම",
+    "investigation": "විමර්ශනය",
+    "weeklyReturn": "සතිපතා ප්‍රත්‍යාවර්තය",
+    "monthlyReport": "මාසික වාර්තාව",
+    "outbreak": "පිපිරීම",
+    "hotspotMap": "හොට්ස්පොට් සිතියම"
+  },
+  "occupational": {
+    "title": "වෘත්තීය සෞඛ්‍ය",
+    "factoryInspection": "කර්මාන්තශාලා පරීක්ෂණය",
+    "safetyReport": "ආරක්ෂණ වාර්තාව",
+    "workerSurvey": "කම්කරු සමීක්ෂණය",
+    "ohsChecklist": "OHS පිරික්සුම් ලැයිස්තුව"
+  },
+  "administration": {
+    "title": "පරිපාලනය",
+    "gnMapping": "ග්‍රා.නි. සිතියම්ගත කිරීම",
+    "statistics": "සංඛ්‍යා ලේඛන",
+    "monthlyReport": "මාසික වාර්තාව",
+    "areaSurvey": "ප්‍රදේශ සමීක්ෂණය",
+    "spotMap": "ස්ථාන සිතියම"
+  },
+  "common": {
+    "save": "සුරකින්න",
+    "cancel": "අවලංගු කරන්න",
+    "delete": "මකන්න",
+    "edit": "සංස්කරණය",
+    "view": "බලන්න",
+    "submit": "ඉදිරිපත් කරන්න",
+    "approve": "අනුමත කරන්න",
+    "reject": "ප්‍රතික්ෂේප කරන්න",
+    "search": "සොයන්න",
+    "filter": "පෙරන්න",
+    "export": "අපනයනය",
+    "print": "මුද්‍රණය",
+    "loading": "පූරණය වෙමින්...",
+    "noData": "දත්ත නැත",
+    "confirm": "තහවුරු කරන්න",
+    "back": "ආපසු",
+    "next": "ඊළඟ",
+    "date": "දිනය",
+    "status": "තත්ත්වය",
+    "actions": "ක්‍රියාමාර්ග"
+  },
+  "status": {
+    "draft": "කෙටුම්පත",
+    "pending": "සමාලෝචනය අපේක්ෂිතයි",
+    "approved": "අනුමත කරන ලදී",
+    "rejected": "ප්‍රතික්ෂේප කරන ලදී",
+    "completed": "සම්පූර්ණයි"
+  },
+  "public": {
+    "title": "මහජන ද්වාරය",
+    "checkGrade": "ආහාර සනීපාරක්ෂක ශ්‍රේණිය පරීක්ෂා කරන්න",
+    "submitComplaint": "පැමිණිල්ලක් ඉදිරිපත් කරන්න",
+    "diseaseAlerts": "රෝග ඇඟවීම්",
+    "payFine": "දඩ / ගාස්තු ගෙවන්න",
+    "verifyCertificate": "සහතිකය සත්‍යාපනය කරන්න"
+  }
+}
