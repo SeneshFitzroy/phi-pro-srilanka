@@ -90,26 +90,3 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* 5 Domains */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="mb-8 text-center text-2xl font-bold">Five Core Domains</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {[
-            {
-              icon: FoodIcon,
-              title: 'Food Safety',
-              color: 'text-food bg-food-light',
-              desc: 'H800 inspections, grading, sampling & enforcement',
-            },
-            {
-              icon: SchoolIcon,
-              title: 'School Health',
-              color: 'text-school bg-school-light',
-              desc: 'Medical exams, vaccinations, WASH surveys',
-            },
-            {
-              icon: EpiIcon,
-              title: 'Epidemiology',
-              color: 'text-epidemiology bg-epidemiology-light',
-              desc: 'Disease surveillance, investigation & outbreak response',
