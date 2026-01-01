@@ -136,3 +136,25 @@ export default function HomePage() {
               >
                 <domain.icon className="h-6 w-6" />
               </div>
+              <h3 className="mt-3 font-semibold">{domain.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{domain.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-card py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>
+            &copy; {new Date().getFullYear()} PHI-PRO &mdash; Digital Health Enforcement &
+            Integrated Intelligence System
+          </p>
+          <p className="mt-1">
+            Ministry of Health, Sri Lanka &bull; Public Health Inspector Service
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
