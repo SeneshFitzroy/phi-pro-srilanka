@@ -17,3 +17,23 @@ const languages = [
   { code: 'si', label: 'සිං' },
   { code: 'ta', label: 'தமி' },
 ];
+
+export default function LoginPage() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { signIn, isLoading, error } = useAuth();
+  const { language, setLanguage } = useLanguage();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signIn(email, password);
+      router.push('/dashboard');
+    } catch {
+      // error is already set in auth context
+    }
+  };
