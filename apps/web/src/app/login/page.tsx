@@ -57,3 +57,80 @@ export default function LoginPage() {
           </button>
         ))}
       </div>
+
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <Shield className="h-8 w-8 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">PHI-PRO</CardTitle>
+          <CardDescription>{t('auth.welcome')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">{t('auth.email')}</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="phi@health.gov.lk"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">{t('auth.password')}</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t('auth.forgotPassword')}
+                </Link>
+              </div>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? t('common.loading') : t('auth.signIn')}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <Link href="/public" className="text-primary hover:underline">
+              {t('public.title')} &rarr;
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        Ministry of Health, Sri Lanka &bull; Public Health Inspector Service
+      </p>
+    </div>
+  );
+}
