@@ -39,22 +39,3 @@ export default function ForgotPasswordPage() {
                 <p className="text-sm text-muted-foreground mt-1">Enter your email to receive a password reset link</p>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" type="email" required placeholder="your.email@health.gov.lk" value={email} onChange={e => setEmail(e.target.value)} />
-                  </div>
-                </div>
-                <Button type="submit" className="w-full">Send Reset Link</Button>
-              </form>
-              <div className="text-center text-sm">
-                <Link href="/login" className="text-primary hover:underline">Back to Login</Link>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
