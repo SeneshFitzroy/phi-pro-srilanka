@@ -19,3 +19,42 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8 space-y-6">
+          {sent ? (
+            <div className="text-center space-y-4">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+              <h1 className="text-xl font-bold">Check Your Email</h1>
+              <p className="text-sm text-muted-foreground">We&apos;ve sent a password reset link to <strong>{email}</strong>. Check your inbox (and spam folder).</p>
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" onClick={() => setSent(false)}>Try Another Email</Button>
+                <Link href="/login"><Button className="w-full">Back to Login</Button></Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-center">
+                <Lock className="h-12 w-12 text-primary mx-auto mb-3" />
+                <h1 className="text-xl font-bold">Forgot Password?</h1>
+                <p className="text-sm text-muted-foreground mt-1">Enter your email to receive a password reset link</p>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input className="pl-9" type="email" required placeholder="your.email@health.gov.lk" value={email} onChange={e => setEmail(e.target.value)} />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full">Send Reset Link</Button>
+              </form>
+              <div className="text-center text-sm">
+                <Link href="/login" className="text-primary hover:underline">Back to Login</Link>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
