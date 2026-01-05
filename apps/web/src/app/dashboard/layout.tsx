@@ -150,28 +150,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <Settings className="h-5 w-5" />
             {!collapsed && <span>{t('nav.settings')}</span>}
-          </Link>
-        </div>
-      </aside>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
-        <header className="flex h-16 items-center justify-between border-b bg-card px-4">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="text-muted-foreground hover:text-foreground lg:hidden"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
-          <div className="flex items-center gap-3 ml-auto">
-            {/* Language Switcher */}
