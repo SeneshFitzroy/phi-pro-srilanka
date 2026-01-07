@@ -84,3 +84,25 @@ export default function DashboardPage() {
             <CardContent className="flex items-center gap-4 p-4">
               <div className={`rounded-lg p-2.5 ${stat.color}`}>
                 <stat.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{t(stat.titleKey)}</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <span
+                    className={`text-xs font-medium ${
+                      stat.trend === 'up'
+                        ? 'text-green-600'
+                        : stat.trend === 'down'
+                          ? 'text-red-600'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {stat.change}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
