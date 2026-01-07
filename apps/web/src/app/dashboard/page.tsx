@@ -106,3 +106,44 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Domain Quick Access */}
+      <div>
+        <h2 className="mb-3 text-lg font-semibold">Five Core Domains</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {domainCards.map((domain) => (
+            <a
+              key={domain.titleKey}
+              href={domain.href}
+              className={`group rounded-xl border p-4 transition-shadow hover:shadow-md ${domain.color}`}
+            >
+              <domain.icon className="h-8 w-8" />
+              <h3 className="mt-2 font-semibold">{t(domain.titleKey)}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{domain.stats}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{t('dashboard.recentActivity')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {recentActivity.map((item, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent/50">
+                <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                <div className="flex-1">
+                  <p className="text-sm">{item.text}</p>
+                  <p className="text-xs text-muted-foreground">{item.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
