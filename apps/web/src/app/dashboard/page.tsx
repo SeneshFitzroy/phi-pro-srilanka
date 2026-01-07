@@ -127,23 +127,3 @@ export default function DashboardPage() {
 
       {/* Recent Activity */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('dashboard.recentActivity')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recentActivity.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent/50">
-                <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                <div className="flex-1">
-                  <p className="text-sm">{item.text}</p>
-                  <p className="text-xs text-muted-foreground">{item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
