@@ -68,3 +68,37 @@ export default function PublicPortalPage() {
               href: '/public/payments',
               color: 'text-amber-600 bg-amber-50',
             },
+            {
+              icon: CheckCircle,
+              title: 'Verify Certificate',
+              desc: 'Scan QR code or enter certificate number to verify authenticity.',
+              href: '/public/verify',
+              color: 'text-green-600 bg-green-50',
+            },
+          ].map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className={`inline-flex rounded-lg p-2.5 ${item.color}`}>
+                <item.icon className="h-6 w-6" />
+              </div>
+              <h3 className="mt-3 font-semibold">{item.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
+              <span className="mt-3 inline-flex items-center text-sm text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                Open <ArrowRight className="ml-1 h-3 w-3" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </main>
+
+      <footer className="mt-12 border-t bg-card py-6">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          &copy; {new Date().getFullYear()} PHI-PRO &mdash; Ministry of Health, Sri Lanka
+        </div>
+      </footer>
+    </div>
+  );
+}
