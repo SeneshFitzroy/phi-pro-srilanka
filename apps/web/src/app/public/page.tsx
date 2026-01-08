@@ -51,3 +51,38 @@ export default function PublicPortalPage() {
               icon: MessageSquare,
               title: 'Submit a Complaint',
               desc: 'Report food safety issues, disease concerns, or workplace hazards anonymously.',
+              href: '/public/complaints',
+              color: 'text-blue-600 bg-blue-50',
+            },
+            {
+              icon: AlertTriangle,
+              title: 'Disease Alerts',
+              desc: 'View active disease outbreak alerts and safety advisories in your area.',
+              href: '/public/alerts',
+              color: 'text-epidemiology bg-epidemiology-light',
+            },
+            {
+              icon: CreditCard,
+              title: 'Pay Fine / Fee',
+              desc: 'Pay permit fees, compliance fines, or renewal charges online via GovPay.',
+              href: '/public/payments',
+              color: 'text-amber-600 bg-amber-50',
+            },
+            {
+              icon: CheckCircle,
+              title: 'Verify Certificate',
+              desc: 'Scan QR code or enter certificate number to verify authenticity.',
+              href: '/public/verify',
+              color: 'text-green-600 bg-green-50',
+            },
+          ].map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className={`inline-flex rounded-lg p-2.5 ${item.color}`}>
+                <item.icon className="h-6 w-6" />
+              </div>
+              <h3 className="mt-3 font-semibold">{item.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
