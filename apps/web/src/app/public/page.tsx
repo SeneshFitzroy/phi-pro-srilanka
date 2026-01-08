@@ -33,3 +33,21 @@ export default function PublicPortalPage() {
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="text-3xl font-bold">Public Portal</h1>
           <p className="mt-2 text-muted-foreground">
+            Access public health information, check food hygiene grades, submit complaints, and
+            more.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              icon: Search,
+              title: 'Check Food Hygiene Grade',
+              desc: 'Search restaurants and food establishments by name or area to view their hygiene grade.',
+              href: '/public/food-grades',
+              color: 'text-food bg-food-light',
+            },
+            {
+              icon: MessageSquare,
+              title: 'Submit a Complaint',
+              desc: 'Report food safety issues, disease concerns, or workplace hazards anonymously.',
