@@ -68,21 +68,3 @@ export default function PublicPortalPage() {
               href: '/public/payments',
               color: 'text-amber-600 bg-amber-50',
             },
-            {
-              icon: CheckCircle,
-              title: 'Verify Certificate',
-              desc: 'Scan QR code or enter certificate number to verify authenticity.',
-              href: '/public/verify',
-              color: 'text-green-600 bg-green-50',
-            },
-          ].map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className="group rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className={`inline-flex rounded-lg p-2.5 ${item.color}`}>
-                <item.icon className="h-6 w-6" />
-              </div>
-              <h3 className="mt-3 font-semibold">{item.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
