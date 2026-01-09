@@ -53,3 +53,58 @@ function GradeBadge({ grade }: { grade: string }) {
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${colors[grade as keyof typeof colors] || ''}`}>
       Grade {grade}
     </span>
+  );
+}
+
+export default function FoodModulePage() {
+  const { t } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-food-light p-2">
+            <UtensilsCrossed className="h-6 w-6 text-food" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Food Safety & Hygiene</h1>
+            <p className="text-sm text-muted-foreground">H800 Inspections, Registration, Sampling & Enforcement</p>
+          </div>
+        </div>
+        <Link href="/dashboard/food/inspection/new">
+          <Button className="bg-food hover:bg-food-dark">
+            <Plus className="mr-2 h-4 w-4" /> New Inspection
+          </Button>
+        </Link>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {foodStats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className={`rounded-lg p-2.5 ${stat.color}`}>
+                <stat.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.change}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {quickActions.map((action) => (
+          <Link key={action.href} href={action.href}>
+            <Card className="group cursor-pointer transition-shadow hover:shadow-md hover:border-food/50">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="rounded-lg bg-food-light p-2 group-hover:bg-food/20">
+                  <action.icon className="h-5 w-5 text-food" />
+                </div>
+                <div className="flex-1">
