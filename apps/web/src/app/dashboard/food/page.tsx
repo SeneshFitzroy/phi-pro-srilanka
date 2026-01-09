@@ -79,32 +79,3 @@ export default function FoodModulePage() {
           </Button>
         </Link>
       </div>
-
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {foodStats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className={`rounded-lg p-2.5 ${stat.color}`}>
-                <stat.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.change}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {quickActions.map((action) => (
-          <Link key={action.href} href={action.href}>
-            <Card className="group cursor-pointer transition-shadow hover:shadow-md hover:border-food/50">
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="rounded-lg bg-food-light p-2 group-hover:bg-food/20">
-                  <action.icon className="h-5 w-5 text-food" />
-                </div>
-                <div className="flex-1">
