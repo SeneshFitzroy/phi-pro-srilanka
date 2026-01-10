@@ -162,29 +162,3 @@ export default function FoodModulePage() {
                       <td className="py-3 pr-4 font-mono text-xs">{item.id}</td>
                       <td className="py-3 pr-4 font-medium">{item.premises}</td>
                       <td className="py-3 pr-4"><GradeBadge grade={item.grade} /></td>
-                      <td className="py-3 pr-4">{item.score}/100</td>
-                      <td className="py-3 pr-4 text-muted-foreground">{item.date}</td>
-                      <td className="py-3 pr-4">
-                        <span className={`text-xs font-medium ${
-                          item.status === 'Approved' ? 'text-green-600' :
-                          item.status === 'Follow-up Required' ? 'text-red-600' :
-                          'text-amber-600'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="py-3">
-                        <Link href={`/dashboard/food/inspection/${item.id}`}>
-                          <Button variant="ghost" size="sm">View</Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
