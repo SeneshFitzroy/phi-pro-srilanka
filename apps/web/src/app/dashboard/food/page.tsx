@@ -135,3 +135,56 @@ export default function FoodModulePage() {
             <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left text-sm text-muted-foreground">
+                  <th className="pb-3 pr-4 font-medium">ID</th>
+                  <th className="pb-3 pr-4 font-medium">Premises</th>
+                  <th className="pb-3 pr-4 font-medium">Grade</th>
+                  <th className="pb-3 pr-4 font-medium">Score</th>
+                  <th className="pb-3 pr-4 font-medium">Date</th>
+                  <th className="pb-3 pr-4 font-medium">Status</th>
+                  <th className="pb-3 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {recentInspections
+                  .filter((i) =>
+                    i.premises.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.id.toLowerCase().includes(searchQuery.toLowerCase()),
+                  )
+                  .map((item) => (
+                    <tr key={item.id} className="border-b last:border-0 hover:bg-accent/50">
+                      <td className="py-3 pr-4 font-mono text-xs">{item.id}</td>
+                      <td className="py-3 pr-4 font-medium">{item.premises}</td>
+                      <td className="py-3 pr-4"><GradeBadge grade={item.grade} /></td>
+                      <td className="py-3 pr-4">{item.score}/100</td>
+                      <td className="py-3 pr-4 text-muted-foreground">{item.date}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`text-xs font-medium ${
+                          item.status === 'Approved' ? 'text-green-600' :
+                          item.status === 'Follow-up Required' ? 'text-red-600' :
+                          'text-amber-600'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <Link href={`/dashboard/food/inspection/${item.id}`}>
+                          <Button variant="ghost" size="sm">View</Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
