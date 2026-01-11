@@ -37,3 +37,41 @@ const scoringSections = [
     ],
   },
   {
+    id: 'hygiene',
+    title: 'Personal Hygiene',
+    titleSi: 'පුද්ගලික සනීපාරක්ෂාව',
+    maxScore: 20,
+    items: [
+      { id: 'uniforms', label: 'Staff Uniforms/Attire', max: 5 },
+      { id: 'handwashing', label: 'Hand Washing Practices', max: 5 },
+      { id: 'healthCerts', label: 'Health Certificates', max: 5 },
+      { id: 'cleanliness', label: 'Personal Cleanliness', max: 5 },
+    ],
+  },
+  {
+    id: 'foodHandling',
+    title: 'Food Handling & Storage',
+    titleSi: 'ආහාර හැසිරවීම සහ ගබඩා කිරීම',
+    maxScore: 25,
+    items: [
+      { id: 'coldStorage', label: 'Cold Storage (<5°C)', max: 5 },
+      { id: 'hotHolding', label: 'Hot Holding (>60°C)', max: 5 },
+      { id: 'crossContamination', label: 'Cross-Contamination Prevention', max: 5 },
+      { id: 'rawCookedSeparation', label: 'Raw/Cooked Separation', max: 5 },
+      { id: 'dateLabeling', label: 'Date Labeling', max: 5 },
+    ],
+  },
+  {
+    id: 'equipment',
+    title: 'Equipment & Utensils',
+    titleSi: 'උපකරණ සහ භාජන',
+    maxScore: 10,
+    items: [
+      { id: 'eqCleanliness', label: 'Cleanliness', max: 3 },
+      { id: 'calibration', label: 'Calibration', max: 2 },
+      { id: 'condition', label: 'General Condition', max: 3 },
+      { id: 'rustFree', label: 'Rust-Free', max: 2 },
+    ],
+  },
+  {
+    id: 'waste',
