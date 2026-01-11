@@ -114,3 +114,41 @@ export default function NewFoodInspectionPage() {
   const [scores, setScores] = useState<Scores>({});
   const [premisesInfo, setPremisesInfo] = useState({
     premisesName: '',
+    ownerName: '',
+    address: '',
+    gnDivision: '',
+    registrationNo: '',
+    riskLevel: 'HIGH',
+    foodType: '',
+  });
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleScoreChange = useCallback((itemId: string, value: number, max: number) => {
+    const clamped = Math.min(Math.max(0, value), max);
+    setScores((prev) => ({ ...prev, [itemId]: clamped }));
+  }, []);
+
+  const totalScore = useMemo(() => {
+    return Object.values(scores).reduce((sum, v) => sum + (v || 0), 0);
+  }, [scores]);
+
+  const gradeInfo = useMemo(() => getGrade(totalScore), [totalScore]);
+
+  const sectionTotal = useCallback(
+    (sectionId: string) => {
+      const section = scoringSections.find((s) => s.id === sectionId);
+      if (!section) return 0;
+      return section.items.reduce((sum, item) => sum + (scores[item.id] || 0), 0);
+    },
+    [scores],
+  );
+
+  const handleSaveDraft = async () => {
+    setIsSaving(true);
+    try {
+      // In a real app, this would save to Firestore
+      toast.success('Draft saved successfully');
+    } finally {
+      setIsSaving(false);
+    }
