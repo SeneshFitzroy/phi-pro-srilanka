@@ -75,3 +75,42 @@ const scoringSections = [
   },
   {
     id: 'waste',
+    title: 'Waste & Sanitation',
+    titleSi: 'අපද්‍රව්‍ය සහ සනීපාරක්ෂාව',
+    maxScore: 10,
+    items: [
+      { id: 'disposal', label: 'Waste Disposal', max: 3 },
+      { id: 'drainage', label: 'Drainage System', max: 2 },
+      { id: 'toilets', label: 'Toilet Access & Cleanliness', max: 3 },
+      { id: 'bins', label: 'Bin Condition', max: 2 },
+    ],
+  },
+  {
+    id: 'documentation',
+    title: 'Documentation & Records',
+    titleSi: 'ලේඛන සහ වාර්තා',
+    maxScore: 5,
+    items: [
+      { id: 'supplierRecords', label: 'Supplier Records', max: 1 },
+      { id: 'pestLog', label: 'Pest Control Log', max: 1 },
+      { id: 'cleaningSchedule', label: 'Cleaning Schedule', max: 1 },
+      { id: 'staffTraining', label: 'Staff Training Records', max: 1 },
+      { id: 'haccp', label: 'HACCP Compliance', max: 1 },
+    ],
+  },
+];
+
+function getGrade(score: number): { grade: string; color: string; label: string } {
+  if (score >= 90) return { grade: 'A', color: 'text-green-600 bg-green-100 border-green-200', label: 'Excellent - Grade A' };
+  if (score >= 75) return { grade: 'B', color: 'text-amber-600 bg-amber-100 border-amber-200', label: 'Good - Grade B' };
+  return { grade: 'C', color: 'text-red-600 bg-red-100 border-red-200', label: 'Needs Improvement - Grade C' };
+}
+
+type Scores = Record<string, number>;
+
+export default function NewFoodInspectionPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [scores, setScores] = useState<Scores>({});
+  const [premisesInfo, setPremisesInfo] = useState({
+    premisesName: '',
