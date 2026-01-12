@@ -190,3 +190,42 @@ export default function NewFoodInspectionPage() {
           <Button onClick={handleSubmit} disabled={isSaving} className="bg-food hover:bg-food-dark">
             <Send className="mr-2 h-4 w-4" /> Submit
           </Button>
+        </div>
+      </div>
+
+      {/* Live Grade Display */}
+      <Card className={`border-2 ${gradeInfo.color}`}>
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <div className={`flex h-16 w-16 items-center justify-center rounded-xl border-2 ${gradeInfo.color} text-3xl font-bold`}>
+              {totalScore > 0 ? gradeInfo.grade : '—'}
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalScore}/100 Points</p>
+              <p className="text-sm text-muted-foreground">{gradeInfo.label}</p>
+            </div>
+          </div>
+          <div className="flex gap-4 text-center text-sm">
+            <div><p className="font-bold text-green-600">A: 90-100</p></div>
+            <div><p className="font-bold text-amber-600">B: 75-89</p></div>
+            <div><p className="font-bold text-red-600">C: &lt;75</p></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Premises Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Info className="h-5 w-5 text-food" /> Premises Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="premisesName">Premises Name *</Label>
+              <Input
+                id="premisesName"
+                value={premisesInfo.premisesName}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, premisesName: e.target.value }))}
+                placeholder="e.g., Saman Hotel"
