@@ -152,3 +152,118 @@ export default function NewFoodInspectionPage() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!premisesInfo.premisesName || !premisesInfo.ownerName) {
+      toast.error('Please fill in premises name and owner name');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      toast.success(`Inspection submitted — Grade ${gradeInfo.grade} (${totalScore}/100)`);
+      router.push('/dashboard/food');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/food">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">New Food Inspection (H800)</h1>
+            <p className="text-sm text-muted-foreground">100-Point Scoring System with Auto-Grading</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleSaveDraft} disabled={isSaving}>
+            <Save className="mr-2 h-4 w-4" /> Save Draft
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSaving} className="bg-food hover:bg-food-dark">
+            <Send className="mr-2 h-4 w-4" /> Submit
+          </Button>
+        </div>
+      </div>
+
+      {/* Live Grade Display */}
+      <Card className={`border-2 ${gradeInfo.color}`}>
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <div className={`flex h-16 w-16 items-center justify-center rounded-xl border-2 ${gradeInfo.color} text-3xl font-bold`}>
+              {totalScore > 0 ? gradeInfo.grade : '—'}
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalScore}/100 Points</p>
+              <p className="text-sm text-muted-foreground">{gradeInfo.label}</p>
+            </div>
+          </div>
+          <div className="flex gap-4 text-center text-sm">
+            <div><p className="font-bold text-green-600">A: 90-100</p></div>
+            <div><p className="font-bold text-amber-600">B: 75-89</p></div>
+            <div><p className="font-bold text-red-600">C: &lt;75</p></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Premises Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Info className="h-5 w-5 text-food" /> Premises Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="premisesName">Premises Name *</Label>
+              <Input
+                id="premisesName"
+                value={premisesInfo.premisesName}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, premisesName: e.target.value }))}
+                placeholder="e.g., Saman Hotel"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ownerName">Owner Name *</Label>
+              <Input
+                id="ownerName"
+                value={premisesInfo.ownerName}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, ownerName: e.target.value }))}
+                placeholder="Full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registrationNo">Registration No.</Label>
+              <Input
+                id="registrationNo"
+                value={premisesInfo.registrationNo}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, registrationNo: e.target.value }))}
+                placeholder="H801-XXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={premisesInfo.address}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, address: e.target.value }))}
+                placeholder="Full address"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gnDivision">GN Division</Label>
+              <Input
+                id="gnDivision"
+                value={premisesInfo.gnDivision}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, gnDivision: e.target.value }))}
+                placeholder="e.g., 547A"
+              />
+            </div>
