@@ -305,3 +305,80 @@ export default function NewFoodInspectionPage() {
               </Button>
               <Button variant="outline" className="gap-2">
                 <Camera className="h-4 w-4" /> Add Photo
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Scoring Sections */}
+      {scoringSections.map((section) => (
+        <Card key={section.id}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{section.title}</CardTitle>
+              <span className="text-sm font-bold text-food">
+                {sectionTotal(section.id)}/{section.maxScore}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">{section.titleSi}</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {section.items.map((item) => (
+                <div key={item.id} className="flex items-center gap-4">
+                  <label className="flex-1 text-sm">{item.label}</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={item.max}
+                      value={scores[item.id] ?? ''}
+                      onChange={(e) => handleScoreChange(item.id, parseInt(e.target.value) || 0, item.max)}
+                      className="w-20 text-center"
+                      placeholder="0"
+                    />
+                    <span className="text-xs text-muted-foreground w-12">/ {item.max}</span>
+                    <div className="w-24 rounded-full bg-secondary h-2">
+                      <div
+                        className="h-2 rounded-full bg-food transition-all"
+                        style={{ width: `${((scores[item.id] || 0) / item.max) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3">
+              <Label className="text-xs text-muted-foreground">Section Notes</Label>
+              <textarea
+                value={notes[section.id] || ''}
+                onChange={(e) => setNotes((prev) => ({ ...prev, [section.id]: e.target.value }))}
+                placeholder="Add observations..."
+                className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[60px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Enforcement Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <AlertTriangle className="h-5 w-5 text-amber-500" /> Enforcement Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Notice Type</Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <option value="">No notice required</option>
+                <option value="IMPROVEMENT">Improvement Notice (7 days)</option>
+                <option value="CLOSURE">Closure Notice (Immediate)</option>
+                <option value="WARNING">Warning Letter</option>
+                <option value="COURT_SUMMONS">Court Summons</option>
+              </select>
+            </div>
+            <div className="space-y-2">
