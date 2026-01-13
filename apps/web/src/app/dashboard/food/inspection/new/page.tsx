@@ -229,3 +229,118 @@ export default function NewFoodInspectionPage() {
                 value={premisesInfo.premisesName}
                 onChange={(e) => setPremisesInfo((p) => ({ ...p, premisesName: e.target.value }))}
                 placeholder="e.g., Saman Hotel"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ownerName">Owner Name *</Label>
+              <Input
+                id="ownerName"
+                value={premisesInfo.ownerName}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, ownerName: e.target.value }))}
+                placeholder="Full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registrationNo">Registration No.</Label>
+              <Input
+                id="registrationNo"
+                value={premisesInfo.registrationNo}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, registrationNo: e.target.value }))}
+                placeholder="H801-XXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={premisesInfo.address}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, address: e.target.value }))}
+                placeholder="Full address"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gnDivision">GN Division</Label>
+              <Input
+                id="gnDivision"
+                value={premisesInfo.gnDivision}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, gnDivision: e.target.value }))}
+                placeholder="e.g., 547A"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="foodType">Food Type</Label>
+              <select
+                id="foodType"
+                value={premisesInfo.foodType}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, foodType: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">Select type...</option>
+                <option value="restaurant">Restaurant</option>
+                <option value="bakery">Bakery</option>
+                <option value="hotel">Hotel</option>
+                <option value="grocery">Grocery Store</option>
+                <option value="meat_fish">Meat/Fish Shop</option>
+                <option value="tea_shop">Tea Shop</option>
+                <option value="street_vendor">Street Vendor</option>
+                <option value="food_factory">Food Factory</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="riskLevel">Risk Level</Label>
+              <select
+                id="riskLevel"
+                value={premisesInfo.riskLevel}
+                onChange={(e) => setPremisesInfo((p) => ({ ...p, riskLevel: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="HIGH">High Risk (Quarterly)</option>
+                <option value="MEDIUM">Medium Risk (Biannual)</option>
+                <option value="LOW">Low Risk (Annual)</option>
+              </select>
+            </div>
+            <div className="flex items-end gap-2">
+              <Button variant="outline" className="gap-2">
+                <MapPin className="h-4 w-4" /> Capture GPS
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <Camera className="h-4 w-4" /> Add Photo
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Scoring Sections */}
+      {scoringSections.map((section) => (
+        <Card key={section.id}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{section.title}</CardTitle>
+              <span className="text-sm font-bold text-food">
+                {sectionTotal(section.id)}/{section.maxScore}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">{section.titleSi}</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {section.items.map((item) => (
+                <div key={item.id} className="flex items-center gap-4">
+                  <label className="flex-1 text-sm">{item.label}</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={item.max}
+                      value={scores[item.id] ?? ''}
+                      onChange={(e) => handleScoreChange(item.id, parseInt(e.target.value) || 0, item.max)}
+                      className="w-20 text-center"
+                      placeholder="0"
+                    />
+                    <span className="text-xs text-muted-foreground w-12">/ {item.max}</span>
+                    <div className="w-24 rounded-full bg-secondary h-2">
+                      <div
+                        className="h-2 rounded-full bg-food transition-all"
+                        style={{ width: `${((scores[item.id] || 0) / item.max) * 100}%` }}
+                      />
