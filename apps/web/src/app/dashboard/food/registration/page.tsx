@@ -15,20 +15,3 @@ const registeredPremises = [
   { id: 'H801-004', name: 'Lanka Restaurant', owner: 'S. Jayasinghe', type: 'Restaurant', risk: 'HIGH', grade: 'C', regDate: '2025-09-01', expiry: '2026-03-01', status: 'Expiring Soon' },
   { id: 'H801-005', name: 'Rasa Bojun', owner: 'D. Bandara', type: 'Restaurant', risk: 'HIGH', grade: 'C', regDate: '2025-07-12', expiry: '2026-07-12', status: 'Active' },
 ];
-
-export default function FoodRegistrationPage() {
-  const [search, setSearch] = useState('');
-  const [showForm, setShowForm] = useState(false);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/food"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold">Food Premises Registration (H801)</h1>
-            <p className="text-sm text-muted-foreground">Register, manage, and renew food establishment certificates</p>
-          </div>
-        </div>
-        <Button className="bg-food hover:bg-food-dark" onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-2 h-4 w-4" /> Register New
