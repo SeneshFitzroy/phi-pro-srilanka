@@ -382,3 +382,40 @@ export default function NewFoodInspectionPage() {
               </select>
             </div>
             <div className="space-y-2">
+              <Label>Follow-up Date</Label>
+              <Input type="date" />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Critical Violations / Improvement Items</Label>
+              <textarea
+                placeholder="List critical violations that require immediate action..."
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bottom Actions */}
+      <div className="flex items-center justify-between rounded-lg border bg-card p-4">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-lg border-2 ${gradeInfo.color} text-xl font-bold`}>
+            {totalScore > 0 ? gradeInfo.grade : '—'}
+          </div>
+          <div>
+            <p className="font-bold">{totalScore}/100 — {gradeInfo.label}</p>
+            <p className="text-xs text-muted-foreground">Auto-calculated based on Food Act Regulations 2011</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleSaveDraft} disabled={isSaving}>
+            <Save className="mr-2 h-4 w-4" /> Save Draft
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSaving} className="bg-food hover:bg-food-dark">
+            <Send className="mr-2 h-4 w-4" /> Submit Inspection
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
