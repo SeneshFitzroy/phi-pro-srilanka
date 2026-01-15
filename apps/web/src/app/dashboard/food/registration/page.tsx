@@ -49,3 +49,20 @@ export default function FoodRegistrationPage() {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2"><Label>Premises Name *</Label><Input placeholder="Business name" /></div>
+              <div className="space-y-2"><Label>Owner Name *</Label><Input placeholder="Full name" /></div>
+              <div className="space-y-2"><Label>Owner NIC *</Label><Input placeholder="National ID" /></div>
+              <div className="space-y-2"><Label>Phone</Label><Input type="tel" placeholder="+94..." /></div>
+              <div className="space-y-2"><Label>Address *</Label><Input placeholder="Full address" /></div>
+              <div className="space-y-2"><Label>GN Division</Label><Input placeholder="GN code" /></div>
+              <div className="space-y-2">
+                <Label>Food Type</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option>Restaurant</option><option>Bakery</option><option>Grocery</option><option>Meat/Fish</option><option>Tea Shop</option><option>Street Vendor</option></select>
+              </div>
+              <div className="space-y-2">
+                <Label>Risk Level</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="HIGH">High (Quarterly)</option><option value="MEDIUM">Medium (Biannual)</option><option value="LOW">Low (Annual)</option></select>
+              </div>
+              <div className="flex items-end"><Button className="bg-food hover:bg-food-dark w-full">Register & Issue Certificate</Button></div>
+            </div>
+          </CardContent>
+        </Card>
