@@ -15,3 +15,37 @@ const registeredPremises = [
   { id: 'H801-004', name: 'Lanka Restaurant', owner: 'S. Jayasinghe', type: 'Restaurant', risk: 'HIGH', grade: 'C', regDate: '2025-09-01', expiry: '2026-03-01', status: 'Expiring Soon' },
   { id: 'H801-005', name: 'Rasa Bojun', owner: 'D. Bandara', type: 'Restaurant', risk: 'HIGH', grade: 'C', regDate: '2025-07-12', expiry: '2026-07-12', status: 'Active' },
 ];
+
+export default function FoodRegistrationPage() {
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/food"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold">Food Premises Registration (H801)</h1>
+            <p className="text-sm text-muted-foreground">Register, manage, and renew food establishment certificates</p>
+          </div>
+        </div>
+        <Button className="bg-food hover:bg-food-dark" onClick={() => setShowForm(!showForm)}>
+          <Plus className="mr-2 h-4 w-4" /> Register New
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        <Card><CardContent className="flex items-center gap-3 p-4"><Building2 className="h-8 w-8 text-food" /><div><p className="text-2xl font-bold">48</p><p className="text-xs text-muted-foreground">Total Registered</p></div></CardContent></Card>
+        <Card><CardContent className="flex items-center gap-3 p-4"><CheckCircle className="h-8 w-8 text-green-500" /><div><p className="text-2xl font-bold">42</p><p className="text-xs text-muted-foreground">Active</p></div></CardContent></Card>
+        <Card><CardContent className="flex items-center gap-3 p-4"><Clock className="h-8 w-8 text-amber-500" /><div><p className="text-2xl font-bold">4</p><p className="text-xs text-muted-foreground">Expiring Soon</p></div></CardContent></Card>
+        <Card><CardContent className="flex items-center gap-3 p-4"><Building2 className="h-8 w-8 text-red-500" /><div><p className="text-2xl font-bold">2</p><p className="text-xs text-muted-foreground">Expired</p></div></CardContent></Card>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader><CardTitle>New Registration</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2"><Label>Premises Name *</Label><Input placeholder="Business name" /></div>
