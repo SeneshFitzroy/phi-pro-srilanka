@@ -66,3 +66,20 @@ export default function FoodRegistrationPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Registry Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Registered Premises</CardTitle>
+          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Reg. No.</th><th className="pb-3 pr-4 font-medium">Name</th><th className="pb-3 pr-4 font-medium">Owner</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Risk</th><th className="pb-3 pr-4 font-medium">Grade</th><th className="pb-3 pr-4 font-medium">Expiry</th><th className="pb-3 font-medium">Status</th></tr></thead>
+              <tbody>
+                {registeredPremises.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).map((p) => (
+                  <tr key={p.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-mono text-xs">{p.id}</td>
+                    <td className="py-3 pr-4 font-medium">{p.name}</td>
