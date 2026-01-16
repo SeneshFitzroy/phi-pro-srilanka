@@ -83,3 +83,19 @@ export default function FoodRegistrationPage() {
                   <tr key={p.id} className="border-b last:border-0 hover:bg-accent/50">
                     <td className="py-3 pr-4 font-mono text-xs">{p.id}</td>
                     <td className="py-3 pr-4 font-medium">{p.name}</td>
+                    <td className="py-3 pr-4">{p.owner}</td>
+                    <td className="py-3 pr-4">{p.type}</td>
+                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-medium ${p.risk === 'HIGH' ? 'bg-red-100 text-red-700' : p.risk === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{p.risk}</span></td>
+                    <td className="py-3 pr-4"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${p.grade === 'A' ? 'bg-green-100 text-green-700' : p.grade === 'B' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>{p.grade}</span></td>
+                    <td className="py-3 pr-4 text-muted-foreground">{p.expiry}</td>
+                    <td className="py-3"><span className={`text-xs font-medium ${p.status === 'Active' ? 'text-green-600' : 'text-amber-600'}`}>{p.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
