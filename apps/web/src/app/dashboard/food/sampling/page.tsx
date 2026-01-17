@@ -32,19 +32,3 @@ export default function FoodSamplingPage() {
         </div>
         <Button className="bg-food hover:bg-food-dark" onClick={() => setShowForm(!showForm)}>
           <Plus className="mr-2 h-4 w-4" /> New Sample
-        </Button>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card><CardContent className="flex items-center gap-3 p-4"><FlaskConical className="h-8 w-8 text-food" /><div><p className="text-2xl font-bold">24</p><p className="text-xs text-muted-foreground">Total Samples</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3 p-4"><CheckCircle className="h-8 w-8 text-green-500" /><div><p className="text-2xl font-bold">18</p><p className="text-xs text-muted-foreground">Passed</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3 p-4"><AlertTriangle className="h-8 w-8 text-red-500" /><div><p className="text-2xl font-bold">3</p><p className="text-xs text-muted-foreground">Failed</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3 p-4"><Clock className="h-8 w-8 text-amber-500" /><div><p className="text-2xl font-bold">3</p><p className="text-xs text-muted-foreground">Pending</p></div></CardContent></Card>
-      </div>
-
-      {showForm && (
-        <Card>
-          <CardHeader><CardTitle>New Food Sample Collection</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="space-y-2"><Label>Premises *</Label><Input placeholder="Where was the sample collected?" /></div>
