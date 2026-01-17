@@ -48,20 +48,3 @@ export default function FoodSamplingPage() {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2"><Label>Premises *</Label><Input placeholder="Where was the sample collected?" /></div>
-              <div className="space-y-2"><Label>Food Item *</Label><Input placeholder="e.g. Cooked Rice, Milk, Bread" /></div>
-              <div className="space-y-2"><Label>Sample Quantity</Label><Input placeholder="e.g. 500g" /></div>
-              <div className="space-y-2"><Label>Collection Date</Label><Input type="date" /></div>
-              <div className="space-y-2"><Label>Collection Time</Label><Input type="time" /></div>
-              <div className="space-y-2"><Label>Storage Temp (°C)</Label><Input type="number" placeholder="Temperature at collection" /></div>
-              <div className="space-y-2">
-                <Label>Reason for Sampling</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option>Routine Surveillance</option><option>Complaint Investigation</option><option>Re-sampling (Failed)</option><option>Special Campaign</option>
-                </select>
-              </div>
-              <div className="space-y-2"><Label>Notes</Label><Input placeholder="Additional observations" /></div>
-              <div className="flex items-end gap-2">
-                <Button className="bg-food hover:bg-food-dark flex-1">Save Sample</Button>
-              </div>
-            </div>
-          </CardContent>
