@@ -82,3 +82,18 @@ export default function FoodSamplingPage() {
                   <tr key={s.id} className="border-b last:border-0 hover:bg-accent/50">
                     <td className="py-3 pr-4 font-mono text-xs">{s.id}</td>
                     <td className="py-3 pr-4 font-medium">{s.premises}</td>
+                    <td className="py-3 pr-4">{s.type}</td>
+                    <td className="py-3 pr-4">{s.collectedDate}</td>
+                    <td className="py-3 pr-4">{s.sentToMRI}</td>
+                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-bold ${s.result === 'PASS' ? 'bg-green-100 text-green-700' : s.result === 'FAIL' ? 'bg-red-100 text-red-700' : 'text-muted-foreground'}`}>{s.result}</span></td>
+                    <td className="py-3"><span className={`text-xs font-medium ${s.status === 'Completed' ? 'text-green-600' : s.status === 'Action Required' ? 'text-red-600' : 'text-amber-600'}`}>{s.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
