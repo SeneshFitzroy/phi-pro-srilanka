@@ -67,3 +67,26 @@ export default function FoodCalendarPage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-3">
         {Object.entries({ inspection: 'Routine Inspection', followup: 'Follow-up', sampling: 'Sampling', renewal: 'Renewal' }).map(([key, label]) => (
+          <div key={key} className="flex items-center gap-1.5">
+            <div className={`h-3 w-3 rounded-full ${typeColors[key].split(' ')[0]}`} />
+            <span className="text-xs text-muted-foreground">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Calendar */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Button variant="ghost" size="icon" onClick={prevMonth}><ChevronLeft className="h-5 w-5" /></Button>
+            <CardTitle>{MONTHS[month]} {year}</CardTitle>
+            <Button variant="ghost" size="icon" onClick={nextMonth}><ChevronRight className="h-5 w-5" /></Button>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-7 gap-1">
+              {DAYS.map(d => <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">{d}</div>)}
+              {Array.from({ length: firstDay }).map((_, i) => <div key={`blank-${i}`} />)}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => {
+                const dayEvents = getEventsForDate(d);
+                const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+                const isSelected = d === selectedDate;
