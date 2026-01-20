@@ -136,3 +136,24 @@ export default function FoodCalendarPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Upcoming */}
+      <Card>
+        <CardHeader><CardTitle>Upcoming Inspections (Next 7 Days)</CardTitle></CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {EVENTS.slice(0, 5).map((ev, i) => (
+              <div key={i} className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center gap-3">
+                  <div className={`rounded-full px-2 py-1 text-xs font-medium ${typeColors[ev.type]}`}>{ev.type}</div>
+                  <div><p className="text-sm font-medium">{ev.premises}</p><p className="text-xs text-muted-foreground">{ev.title}</p></div>
+                </div>
+                <span className="text-sm text-muted-foreground">{MONTHS[month]} {ev.date}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
