@@ -36,22 +36,3 @@ export default function SchoolHealthPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-school">
-          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Schools in Area</p><p className="text-2xl font-bold">32</p></div><Users className="h-8 w-8 text-school/60" /></div></CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Inspected This Term</p><p className="text-2xl font-bold">18</p></div><TrendingUp className="h-8 w-8 text-green-500/60" /></div></CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500">
-          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Defects Found</p><p className="text-2xl font-bold">124</p></div><AlertTriangle className="h-8 w-8 text-amber-500/60" /></div></CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Vaccines Administered</p><p className="text-2xl font-bold">856</p></div><Syringe className="h-8 w-8 text-purple-500/60" /></div></CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {quickActions.map((action) => (
-          <Link key={action.href} href={action.href}>
