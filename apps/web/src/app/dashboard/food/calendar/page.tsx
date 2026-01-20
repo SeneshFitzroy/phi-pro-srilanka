@@ -44,3 +44,95 @@ export default function FoodCalendarPage() {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const prevMonth = () => { if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1); };
+  const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1); };
+
+  const getEventsForDate = (d: number) => EVENTS.filter(e => e.date === d);
+  const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/food"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold">Inspection Calendar (H803)</h1>
+            <p className="text-sm text-muted-foreground">Plan and schedule food safety inspections</p>
+          </div>
+        </div>
+        <Button className="bg-food hover:bg-food-dark"><Plus className="mr-2 h-4 w-4" /> Schedule Inspection</Button>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3">
+        {Object.entries({ inspection: 'Routine Inspection', followup: 'Follow-up', sampling: 'Sampling', renewal: 'Renewal' }).map(([key, label]) => (
+          <div key={key} className="flex items-center gap-1.5">
+            <div className={`h-3 w-3 rounded-full ${typeColors[key].split(' ')[0]}`} />
+            <span className="text-xs text-muted-foreground">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Calendar */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Button variant="ghost" size="icon" onClick={prevMonth}><ChevronLeft className="h-5 w-5" /></Button>
+            <CardTitle>{MONTHS[month]} {year}</CardTitle>
+            <Button variant="ghost" size="icon" onClick={nextMonth}><ChevronRight className="h-5 w-5" /></Button>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-7 gap-1">
+              {DAYS.map(d => <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">{d}</div>)}
+              {Array.from({ length: firstDay }).map((_, i) => <div key={`blank-${i}`} />)}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => {
+                const dayEvents = getEventsForDate(d);
+                const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+                const isSelected = d === selectedDate;
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setSelectedDate(d)}
+                    className={`relative min-h-[72px] rounded-lg border p-1 text-left transition hover:bg-accent/50 ${isToday ? 'border-food bg-food/5' : 'border-transparent'} ${isSelected ? 'ring-2 ring-food' : ''}`}
+                  >
+                    <span className={`text-xs font-medium ${isToday ? 'text-food' : ''}`}>{d}</span>
+                    <div className="mt-0.5 space-y-0.5">
+                      {dayEvents.slice(0, 2).map((ev, j) => (
+                        <div key={j} className={`truncate rounded px-1 py-0.5 text-[10px] border ${typeColors[ev.type]}`}>{ev.title}</div>
+                      ))}
+                      {dayEvents.length > 2 && <div className="text-[10px] text-muted-foreground">+{dayEvents.length - 2} more</div>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sidebar: Selected Day Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{selectedDate ? `${MONTHS[month]} ${selectedDate}, ${year}` : 'Select a Date'}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{selectedDate ? 'No events scheduled.' : 'Click on a date to view details.'}</p>
+            ) : (
+              <div className="space-y-3">
+                {selectedEvents.map((ev, i) => (
+                  <div key={i} className={`rounded-lg border p-3 ${typeColors[ev.type]}`}>
+                    <p className="font-medium text-sm">{ev.title}</p>
+                    <p className="flex items-center gap-1 text-xs mt-1"><MapPin className="h-3 w-3" />{ev.premises}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {selectedDate && (
+              <Button className="mt-4 w-full bg-food hover:bg-food-dark" size="sm">
+                <Plus className="mr-1 h-3 w-3" /> Add Event
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
