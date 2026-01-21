@@ -73,3 +73,41 @@ export default function SchoolHealthPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
               <div className="flex items-center gap-2"><Syringe className="h-5 w-5 text-purple-600" /><h3 className="font-semibold text-purple-700">HPV Vaccine</h3></div>
+              <p className="mt-1 text-sm text-purple-600">Girls — Grade 6 — 2 doses (0, 6 months)</p>
+              <div className="mt-2 flex items-center gap-4">
+                <div><p className="text-xs text-purple-500">Dose 1</p><p className="text-lg font-bold text-purple-700">142/156</p></div>
+                <div><p className="text-xs text-purple-500">Dose 2</p><p className="text-lg font-bold text-purple-700">128/156</p></div>
+              </div>
+            </div>
+            <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+              <div className="flex items-center gap-2"><Syringe className="h-5 w-5 text-indigo-600" /><h3 className="font-semibold text-indigo-700">aP/dT Vaccine</h3></div>
+              <p className="mt-1 text-sm text-indigo-600">All students — Grade 7 — 1 dose</p>
+              <div className="mt-2 flex items-center gap-4">
+                <div><p className="text-xs text-indigo-500">Administered</p><p className="text-lg font-bold text-indigo-700">189/203</p></div>
+                <div><p className="text-xs text-indigo-500">Coverage</p><p className="text-lg font-bold text-indigo-700">93.1%</p></div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Schools Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Schools</CardTitle>
+          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search schools..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="pb-3 pr-4 font-medium">School</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Students</th><th className="pb-3 pr-4 font-medium">Last Visit</th>
+                  <th className="pb-3 pr-2 font-medium text-center">G1</th><th className="pb-3 pr-2 font-medium text-center">G4</th><th className="pb-3 pr-2 font-medium text-center">G7</th><th className="pb-3 font-medium text-center">G10</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSchools.map((s) => (
+                  <tr key={s.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-medium">{s.name}</td>
+                    <td className="py-3 pr-4"><span className="rounded bg-blue-50 px-2 py-0.5 text-xs text-school font-medium">{s.type}</span></td>
