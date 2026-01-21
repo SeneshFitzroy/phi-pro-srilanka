@@ -92,22 +92,3 @@ export default function SchoolHealthPage() {
       </Card>
 
       {/* Schools Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Schools</CardTitle>
-          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search schools..." className="pl-9 w-64" /></div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-3 pr-4 font-medium">School</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Students</th><th className="pb-3 pr-4 font-medium">Last Visit</th>
-                  <th className="pb-3 pr-2 font-medium text-center">G1</th><th className="pb-3 pr-2 font-medium text-center">G4</th><th className="pb-3 pr-2 font-medium text-center">G7</th><th className="pb-3 font-medium text-center">G10</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSchools.map((s) => (
-                  <tr key={s.id} className="border-b last:border-0 hover:bg-accent/50">
-                    <td className="py-3 pr-4 font-medium">{s.name}</td>
-                    <td className="py-3 pr-4"><span className="rounded bg-blue-50 px-2 py-0.5 text-xs text-school font-medium">{s.type}</span></td>
