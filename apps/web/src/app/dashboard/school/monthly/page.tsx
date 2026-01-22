@@ -19,23 +19,3 @@ const defectCategories = [
   { id: 'ent', label: 'ENT', subItems: ['Tonsillitis', 'Sinusitis', 'Allergic Rhinitis'] },
   { id: 'other', label: 'Other Conditions', subItems: ['Asthma', 'Epilepsy', 'Heart Conditions', 'Other Medical'] },
 ];
-
-export default function SchoolMonthlyPage() {
-  const [schoolName, setSchoolName] = useState('');
-  const [values, setValues] = useState<Record<string, Record<string, { male: string; female: string }>>>({});
-
-  const updateValue = (catId: string, sub: string, gender: 'male' | 'female', val: string) => {
-    setValues(prev => ({
-      ...prev,
-      [catId]: {
-        ...(prev[catId] || {}),
-        [sub]: { ...(prev[catId]?.[sub] || { male: '', female: '' }), [gender]: val }
-      }
-    }));
-  };
-
-  const getCategoryTotal = (catId: string) => {
-    const cat = values[catId];
-    if (!cat) return { male: 0, female: 0 };
-    let male = 0, female = 0;
-    Object.values(cat).forEach(v => { male += parseInt(v.male) || 0; female += parseInt(v.female) || 0; });
