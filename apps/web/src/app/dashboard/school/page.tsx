@@ -92,3 +92,39 @@ export default function SchoolHealthPage() {
       </Card>
 
       {/* Schools Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Schools</CardTitle>
+          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search schools..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="pb-3 pr-4 font-medium">School</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Students</th><th className="pb-3 pr-4 font-medium">Last Visit</th>
+                  <th className="pb-3 pr-2 font-medium text-center">G1</th><th className="pb-3 pr-2 font-medium text-center">G4</th><th className="pb-3 pr-2 font-medium text-center">G7</th><th className="pb-3 font-medium text-center">G10</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSchools.map((s) => (
+                  <tr key={s.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-medium">{s.name}</td>
+                    <td className="py-3 pr-4"><span className="rounded bg-blue-50 px-2 py-0.5 text-xs text-school font-medium">{s.type}</span></td>
+                    <td className="py-3 pr-4">{s.students.toLocaleString()}</td>
+                    <td className="py-3 pr-4 text-muted-foreground">{s.lastVisit}</td>
+                    {[s.grade1Done, s.grade4Done, s.grade7Done, s.grade10Done].map((done, i) => (
+                      <td key={i} className="py-3 pr-2 text-center">
+                        <span className={`inline-block h-5 w-5 rounded-full text-xs leading-5 font-bold ${done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>{done ? '✓' : '—'}</span>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
