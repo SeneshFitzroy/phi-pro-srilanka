@@ -39,24 +39,3 @@ export default function SchoolMonthlyPage() {
     if (!cat) return { male: 0, female: 0 };
     let male = 0, female = 0;
     Object.values(cat).forEach(v => { male += parseInt(v.male) || 0; female += parseInt(v.female) || 0; });
-    return { male, female };
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold">Monthly Summary Report (H1214)</h1>
-            <p className="text-sm text-muted-foreground">Summarize student health findings for the month</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
-        </div>
-      </div>
-
-      {/* Header Info */}
-      <Card>
