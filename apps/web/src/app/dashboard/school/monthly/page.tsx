@@ -19,3 +19,104 @@ const defectCategories = [
   { id: 'ent', label: 'ENT', subItems: ['Tonsillitis', 'Sinusitis', 'Allergic Rhinitis'] },
   { id: 'other', label: 'Other Conditions', subItems: ['Asthma', 'Epilepsy', 'Heart Conditions', 'Other Medical'] },
 ];
+
+export default function SchoolMonthlyPage() {
+  const [schoolName, setSchoolName] = useState('');
+  const [values, setValues] = useState<Record<string, Record<string, { male: string; female: string }>>>({});
+
+  const updateValue = (catId: string, sub: string, gender: 'male' | 'female', val: string) => {
+    setValues(prev => ({
+      ...prev,
+      [catId]: {
+        ...(prev[catId] || {}),
+        [sub]: { ...(prev[catId]?.[sub] || { male: '', female: '' }), [gender]: val }
+      }
+    }));
+  };
+
+  const getCategoryTotal = (catId: string) => {
+    const cat = values[catId];
+    if (!cat) return { male: 0, female: 0 };
+    let male = 0, female = 0;
+    Object.values(cat).forEach(v => { male += parseInt(v.male) || 0; female += parseInt(v.female) || 0; });
+    return { male, female };
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold">Monthly Summary Report (H1214)</h1>
+            <p className="text-sm text-muted-foreground">Summarize student health findings for the month</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      {/* Header Info */}
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>School Name *</Label><Input value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="Enter school name" /></div>
+          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
+          <div className="space-y-2">
+            <Label>Grades Inspected</Label>
+            <div className="flex gap-2">
+              {['1', '4', '7', '10'].map(g => (
+                <label key={g} className="flex items-center gap-1 text-sm"><input type="checkbox" className="rounded" /><span>Grade {g}</span></label>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2"><Label>Students Examined</Label><Input type="number" placeholder="Total count" /></div>
+        </CardContent>
+      </Card>
+
+      {/* Defect Categories */}
+      {defectCategories.map((cat) => {
+        const totals = getCategoryTotal(cat.id);
+        return (
+          <Card key={cat.id}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">{cat.label}</CardTitle>
+                <div className="flex gap-4 text-xs">
+                  <span className="text-blue-600 font-medium">M: {totals.male}</span>
+                  <span className="text-pink-600 font-medium">F: {totals.female}</span>
+                  <span className="font-bold">T: {totals.male + totals.female}</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="grid grid-cols-[1fr,80px,80px] gap-2 text-xs font-medium text-muted-foreground">
+                  <span>Condition</span><span className="text-center text-blue-600">Male</span><span className="text-center text-pink-600">Female</span>
+                </div>
+                {cat.subItems.map(sub => (
+                  <div key={sub} className="grid grid-cols-[1fr,80px,80px] gap-2 items-center">
+                    <span className="text-sm">{sub}</span>
+                    <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.male || ''} onChange={(e) => updateValue(cat.id, sub, 'male', e.target.value)} />
+                    <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.female || ''} onChange={(e) => updateValue(cat.id, sub, 'female', e.target.value)} />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {/* Notes */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Referrals & Notes</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2"><Label>Students Referred to Hospital</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Students Referred to Dental Clinic</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Remarks</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Additional observations..." /></div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
