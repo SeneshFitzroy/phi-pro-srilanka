@@ -80,3 +80,24 @@ export default function SchoolMonthlyPage() {
         const totals = getCategoryTotal(cat.id);
         return (
           <Card key={cat.id}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">{cat.label}</CardTitle>
+                <div className="flex gap-4 text-xs">
+                  <span className="text-blue-600 font-medium">M: {totals.male}</span>
+                  <span className="text-pink-600 font-medium">F: {totals.female}</span>
+                  <span className="font-bold">T: {totals.male + totals.female}</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="grid grid-cols-[1fr,80px,80px] gap-2 text-xs font-medium text-muted-foreground">
+                  <span>Condition</span><span className="text-center text-blue-600">Male</span><span className="text-center text-pink-600">Female</span>
+                </div>
+                {cat.subItems.map(sub => (
+                  <div key={sub} className="grid grid-cols-[1fr,80px,80px] gap-2 items-center">
+                    <span className="text-sm">{sub}</span>
+                    <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.male || ''} onChange={(e) => updateValue(cat.id, sub, 'male', e.target.value)} />
+                    <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.female || ''} onChange={(e) => updateValue(cat.id, sub, 'female', e.target.value)} />
+                  </div>
