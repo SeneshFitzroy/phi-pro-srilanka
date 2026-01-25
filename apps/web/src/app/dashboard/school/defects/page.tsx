@@ -99,3 +99,22 @@ export default function SchoolDefectsPage() {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Action Taken</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.action} onChange={(e) => updateRecord(r.id, 'action', e.target.value)}>
+                      <option value="">Select action...</option>
+                      <option>Referred to Hospital</option><option>Referred to Dental Clinic</option><option>Referred to Eye Clinic</option>
+                      <option>Referred to ENT</option><option>Health Education Given</option><option>Treatment at School</option>
+                      <option>Follow-up Scheduled</option><option>Parents Notified</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="rounded" checked={r.referred} onChange={(e) => updateRecord(r.id, 'referred', e.target.checked)} /> Referred to specialist</label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
