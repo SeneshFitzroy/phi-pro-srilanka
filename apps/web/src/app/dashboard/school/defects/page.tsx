@@ -79,3 +79,23 @@ export default function SchoolDefectsPage() {
                   <div className="space-y-1"><Label className="text-xs">Age</Label><Input type="number" placeholder="Age" value={r.age} onChange={(e) => updateRecord(r.id, 'age', e.target.value)} /></div>
                   <div className="space-y-1">
                     <Label className="text-xs">Gender</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.gender} onChange={(e) => updateRecord(r.id, 'gender', e.target.value)}>
+                      <option value="M">Male</option><option value="F">Female</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 mt-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Defect(s) Found</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.defects} onChange={(e) => updateRecord(r.id, 'defects', e.target.value)}>
+                      <option value="">Select defect...</option>
+                      <option>Vision - Myopia</option><option>Vision - Hyperopia</option><option>Vision - Squint</option>
+                      <option>Hearing Loss</option><option>Dental Caries</option><option>Malocclusion</option>
+                      <option>Scabies</option><option>Ringworm</option><option>Pediculosis</option>
+                      <option>Underweight</option><option>Stunting</option><option>Overweight</option>
+                      <option>Scoliosis</option><option>Flat Feet</option><option>Asthma</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Action Taken</Label>
