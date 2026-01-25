@@ -17,22 +17,3 @@ const washSections = [
       { id: 'water_points', label: 'Number of drinking water points', type: 'number' },
       { id: 'water_functional', label: 'All water points functional?', options: ['Yes', 'No - Specify'] },
       { id: 'water_test', label: 'Last water quality test', type: 'date' },
-    ]
-  },
-  {
-    title: 'Sanitation Facilities',
-    items: [
-      { id: 'toilet_count', label: 'Total toilet cubicles', type: 'number' },
-      { id: 'toilet_boys', label: 'Toilets for boys', type: 'number' },
-      { id: 'toilet_girls', label: 'Toilets for girls', type: 'number' },
-      { id: 'toilet_disabled', label: 'Disabled-accessible toilets', type: 'number' },
-      { id: 'toilet_clean', label: 'Cleanliness standard', options: ['Good', 'Satisfactory', 'Poor'] },
-      { id: 'toilet_water', label: 'Water available in all toilets?', options: ['Yes', 'No'] },
-      { id: 'toilet_soap', label: 'Soap available?', options: ['Yes', 'No'] },
-    ]
-  },
-  {
-    title: 'Handwashing Facilities',
-    items: [
-      { id: 'hw_stations', label: 'Number of handwashing stations', type: 'number' },
-      { id: 'hw_soap', label: 'Soap available at stations?', options: ['Yes - All', 'Yes - Some', 'No'] },
