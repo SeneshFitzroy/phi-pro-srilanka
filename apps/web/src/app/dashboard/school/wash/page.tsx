@@ -74,3 +74,58 @@ export default function SchoolWASHPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit Survey</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>School Name *</Label><Input placeholder="Enter school name" /></div>
+          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" /></div>
+          <div className="space-y-2"><Label>Total Students</Label><Input type="number" placeholder="Enrollment" /></div>
+          <div className="space-y-2"><Label>PHI Officer</Label><Input placeholder="Your name" /></div>
+        </CardContent>
+      </Card>
+
+      {washSections.map((section) => (
+        <Card key={section.title}>
+          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {section.items.map((item) => (
+                <div key={item.id} className="grid gap-2 sm:grid-cols-[1fr,200px] items-center">
+                  <Label className="text-sm">{item.label}</Label>
+                  {'options' in item && item.options ? (
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData[item.id] || ''} onChange={(e) => update(item.id, e.target.value)}>
+                      <option value="">Select...</option>
+                      {item.options.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : (
+                    <Input type={item.type || 'text'} value={formData[item.id] || ''} onChange={(e) => update(item.id, e.target.value)} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Overall Assessment & Recommendations</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Overall WASH Rating</Label>
+            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option>Good</option><option>Satisfactory</option><option>Needs Improvement</option><option>Unsatisfactory</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label>Recommendations</Label>
+            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px]" placeholder="Improvements and follow-up actions..." />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
