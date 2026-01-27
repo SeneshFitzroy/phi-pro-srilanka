@@ -112,20 +112,3 @@ export default function SchoolWASHPage() {
       ))}
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Overall Assessment & Recommendations</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Overall WASH Rating</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-              <option>Good</option><option>Satisfactory</option><option>Needs Improvement</option><option>Unsatisfactory</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label>Recommendations</Label>
-            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px]" placeholder="Improvements and follow-up actions..." />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
