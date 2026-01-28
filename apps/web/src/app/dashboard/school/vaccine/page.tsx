@@ -62,3 +62,46 @@ export default function SchoolVaccinePage() {
             <p className="text-sm text-purple-600">Schedule: Dose 1 (Day 0), Dose 2 (6 months)</p>
             <p className="text-lg font-bold text-purple-700 mt-2">{hpvCount} records this session</p>
           </CardContent>
+        </Card>
+        <Card className="border-indigo-200 bg-indigo-50">
+          <CardContent className="p-4">
+            <p className="font-semibold text-indigo-700">aP/dT Vaccine</p>
+            <p className="text-sm text-indigo-600 mt-1">Target: All students in Grade 7</p>
+            <p className="text-sm text-indigo-600">Schedule: Single dose</p>
+            <p className="text-lg font-bold text-indigo-700 mt-2">{apdtCount} records this session</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
+          <div className="space-y-2"><Label>School Name *</Label><Input placeholder="Enter school" /></div>
+          <div className="space-y-2"><Label>Date</Label><Input type="date" /></div>
+          <div className="space-y-2"><Label>Vaccinator Name</Label><Input placeholder="Name" /></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Vaccination Records ({records.length})</CardTitle>
+          <Button size="sm" onClick={addRecord}><Plus className="mr-1 h-4 w-4" />Add Record</Button>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {records.map((r, idx) => (
+              <div key={r.id} className="rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-muted-foreground">Record #{idx + 1}</span>
+                  {records.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeRecord(r.id)}><Trash2 className="h-4 w-4" /></Button>}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="space-y-1"><Label className="text-xs">Student Name</Label><Input value={r.studentName} onChange={(e) => updateRecord(r.id, 'studentName', e.target.value)} placeholder="Full name" /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Vaccine</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.vaccine} onChange={(e) => updateRecord(r.id, 'vaccine', e.target.value)}>
+                      <option value="HPV">HPV</option><option value="aPdT">aP/dT</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Grade</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.grade} onChange={(e) => updateRecord(r.id, 'grade', e.target.value)}>
