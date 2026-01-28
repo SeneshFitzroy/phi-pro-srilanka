@@ -105,3 +105,24 @@ export default function SchoolVaccinePage() {
                   <div className="space-y-1">
                     <Label className="text-xs">Grade</Label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.grade} onChange={(e) => updateRecord(r.id, 'grade', e.target.value)}>
+                      <option value="6">Grade 6</option><option value="7">Grade 7</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Gender</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.gender} onChange={(e) => updateRecord(r.id, 'gender', e.target.value)}>
+                      <option value="F">Female</option><option value="M">Male</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1"><Label className="text-xs">Age</Label><Input type="number" value={r.age} onChange={(e) => updateRecord(r.id, 'age', e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Dose Number</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.doseNumber} onChange={(e) => updateRecord(r.id, 'doseNumber', e.target.value)}>
+                      <option value="1">Dose 1</option><option value="2">Dose 2</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1"><Label className="text-xs">Batch Number</Label><Input value={r.batchNo} onChange={(e) => updateRecord(r.id, 'batchNo', e.target.value)} placeholder="Vaccine batch" /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Injection Site</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.site} onChange={(e) => updateRecord(r.id, 'site', e.target.value)}>
+                      <option>Left Deltoid</option><option>Right Deltoid</option>
