@@ -62,25 +62,3 @@ export default function SchoolVaccinePage() {
             <p className="text-sm text-purple-600">Schedule: Dose 1 (Day 0), Dose 2 (6 months)</p>
             <p className="text-lg font-bold text-purple-700 mt-2">{hpvCount} records this session</p>
           </CardContent>
-        </Card>
-        <Card className="border-indigo-200 bg-indigo-50">
-          <CardContent className="p-4">
-            <p className="font-semibold text-indigo-700">aP/dT Vaccine</p>
-            <p className="text-sm text-indigo-600 mt-1">Target: All students in Grade 7</p>
-            <p className="text-sm text-indigo-600">Schedule: Single dose</p>
-            <p className="text-lg font-bold text-indigo-700 mt-2">{apdtCount} records this session</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>School Name *</Label><Input placeholder="Enter school" /></div>
-          <div className="space-y-2"><Label>Date</Label><Input type="date" /></div>
-          <div className="space-y-2"><Label>Vaccinator Name</Label><Input placeholder="Name" /></div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Vaccination Records ({records.length})</CardTitle>
