@@ -126,3 +126,23 @@ export default function SchoolVaccinePage() {
                     <Label className="text-xs">Injection Site</Label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.site} onChange={(e) => updateRecord(r.id, 'site', e.target.value)}>
                       <option>Left Deltoid</option><option>Right Deltoid</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-4">
+                  <div className="space-y-1 flex-1">
+                    <Label className="text-xs">Adverse Reaction</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.reaction} onChange={(e) => updateRecord(r.id, 'reaction', e.target.value)}>
+                      <option>None</option><option>Mild - Local Pain</option><option>Mild - Fever</option><option>Moderate</option><option>Severe - Refer</option>
+                    </select>
+                  </div>
+                  <label className="flex items-center gap-2 text-sm mt-5"><input type="checkbox" className="rounded" checked={r.consent} onChange={(e) => updateRecord(r.id, 'consent', e.target.checked)} /> Parental consent obtained</label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
