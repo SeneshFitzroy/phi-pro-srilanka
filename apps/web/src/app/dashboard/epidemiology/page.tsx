@@ -42,3 +42,25 @@ export default function EpidemiologyPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><Biohazard className="h-7 w-7 text-epidemiology" /> Epidemiology & Disease Surveillance</h1>
+          <p className="text-sm text-muted-foreground mt-1">48-hour investigation mandate • 45 notifiable diseases • 150m cluster radius</p>
+        </div>
+        <Link href="/dashboard/epidemiology/notification">
+          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Plus className="mr-2 h-4 w-4" />New Notification</Button>
+        </Link>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-l-4 border-l-epidemiology">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Active Cases</p><p className="text-2xl font-bold">23</p></div><AlertTriangle className="h-8 w-8 text-epidemiology/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Pending Investigation</p><p className="text-2xl font-bold text-amber-600">8</p><p className="text-xs text-amber-500">within 48hr mandate</p></div><Clock className="h-8 w-8 text-amber-500/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Investigated This Week</p><p className="text-2xl font-bold">15</p></div><TrendingUp className="h-8 w-8 text-green-500/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-red-600">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Active Clusters</p><p className="text-2xl font-bold text-red-600">3</p><p className="text-xs text-red-500">150m radius alerts</p></div><MapPin className="h-8 w-8 text-red-600/60" /></div></CardContent>
