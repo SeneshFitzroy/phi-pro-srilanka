@@ -74,3 +74,39 @@ export default function SchoolActivityPage() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-muted-foreground">Entry #{idx + 1}</span>
                   {entries.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeEntry(entry.id)}><Trash2 className="h-4 w-4" /></Button>}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-1"><Label className="text-xs">Date</Label><Input type="date" value={entry.date} onChange={(e) => update(entry.id, 'date', e.target.value)} /></div>
+                  <div className="space-y-1"><Label className="text-xs">School</Label><Input value={entry.school} onChange={(e) => update(entry.id, 'school', e.target.value)} placeholder="School name" /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Activity Type</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={entry.activity} onChange={(e) => update(entry.id, 'activity', e.target.value)}>
+                      <option value="">Select activity...</option>
+                      {activityTypes.map(a => <option key={a} value={a}>{a}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1"><Label className="text-xs">Duration (hours)</Label><Input type="number" step="0.5" value={entry.duration} onChange={(e) => update(entry.id, 'duration', e.target.value)} /></div>
+                  <div className="space-y-1"><Label className="text-xs">Students Reached</Label><Input type="number" value={entry.studentsReached} onChange={(e) => update(entry.id, 'studentsReached', e.target.value)} /></div>
+                  <div className="space-y-1"><Label className="text-xs">Details / Notes</Label><Input value={entry.details} onChange={(e) => update(entry.id, 'details', e.target.value)} placeholder="Brief description" /></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Monthly Summary</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-4 text-center">
+            <div className="rounded-lg border p-3"><p className="text-2xl font-bold text-school">{entries.length}</p><p className="text-xs text-muted-foreground">Activities</p></div>
+            <div className="rounded-lg border p-3"><p className="text-2xl font-bold text-school">{new Set(entries.map(e => e.school).filter(Boolean)).size}</p><p className="text-xs text-muted-foreground">Schools Visited</p></div>
+            <div className="rounded-lg border p-3"><p className="text-2xl font-bold text-school">{entries.reduce((s, e) => s + (parseFloat(e.duration) || 0), 0)}</p><p className="text-xs text-muted-foreground">Total Hours</p></div>
+            <div className="rounded-lg border p-3"><p className="text-2xl font-bold text-school">{entries.reduce((s, e) => s + (parseInt(e.studentsReached) || 0), 0)}</p><p className="text-xs text-muted-foreground">Students Reached</p></div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
