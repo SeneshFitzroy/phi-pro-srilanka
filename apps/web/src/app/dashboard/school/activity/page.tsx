@@ -36,3 +36,41 @@ export default function SchoolActivityPage() {
   };
 
   const removeEntry = (id: number) => setEntries(prev => prev.filter(e => e.id !== id));
+
+  const update = (id: number, field: keyof ActivityEntry, value: string) => {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Activity className="h-6 w-6 text-indigo-600" />Activity Log (H1014)</h1>
+            <p className="text-sm text-muted-foreground">Record all school health program activities</p>
+          </div>
+        </div>
+        <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit Log</Button>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
+          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>PHI Officer</Label><Input placeholder="Your name" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Activity Entries ({entries.length})</CardTitle>
+          <Button size="sm" onClick={addEntry}><Plus className="mr-1 h-4 w-4" />Add Entry</Button>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {entries.map((entry, idx) => (
+              <div key={entry.id} className="rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-muted-foreground">Entry #{idx + 1}</span>
+                  {entries.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeEntry(entry.id)}><Trash2 className="h-4 w-4" /></Button>}
