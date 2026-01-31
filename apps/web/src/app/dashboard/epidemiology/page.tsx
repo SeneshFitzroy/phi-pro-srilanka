@@ -86,3 +86,25 @@ export default function EpidemiologyPage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Disease Trend — This Week</CardTitle></CardHeader>
         <CardContent>
+          <div className="space-y-3">
+            {[
+              { name: 'Dengue Fever', count: 12, max: 20, color: 'bg-red-500' },
+              { name: 'Leptospirosis', count: 4, max: 20, color: 'bg-amber-500' },
+              { name: 'Chickenpox', count: 3, max: 20, color: 'bg-blue-500' },
+              { name: 'Food Poisoning', count: 2, max: 20, color: 'bg-green-500' },
+              { name: 'Typhoid', count: 2, max: 20, color: 'bg-purple-500' },
+            ].map(d => (
+              <div key={d.name} className="flex items-center gap-3">
+                <span className="w-32 text-sm shrink-0">{d.name}</span>
+                <div className="flex-1 h-6 rounded-full bg-accent overflow-hidden">
+                  <div className={`h-full rounded-full ${d.color} transition-all`} style={{ width: `${(d.count / d.max) * 100}%` }} />
+                </div>
+                <span className="text-sm font-bold w-8 text-right">{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notifiable Diseases Quick Reference */}
+      <Card>
