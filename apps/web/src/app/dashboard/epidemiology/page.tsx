@@ -108,3 +108,45 @@ export default function EpidemiologyPage() {
 
       {/* Notifiable Diseases Quick Reference */}
       <Card>
+        <CardHeader><CardTitle className="text-base">Notifiable Diseases (Quick Reference)</CardTitle></CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {notifiableDiseases.map((d) => (
+              <span key={d} className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs text-red-700">{d}</span>
+            ))}
+            <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-500">+30 more</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cases Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Recent Cases</CardTitle>
+          <div className="relative"><SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search cases..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Case ID</th><th className="pb-3 pr-4 font-medium">Disease</th><th className="pb-3 pr-4 font-medium">Patient</th><th className="pb-3 pr-4 font-medium">Age</th><th className="pb-3 pr-4 font-medium">GN Division</th><th className="pb-3 pr-4 font-medium">Reported</th><th className="pb-3 pr-4 font-medium">Priority</th><th className="pb-3 font-medium">Status</th></tr></thead>
+              <tbody>
+                {filteredCases.map((c) => (
+                  <tr key={c.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-mono text-xs">{c.id}</td>
+                    <td className="py-3 pr-4 font-medium">{c.disease}</td>
+                    <td className="py-3 pr-4">{c.patient}</td>
+                    <td className="py-3 pr-4">{c.age}</td>
+                    <td className="py-3 pr-4">{c.gn}</td>
+                    <td className="py-3 pr-4 text-muted-foreground">{c.reportedDate}</td>
+                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-bold ${c.priority === 'HIGH' ? 'bg-red-100 text-red-700' : c.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{c.priority}</span></td>
+                    <td className="py-3"><span className={`text-xs font-medium ${c.status === 'Under Investigation' ? 'text-amber-600' : c.status === 'Investigated' ? 'text-green-600' : 'text-gray-500'}`}>{c.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
