@@ -46,3 +46,19 @@ export default function EpidemiologyWeeklyPage() {
           <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
           <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Epi Week Number</Label><Input type="number" min="1" max="53" placeholder="1-53" /></div>
+          <div className="space-y-2"><Label>Week Ending Date</Label><Input type="date" /></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Disease Cases & Deaths</CardTitle>
+            <div className="flex gap-4 text-sm">
