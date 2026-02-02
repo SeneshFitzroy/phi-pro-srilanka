@@ -78,17 +78,3 @@ export default function EpidemiologyWeeklyPage() {
                 <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.cases || ''} onChange={(e) => updateValue(disease, 'cases', e.target.value)} />
                 <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.deaths || ''} onChange={(e) => updateValue(disease, 'deaths', e.target.value)} />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">Remarks</CardTitle></CardHeader>
-        <CardContent>
-          <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Notable events, outbreaks, control measures taken..." />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
