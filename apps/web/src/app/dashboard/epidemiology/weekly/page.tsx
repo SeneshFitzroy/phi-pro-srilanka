@@ -30,3 +30,65 @@ export default function EpidemiologyWeeklyPage() {
   };
 
   const totalCases = Object.values(values).reduce((s, v) => s + (parseInt(v.cases) || 0), 0);
+  const totalDeaths = Object.values(values).reduce((s, v) => s + (parseInt(v.deaths) || 0), 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/epidemiology"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold">Weekly Communicable Disease Return (H399)</h1>
+            <p className="text-sm text-muted-foreground">Report all notifiable diseases for the epidemiological week</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Epi Week Number</Label><Input type="number" min="1" max="53" placeholder="1-53" /></div>
+          <div className="space-y-2"><Label>Week Ending Date</Label><Input type="date" /></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Disease Cases & Deaths</CardTitle>
+            <div className="flex gap-4 text-sm">
+              <span className="font-medium">Total Cases: <strong className="text-epidemiology">{totalCases}</strong></span>
+              <span className="font-medium">Total Deaths: <strong className="text-red-600">{totalDeaths}</strong></span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1">
+            <div className="grid grid-cols-[1fr,90px,90px] gap-2 text-xs font-medium text-muted-foreground pb-2 border-b">
+              <span>Disease</span><span className="text-center">Cases</span><span className="text-center">Deaths</span>
+            </div>
+            {diseases.map((disease) => (
+              <div key={disease} className="grid grid-cols-[1fr,90px,90px] gap-2 items-center py-1 hover:bg-accent/30 rounded">
+                <span className="text-sm">{disease}</span>
+                <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.cases || ''} onChange={(e) => updateValue(disease, 'cases', e.target.value)} />
+                <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.deaths || ''} onChange={(e) => updateValue(disease, 'deaths', e.target.value)} />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Remarks</CardTitle></CardHeader>
+        <CardContent>
+          <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Notable events, outbreaks, control measures taken..." />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
