@@ -52,3 +52,39 @@ const sections = [
 ];
 
 export default function EpidemiologyMonthlyPage() {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/epidemiology"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold">Monthly Epidemiology Return (H411)</h1>
+            <p className="text-sm text-muted-foreground">Monthly summary of disease control and surveillance activities</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>PHI Name</Label><Input placeholder="Your name" /></div>
+        </CardContent>
+      </Card>
+
+      {sections.map((section) => (
+        <Card key={section.title}>
+          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {section.items.map((item) => (
+                <div key={item.id} className="grid grid-cols-[1fr,120px] gap-3 items-center">
+                  <Label className="text-sm">{item.label}</Label>
