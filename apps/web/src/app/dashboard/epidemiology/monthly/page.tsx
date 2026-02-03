@@ -70,38 +70,3 @@ export default function EpidemiologyMonthlyPage() {
           <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
-
-      <Card>
-        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
-          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
-          <div className="space-y-2"><Label>PHI Name</Label><Input placeholder="Your name" /></div>
-        </CardContent>
-      </Card>
-
-      {sections.map((section) => (
-        <Card key={section.title}>
-          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {section.items.map((item) => (
-                <div key={item.id} className="grid grid-cols-[1fr,120px] gap-3 items-center">
-                  <Label className="text-sm">{item.label}</Label>
-                  <Input type="number" min="0" className="text-center" value={values[item.id] || ''} onChange={(e) => update(item.id, e.target.value)} />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">Significant Outbreaks / Events</CardTitle></CardHeader>
-        <CardContent>
-          <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[120px]" placeholder="Describe any notable outbreaks, clusters, or control measures taken during the month..." />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
