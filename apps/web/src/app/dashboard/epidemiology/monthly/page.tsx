@@ -88,3 +88,20 @@ export default function EpidemiologyMonthlyPage() {
               {section.items.map((item) => (
                 <div key={item.id} className="grid grid-cols-[1fr,120px] gap-3 items-center">
                   <Label className="text-sm">{item.label}</Label>
+                  <Input type="number" min="0" className="text-center" value={values[item.id] || ''} onChange={(e) => update(item.id, e.target.value)} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Significant Outbreaks / Events</CardTitle></CardHeader>
+        <CardContent>
+          <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[120px]" placeholder="Describe any notable outbreaks, clusters, or control measures taken during the month..." />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
