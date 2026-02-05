@@ -84,3 +84,44 @@ export default function DiseaseNotificationPage() {
                 <option>Hospitalized</option><option>Home Care</option><option>Recovered</option><option>Deceased</option>
               </select>
             </div>
+            <div className="space-y-2"><Label>Hospital (if admitted)</Label><Input placeholder="Hospital name" /></div>
+            <div className="space-y-2"><Label>Ward / BHT No.</Label><Input placeholder="Ward & BHT" /></div>
+            <div className="space-y-2">
+              <Label>Lab Confirmation</Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option>Pending</option><option>Confirmed</option><option>Negative</option><option>Not Tested</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Location */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Location & GPS</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2"><Label>Latitude</Label><Input placeholder="e.g. 6.9271" /></div>
+            <div className="space-y-2"><Label>Longitude</Label><Input placeholder="e.g. 79.8612" /></div>
+            <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Symptoms & Notes */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Symptoms & Initial Notes</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Presenting Symptoms</Label>
+            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Describe symptoms..." />
+          </div>
+          <div className="space-y-2">
+            <Label>PHI Notes</Label>
+            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Additional observations..." />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
