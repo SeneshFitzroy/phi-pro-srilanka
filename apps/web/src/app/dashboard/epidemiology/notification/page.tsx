@@ -62,3 +62,46 @@ export default function DiseaseNotificationPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Disease Details */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Disease Details</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Notifiable Disease *</Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={disease} onChange={(e) => setDisease(e.target.value)}>
+                <option value="">Select disease...</option>
+                {notifiableDiseases.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2"><Label>Date of Onset *</Label><Input type="date" /></div>
+            <div className="space-y-2"><Label>Date Notified</Label><Input type="date" /></div>
+            <div className="space-y-2"><Label>Notified By</Label><Input placeholder="Hospital / Doctor name" /></div>
+            <div className="space-y-2">
+              <Label>Patient Status</Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option>Hospitalized</option><option>Home Care</option><option>Recovered</option><option>Deceased</option>
+              </select>
+            </div>
+            <div className="space-y-2"><Label>Hospital (if admitted)</Label><Input placeholder="Hospital name" /></div>
+            <div className="space-y-2"><Label>Ward / BHT No.</Label><Input placeholder="Ward & BHT" /></div>
+            <div className="space-y-2">
+              <Label>Lab Confirmation</Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option>Pending</option><option>Confirmed</option><option>Negative</option><option>Not Tested</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Location */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Location & GPS</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2"><Label>Latitude</Label><Input placeholder="e.g. 6.9271" /></div>
+            <div className="space-y-2"><Label>Longitude</Label><Input placeholder="e.g. 79.8612" /></div>
+            <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
+          </div>
