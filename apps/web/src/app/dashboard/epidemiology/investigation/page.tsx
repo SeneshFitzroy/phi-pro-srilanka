@@ -18,3 +18,23 @@ const investigationSections = [
       { id: 'age', label: 'Age', type: 'number' },
       { id: 'address', label: 'Address', type: 'text' },
       { id: 'gn_division', label: 'GN Division', type: 'text' },
+    ]
+  },
+  {
+    title: 'Investigation Details',
+    fields: [
+      { id: 'date_notified', label: 'Date Notified', type: 'date' },
+      { id: 'date_investigated', label: 'Date Investigated', type: 'date' },
+      { id: 'within_48hrs', label: 'Within 48 hours?', type: 'select', options: ['Yes', 'No - Explain Below'] },
+      { id: 'investigation_type', label: 'Investigation Type', type: 'select', options: ['Individual', 'Cluster (≥3 cases within 150m)', 'Outbreak'] },
+    ]
+  },
+  {
+    title: 'Clinical & Epidemiological',
+    fields: [
+      { id: 'disease', label: 'Confirmed Disease', type: 'text' },
+      { id: 'onset_date', label: 'Date of Symptom Onset', type: 'date' },
+      { id: 'symptoms', label: 'Primary Symptoms', type: 'text' },
+      { id: 'lab_result', label: 'Lab Result', type: 'select', options: ['Positive', 'Negative', 'Pending', 'Not Tested'] },
+      { id: 'outcome', label: 'Patient Outcome', type: 'select', options: ['Recovered', 'Under Treatment', 'Hospitalized', 'Deceased'] },
+    ]
