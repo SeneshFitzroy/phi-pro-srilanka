@@ -58,23 +58,3 @@ const investigationSections = [
       { id: 'food_source', label: 'suspected food source (if food-borne)', type: 'text' },
     ]
   },
-];
-
-export default function CaseInvestigationPage() {
-  const [values, setValues] = useState<Record<string, string>>({});
-  const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/epidemiology"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><Search className="h-6 w-6 text-amber-600" />Case Investigation (SIV Form)</h1>
-            <p className="text-sm text-muted-foreground">Single case or cluster investigation — 48hr mandate</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
-        </div>
