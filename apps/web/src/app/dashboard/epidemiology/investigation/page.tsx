@@ -78,23 +78,3 @@ export default function CaseInvestigationPage() {
           <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
           <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
-      </div>
-
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
-        <div className="flex items-center gap-2 font-semibold"><Users className="h-4 w-4" /> Cluster Definition</div>
-        <p className="mt-1">3 or more cases of the same disease within a 150-meter radius within 2 weeks = cluster investigation required</p>
-      </div>
-
-      {investigationSections.map((section) => (
-        <Card key={section.title}>
-          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {section.fields.map((field) => (
-                <div key={field.id} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  {field.type === 'select' ? (
-                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={values[field.id] || ''} onChange={(e) => update(field.id, e.target.value)}>
-                      <option value="">Select...</option>
-                      {field.options?.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
