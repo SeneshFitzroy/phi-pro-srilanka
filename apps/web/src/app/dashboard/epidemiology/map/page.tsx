@@ -18,22 +18,3 @@ const recentPins = [
   { disease: 'Food Poisoning', gn: 'Cinnamon Gardens', date: '2025-02-11', type: 'case' },
   { disease: 'Dengue Fever', gn: 'Kirulapone', date: '2025-02-10', type: 'case' },
 ];
-
-export default function DiseaseMapPage() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/epidemiology"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><MapPin className="h-6 w-6 text-rose-500" />Disease Cluster Map</h1>
-            <p className="text-sm text-muted-foreground">GIS-based disease mapping — 150m cluster radius detection</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Map Placeholder */}
-      <Card className="overflow-hidden">
-        <div className="relative h-[400px] bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-          <div className="text-center">
-            <MapPin className="h-16 w-16 text-epidemiology/40 mx-auto" />
