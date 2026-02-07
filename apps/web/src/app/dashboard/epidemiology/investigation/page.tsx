@@ -58,3 +58,63 @@ const investigationSections = [
       { id: 'food_source', label: 'suspected food source (if food-borne)', type: 'text' },
     ]
   },
+];
+
+export default function CaseInvestigationPage() {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/epidemiology"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Search className="h-6 w-6 text-amber-600" />Case Investigation (SIV Form)</h1>
+            <p className="text-sm text-muted-foreground">Single case or cluster investigation — 48hr mandate</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+        <div className="flex items-center gap-2 font-semibold"><Users className="h-4 w-4" /> Cluster Definition</div>
+        <p className="mt-1">3 or more cases of the same disease within a 150-meter radius within 2 weeks = cluster investigation required</p>
+      </div>
+
+      {investigationSections.map((section) => (
+        <Card key={section.title}>
+          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {section.fields.map((field) => (
+                <div key={field.id} className="space-y-2">
+                  <Label>{field.label}</Label>
+                  {field.type === 'select' ? (
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={values[field.id] || ''} onChange={(e) => update(field.id, e.target.value)}>
+                      <option value="">Select...</option>
+                      {field.options?.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : (
+                    <Input type={field.type} value={values[field.id] || ''} onChange={(e) => update(field.id, e.target.value)} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* GPS */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Location</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2"><Label>Latitude</Label><Input placeholder="e.g. 6.9271" /></div>
+            <div className="space-y-2"><Label>Longitude</Label><Input placeholder="e.g. 79.8612" /></div>
+            <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
+          </div>
+        </CardContent>
