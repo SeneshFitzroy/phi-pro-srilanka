@@ -118,3 +118,22 @@ export default function CaseInvestigationPage() {
             <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
           </div>
         </CardContent>
+      </Card>
+
+      {/* Control Measures & Recommendations */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Control Measures & Recommendations</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Control Measures Taken</Label>
+            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px]" placeholder="Describe environmental control, awareness, fogging, etc...." />
+          </div>
+          <div className="space-y-2">
+            <Label>Recommendations</Label>
+            <textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Follow-up actions needed..." />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
