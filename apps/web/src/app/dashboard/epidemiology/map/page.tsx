@@ -57,3 +57,60 @@ export default function DiseaseMapPage() {
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Layers className="h-4 w-4" />Map Legend</CardTitle></CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-2"><div className="h-4 w-4 rounded-full bg-red-500" /><span className="text-sm">Dengue</span></div>
+            <div className="flex items-center gap-2"><div className="h-4 w-4 rounded-full bg-amber-500" /><span className="text-sm">Leptospirosis</span></div>
+            <div className="flex items-center gap-2"><div className="h-4 w-4 rounded-full bg-blue-500" /><span className="text-sm">Chickenpox</span></div>
+            <div className="flex items-center gap-2"><div className="h-4 w-4 rounded-full bg-green-500" /><span className="text-sm">Food Poisoning</span></div>
+            <div className="flex items-center gap-2"><div className="h-4 w-4 rounded-full bg-purple-500" /><span className="text-sm">Typhoid</span></div>
+            <div className="flex items-center gap-2"><div className="h-4 w-8 rounded border-2 border-red-500 border-dashed bg-red-50" /><span className="text-sm">Cluster (150m)</span></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Active Clusters */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-red-500" />Active Clusters</CardTitle></CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {clusters.map((c) => (
+              <div key={c.id} className={`rounded-lg border p-4 ${c.severity === 'HIGH' ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{c.disease}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{c.center} — {c.radius} radius</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">{c.cases}</p>
+                    <p className="text-xs text-muted-foreground">cases</p>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs">
+                  <span className={`rounded px-2 py-0.5 font-medium ${c.severity === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{c.severity} PRIORITY</span>
+                  <span className="text-muted-foreground">Detected: {c.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Pins */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Recent Case Pins</CardTitle></CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {recentPins.map((pin, i) => (
+              <div key={i} className="flex items-center justify-between rounded border p-3">
+                <div className="flex items-center gap-3">
+                  <div className={`h-3 w-3 rounded-full ${pin.disease.includes('Dengue') ? 'bg-red-500' : pin.disease.includes('Lepto') ? 'bg-amber-500' : pin.disease.includes('Chicken') ? 'bg-blue-500' : 'bg-green-500'}`} />
+                  <div><p className="text-sm font-medium">{pin.disease}</p><p className="text-xs text-muted-foreground">{pin.gn}</p></div>
+                </div>
+                <span className="text-xs text-muted-foreground">{pin.date}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
