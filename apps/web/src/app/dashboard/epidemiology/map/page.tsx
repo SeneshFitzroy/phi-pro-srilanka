@@ -76,3 +76,23 @@ export default function DiseaseMapPage() {
               <div key={c.id} className={`rounded-lg border p-4 ${c.severity === 'HIGH' ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
                 <div className="flex items-center justify-between">
                   <div>
+                    <p className="font-semibold">{c.disease}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{c.center} — {c.radius} radius</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">{c.cases}</p>
+                    <p className="text-xs text-muted-foreground">cases</p>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs">
+                  <span className={`rounded px-2 py-0.5 font-medium ${c.severity === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{c.severity} PRIORITY</span>
+                  <span className="text-muted-foreground">Detected: {c.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Pins */}
+      <Card>
