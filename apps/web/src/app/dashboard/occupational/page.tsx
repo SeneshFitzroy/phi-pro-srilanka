@@ -61,3 +61,24 @@ export default function OccupationalHealthPage() {
                 <p className="font-semibold text-sm">{action.title}</p>
                 <p className="text-xs opacity-75">{action.subtitle}</p>
               </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      {/* Scale Classification */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Factory Scale Classification</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
+              <Building2 className="h-8 w-8 text-green-600 mx-auto" />
+              <p className="mt-2 font-semibold text-green-700">Small</p>
+              <p className="text-sm text-green-600">&lt;50 workers</p>
+              <p className="text-lg font-bold text-green-700 mt-1">28</p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center">
+              <Building2 className="h-8 w-8 text-amber-600 mx-auto" />
+              <p className="mt-2 font-semibold text-amber-700">Medium</p>
+              <p className="text-sm text-amber-600">50-250 workers</p>
+              <p className="text-lg font-bold text-amber-700 mt-1">25</p>
