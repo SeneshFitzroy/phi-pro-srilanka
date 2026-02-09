@@ -20,24 +20,3 @@ const healthSections = [
     ]
   },
   {
-    title: 'Sanitary Facilities',
-    items: [
-      { id: 'toilets_count', label: 'Number of toilets', type: 'number' },
-      { id: 'toilets_clean', label: 'Toilet cleanliness', options: ['Good', 'Fair', 'Poor'] },
-      { id: 'washing_facilities', label: 'Hand washing facilities', options: ['Adequate', 'Inadequate'] },
-      { id: 'drinking_water', label: 'Drinking water supply', options: ['Safe & Adequate', 'Safe but Limited', 'Unsafe'] },
-      { id: 'canteen', label: 'Canteen/Eating area', options: ['Good', 'Fair', 'Poor', 'None'] },
-      { id: 'changing_rooms', label: 'Changing rooms available?', options: ['Yes', 'No'] },
-    ]
-  },
-  {
-    title: 'Hazardous Substances',
-    items: [
-      { id: 'chemicals_used', label: 'Chemicals used?', options: ['Yes', 'No'] },
-      { id: 'msds_available', label: 'MSDS available?', options: ['Yes', 'No', 'N/A'] },
-      { id: 'storage_proper', label: 'Chemical storage proper?', options: ['Yes', 'No', 'N/A'] },
-      { id: 'spill_kits', label: 'Spill kits available?', options: ['Yes', 'No', 'N/A'] },
-      { id: 'exposure_monitoring', label: 'Exposure monitoring done?', options: ['Regular', 'Irregular', 'Never'] },
-    ]
-  },
-  {
