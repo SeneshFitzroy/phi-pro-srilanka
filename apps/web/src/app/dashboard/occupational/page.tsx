@@ -82,3 +82,24 @@ export default function OccupationalHealthPage() {
               <p className="mt-2 font-semibold text-amber-700">Medium</p>
               <p className="text-sm text-amber-600">50-250 workers</p>
               <p className="text-lg font-bold text-amber-700 mt-1">25</p>
+            </div>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
+              <Building2 className="h-8 w-8 text-red-600 mx-auto" />
+              <p className="mt-2 font-semibold text-red-700">Large</p>
+              <p className="text-sm text-red-600">250+ workers</p>
+              <p className="text-lg font-bold text-red-700 mt-1">14</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Factories Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Registered Factories</CardTitle>
+          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search factories..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Reg. No.</th><th className="pb-3 pr-4 font-medium">Factory</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Scale</th><th className="pb-3 pr-4 font-medium">Workers</th><th className="pb-3 pr-4 font-medium">Last Inspection</th><th className="pb-3 font-medium">Risk</th></tr></thead>
