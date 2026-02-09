@@ -103,3 +103,23 @@ export default function OccupationalHealthPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Reg. No.</th><th className="pb-3 pr-4 font-medium">Factory</th><th className="pb-3 pr-4 font-medium">Type</th><th className="pb-3 pr-4 font-medium">Scale</th><th className="pb-3 pr-4 font-medium">Workers</th><th className="pb-3 pr-4 font-medium">Last Inspection</th><th className="pb-3 font-medium">Risk</th></tr></thead>
+              <tbody>
+                {filtered.map((f) => (
+                  <tr key={f.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-mono text-xs">{f.id}</td>
+                    <td className="py-3 pr-4 font-medium">{f.name}</td>
+                    <td className="py-3 pr-4">{f.type}</td>
+                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-medium ${f.scale === 'LARGE' ? 'bg-red-100 text-red-700' : f.scale === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{f.scale}</span></td>
+                    <td className="py-3 pr-4">{f.workers}</td>
+                    <td className="py-3 pr-4 text-muted-foreground">{f.lastInspection}</td>
+                    <td className="py-3"><span className={`rounded px-2 py-0.5 text-xs font-bold ${f.risk === 'HIGH' ? 'bg-red-100 text-red-700' : f.risk === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{f.risk}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
