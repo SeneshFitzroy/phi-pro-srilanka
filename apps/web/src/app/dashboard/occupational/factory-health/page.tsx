@@ -105,3 +105,23 @@ export default function FactoryHealthPage() {
                       {item.options.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   ) : (
+                    <Input type={item.type || 'text'} value={values[item.id] || ''} onChange={(e) => update(item.id, e.target.value)} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Recommendations & Follow-up</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2"><Label>Violations / Issues Found</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="List health violations..." /></div>
+          <div className="space-y-2"><Label>Recommendations</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Improvement actions..." /></div>
+          <div className="space-y-2"><Label>Follow-up Date</Label><Input type="date" /></div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
