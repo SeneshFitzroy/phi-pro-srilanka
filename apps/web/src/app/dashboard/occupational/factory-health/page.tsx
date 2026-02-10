@@ -62,3 +62,25 @@ export default function FactoryHealthPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/occupational"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Factory className="h-6 w-6 text-occupational" />Factory Health Inspection (H1203)</h1>
+            <p className="text-sm text-muted-foreground">Assess workplace health conditions and worker welfare</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>Factory Name *</Label><Input placeholder="Factory name" /></div>
+          <div className="space-y-2"><Label>Registration No.</Label><Input placeholder="Reg number" /></div>
+          <div className="space-y-2">
+            <Label>Factory Scale</Label>
+            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="SMALL">Small (&lt;50 workers)</option><option value="MEDIUM">Medium (50-250)</option><option value="LARGE">Large (250+)</option>
+            </select>
+          </div>
+          <div className="space-y-2"><Label>Total Workers</Label><Input type="number" placeholder="Count" /></div>
