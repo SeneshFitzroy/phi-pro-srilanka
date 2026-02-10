@@ -84,3 +84,24 @@ export default function FactoryHealthPage() {
             </select>
           </div>
           <div className="space-y-2"><Label>Total Workers</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Industry Type</Label><Input placeholder="e.g. Textile, Chemical" /></div>
+          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" /></div>
+          <div className="space-y-2"><Label>Address</Label><Input placeholder="Factory address" /></div>
+          <div className="space-y-2"><Label>Contact Person</Label><Input placeholder="Manager name" /></div>
+        </CardContent>
+      </Card>
+
+      {healthSections.map((section) => (
+        <Card key={section.title}>
+          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {section.items.map((item) => (
+                <div key={item.id} className="grid gap-2 sm:grid-cols-[1fr,200px] items-center">
+                  <Label className="text-sm">{item.label}</Label>
+                  {'options' in item && item.options ? (
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={values[item.id] || ''} onChange={(e) => update(item.id, e.target.value)}>
+                      <option value="">Select...</option>
+                      {item.options.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : (
