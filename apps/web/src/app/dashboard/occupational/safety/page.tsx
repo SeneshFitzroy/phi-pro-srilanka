@@ -19,3 +19,42 @@ const safetySections = [
       { id: 'fire_drill', label: 'Fire drills conducted?', options: ['Regular', 'Occasional', 'Never'] },
       { id: 'fire_plan', label: 'Emergency evacuation plan posted?', options: ['Yes', 'No'] },
     ]
+  },
+  {
+    title: 'Machine Safety',
+    items: [
+      { id: 'machine_guards', label: 'Machine guards in place?', options: ['All', 'Most', 'Some', 'None'] },
+      { id: 'lockout_tagout', label: 'Lockout/tagout procedures?', options: ['Yes', 'No'] },
+      { id: 'maintenance_schedule', label: 'Maintenance schedule followed?', options: ['Regular', 'Irregular', 'None'] },
+      { id: 'safe_distances', label: 'Safe working distances maintained?', options: ['Yes', 'No'] },
+      { id: 'training_machines', label: 'Workers trained on machines?', options: ['Yes - All', 'Yes - Some', 'No'] },
+    ]
+  },
+  {
+    title: 'Personal Protective Equipment (PPE)',
+    items: [
+      { id: 'ppe_provided', label: 'PPE provided to all workers?', options: ['Yes', 'No', 'Partial'] },
+      { id: 'ppe_used', label: 'PPE usage compliance?', options: ['High (>90%)', 'Medium (50-90%)', 'Low (<50%)'] },
+      { id: 'ppe_types', label: 'PPE types available', options: ['Comprehensive', 'Basic', 'Minimal'] },
+      { id: 'ppe_condition', label: 'PPE condition?', options: ['Good', 'Fair', 'Poor'] },
+    ]
+  },
+  {
+    title: 'Electrical Safety',
+    items: [
+      { id: 'wiring', label: 'Electrical wiring condition?', options: ['Good', 'Fair', 'Poor/Exposed'] },
+      { id: 'grounding', label: 'Equipment properly grounded?', options: ['Yes', 'No', 'Partial'] },
+      { id: 'circuit_breakers', label: 'Circuit breakers/fuses adequate?', options: ['Yes', 'No'] },
+      { id: 'waterproof', label: 'Electrical in wet areas waterproof?', options: ['Yes', 'No', 'N/A'] },
+    ]
+  },
+  {
+    title: 'Structural Safety',
+    items: [
+      { id: 'building_condition', label: 'Building structural condition?', options: ['Good', 'Fair', 'Poor'] },
+      { id: 'floor_condition', label: 'Floor condition (slip risk)?', options: ['Good', 'Fair', 'Poor'] },
+      { id: 'stacking', label: 'Material stacking safe?', options: ['Yes', 'No'] },
+      { id: 'signage', label: 'Safety signage adequate?', options: ['Yes', 'Partial', 'No'] },
+    ]
+  },
+];
