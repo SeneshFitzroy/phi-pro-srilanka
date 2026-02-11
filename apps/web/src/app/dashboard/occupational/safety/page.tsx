@@ -80,3 +80,23 @@ export default function SafetyInspectionPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+        </div>
+      </div>
+
+      {/* Compliance Score */}
+      <Card>
+        <CardContent className="flex items-center justify-between p-4">
+          <div><p className="text-sm text-muted-foreground">Safety Compliance Score</p><p className="text-3xl font-bold">{score}%</p></div>
+          <div className="h-16 w-16 rounded-full border-4 flex items-center justify-center text-lg font-bold" style={{ borderColor: score >= 80 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444', color: score >= 80 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444' }}>
+            {score >= 80 ? 'PASS' : score >= 50 ? 'WARN' : 'FAIL'}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>Factory Name *</Label><Input placeholder="Factory name" /></div>
+          <div className="space-y-2"><Label>Registration No.</Label><Input placeholder="Reg number" /></div>
+          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" /></div>
+          <div className="space-y-2"><Label>Inspector</Label><Input placeholder="Your name" /></div>
