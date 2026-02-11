@@ -58,3 +58,25 @@ const safetySections = [
     ]
   },
 ];
+
+export default function SafetyInspectionPage() {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+
+  // Calculate compliance score
+  const total = safetySections.reduce((s, sec) => s + sec.items.length, 0);
+  const positive = Object.values(values).filter(v => v.startsWith('Yes') || v === 'Good' || v === 'All' || v === 'Regular' || v === 'Comprehensive' || v.includes('>90')).length;
+  const score = total > 0 ? Math.round((positive / total) * 100) : 0;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/occupational"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><ClipboardCheck className="h-6 w-6 text-occupational" />Safety Inspection (H1204)</h1>
+            <p className="text-sm text-muted-foreground">Assess workplace safety conditions and compliance</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
