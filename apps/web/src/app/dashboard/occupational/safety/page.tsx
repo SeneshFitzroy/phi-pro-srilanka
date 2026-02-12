@@ -120,3 +120,22 @@ export default function SafetyInspectionPage() {
             </div>
           </CardContent>
         </Card>
+      ))}
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Violations & Notices</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Notice Type</Label>
+            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option>None</option><option>Improvement Notice</option><option>Prohibition Notice</option><option>Court Summons</option>
+            </select>
+          </div>
+          <div className="space-y-2"><Label>Violations Description</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Describe safety violations..." /></div>
+          <div className="space-y-2"><Label>Corrective Actions Required</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Actions to be taken..." /></div>
+          <div className="space-y-2"><Label>Follow-up Inspection Date</Label><Input type="date" /></div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
