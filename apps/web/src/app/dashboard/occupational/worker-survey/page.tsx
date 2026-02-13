@@ -64,3 +64,19 @@ export default function WorkerSurveyPage() {
             {records.map((r, idx) => (
               <div key={r.id} className="rounded-lg border p-4">
                 <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-muted-foreground">Worker #{idx + 1}</span>
+                  {records.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeRecord(r.id)}><Trash2 className="h-4 w-4" /></Button>}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="space-y-1"><Label className="text-xs">Worker Name</Label><Input value={r.name} onChange={(e) => updateRecord(r.id, 'name', e.target.value)} placeholder="Full name" /></div>
+                  <div className="space-y-1"><Label className="text-xs">Age</Label><Input type="number" value={r.age} onChange={(e) => updateRecord(r.id, 'age', e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Gender</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.gender} onChange={(e) => updateRecord(r.id, 'gender', e.target.value)}><option value="M">Male</option><option value="F">Female</option></select>
+                  </div>
+                  <div className="space-y-1"><Label className="text-xs">Section / Department</Label><Input value={r.section} onChange={(e) => updateRecord(r.id, 'section', e.target.value)} placeholder="e.g. Assembly" /></div>
+                  <div className="space-y-1"><Label className="text-xs">Years Employed</Label><Input type="number" value={r.yearsEmployed} onChange={(e) => updateRecord(r.id, 'yearsEmployed', e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Health Issues</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.healthIssues} onChange={(e) => updateRecord(r.id, 'healthIssues', e.target.value)}>
+                      <option value="">None</option><option>Respiratory</option><option>Skin Condition</option><option>Hearing Loss</option><option>Musculoskeletal</option><option>Eye Strain</option><option>Chemical Exposure</option><option>Fatigue/Stress</option><option>Other</option>
