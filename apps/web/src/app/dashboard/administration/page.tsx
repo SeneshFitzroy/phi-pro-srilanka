@@ -39,3 +39,24 @@ export default function AdministrationPage() {
         <h1 className="text-2xl font-bold flex items-center gap-2"><Briefcase className="h-7 w-7 text-administration" /> Administration & Reporting</h1>
         <p className="text-sm text-muted-foreground mt-1">GN area management, statistical reporting, and area surveys</p>
       </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-l-4 border-l-administration">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">GN Divisions</p><p className="text-2xl font-bold">{gnDivisions.length}</p></div><MapPin className="h-8 w-8 text-administration/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Total Population</p><p className="text-2xl font-bold">{totalPop.toLocaleString()}</p></div><Users className="h-8 w-8 text-blue-500/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Households</p><p className="text-2xl font-bold">{totalHH.toLocaleString()}</p></div><ClipboardList className="h-8 w-8 text-green-500/60" /></div></CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="text-sm text-muted-foreground">Reports This Month</p><p className="text-2xl font-bold">12</p></div><TrendingUp className="h-8 w-8 text-amber-500/60" /></div></CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {quickActions.map((action) => (
+          <Link key={action.href} href={action.href}>
