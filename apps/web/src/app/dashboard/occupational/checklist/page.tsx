@@ -78,3 +78,23 @@ export default function OHSChecklistPage() {
           <div className="space-y-2"><Label>Factory Name *</Label><Input placeholder="Factory name" /></div>
           <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" /></div>
           <div className="space-y-2"><Label>Inspector</Label><Input placeholder="Your name" /></div>
+        </CardContent>
+      </Card>
+
+      {checklistCategories.map((cat) => (
+        <Card key={cat.title}>
+          <CardHeader><CardTitle className="text-base">{cat.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {cat.items.map((item) => {
+                const key = `${cat.title}-${item}`;
+                return (
+                  <div key={item} className="flex items-center justify-between rounded-lg border p-3">
+                    <span className="text-sm">{item}</span>
+                    <div className="flex gap-2">
+                      {(['yes', 'no', 'na'] as const).map(val => (
+                        <button key={val} onClick={() => setChecks(prev => ({ ...prev, [key]: val }))}
+                          className={`rounded px-3 py-1 text-xs font-medium transition ${checks[key] === val ? (val === 'yes' ? 'bg-green-500 text-white' : val === 'no' ? 'bg-red-500 text-white' : 'bg-gray-400 text-white') : 'bg-accent text-muted-foreground hover:bg-accent/80'}`}>
+                          {val === 'yes' ? 'Yes' : val === 'no' ? 'No' : 'N/A'}
+                        </button>
+                      ))}
