@@ -37,24 +37,3 @@ const checklistCategories = [
 
 export default function OHSChecklistPage() {
   const [checks, setChecks] = useState<Record<string, 'yes' | 'no' | 'na' | ''>>({});
-
-  const total = checklistCategories.reduce((s, c) => s + c.items.length, 0);
-  const yes = Object.values(checks).filter(v => v === 'yes').length;
-  const no = Object.values(checks).filter(v => v === 'no').length;
-  const score = (yes + no) > 0 ? Math.round((yes / (yes + no)) * 100) : 0;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/occupational"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><ClipboardCheck className="h-6 w-6 text-yellow-600" />OHS Checklist</h1>
-            <p className="text-sm text-muted-foreground">Comprehensive occupational health & safety checklist</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
-        </div>
-      </div>
