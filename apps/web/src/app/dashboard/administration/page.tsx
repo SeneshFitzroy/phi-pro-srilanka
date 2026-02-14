@@ -80,3 +80,24 @@ export default function AdministrationPage() {
               { task: 'PHI-1 Monthly Report', due: '5th of month', status: 'Due Soon' },
               { task: 'H399 Weekly Return', due: 'Every Monday', status: 'On Track' },
               { task: 'H411 Monthly Summary', due: '10th of month', status: 'Not Started' },
+              { task: 'H796 Quarterly Update', due: 'End of quarter', status: 'On Track' },
+            ].map((d, i) => (
+              <div key={i} className="flex items-center justify-between rounded-lg border p-3">
+                <div><p className="text-sm font-medium">{d.task}</p><p className="text-xs text-muted-foreground">Due: {d.due}</p></div>
+                <span className={`rounded px-2 py-1 text-xs font-medium ${d.status === 'Due Soon' ? 'bg-amber-100 text-amber-700' : d.status === 'On Track' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{d.status}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* GN Divisions Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>GN Area Divisions</CardTitle>
+          <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search GN..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Code</th><th className="pb-3 pr-4 font-medium">GN Division</th><th className="pb-3 pr-4 font-medium">Population</th><th className="pb-3 pr-4 font-medium">Households</th><th className="pb-3 pr-4 font-medium">Last Survey</th><th className="pb-3 font-medium">Status</th></tr></thead>
