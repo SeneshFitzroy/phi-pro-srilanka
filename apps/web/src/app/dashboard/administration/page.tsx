@@ -60,3 +60,23 @@ export default function AdministrationPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {quickActions.map((action) => (
           <Link key={action.href} href={action.href}>
+            <Card className={`cursor-pointer border transition hover:shadow-md ${action.color}`}>
+              <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
+                <action.icon className="h-8 w-8" />
+                <p className="font-semibold text-sm">{action.title}</p>
+                <p className="text-xs opacity-75">{action.subtitle}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      {/* Upcoming */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Calendar className="h-4 w-4" />Monthly Deadlines</CardTitle></CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {[
+              { task: 'PHI-1 Monthly Report', due: '5th of month', status: 'Due Soon' },
+              { task: 'H399 Weekly Return', due: 'Every Monday', status: 'On Track' },
+              { task: 'H411 Monthly Summary', due: '10th of month', status: 'Not Started' },
