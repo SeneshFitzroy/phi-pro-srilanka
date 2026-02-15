@@ -62,33 +62,3 @@ export default function GNMappingPage() {
           <Button size="sm" onClick={addRecord}><Plus className="mr-1 h-4 w-4" />Add GN</Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {records.map((r, idx) => (
-              <div key={r.id} className="rounded-lg border p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-muted-foreground">GN Division #{idx + 1}</span>
-                  {records.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeRecord(r.id)}><Trash2 className="h-4 w-4" /></Button>}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="space-y-1"><Label className="text-xs">GN Code</Label><Input value={r.gnCode} onChange={(e) => update(r.id, 'gnCode', e.target.value)} placeholder="e.g. GN-001" /></div>
-                  <div className="space-y-1"><Label className="text-xs">GN Name</Label><Input value={r.gnName} onChange={(e) => update(r.id, 'gnName', e.target.value)} placeholder="Division name" /></div>
-                  <div className="space-y-1"><Label className="text-xs">GN Officer</Label><Input value={r.gnOfficer} onChange={(e) => update(r.id, 'gnOfficer', e.target.value)} placeholder="Officer name" /></div>
-                  <div className="space-y-1"><Label className="text-xs">Population</Label><Input type="number" value={r.population} onChange={(e) => update(r.id, 'population', e.target.value)} /></div>
-                  <div className="space-y-1"><Label className="text-xs">Households</Label><Input type="number" value={r.households} onChange={(e) => update(r.id, 'households', e.target.value)} /></div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Water Source</Label>
-                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.waterSource} onChange={(e) => update(r.id, 'waterSource', e.target.value)}>
-                      <option value="">Select...</option><option>Pipe-borne</option><option>Well</option><option>Tube Well</option><option>Mixed</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1"><Label className="text-xs">Schools</Label><Input type="number" value={r.schools} onChange={(e) => update(r.id, 'schools', e.target.value)} /></div>
-                  <div className="space-y-1"><Label className="text-xs">Food Premises</Label><Input type="number" value={r.foodPremises} onChange={(e) => update(r.id, 'foodPremises', e.target.value)} /></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
