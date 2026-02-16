@@ -65,20 +65,3 @@ export default function StatisticsPage() {
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
           <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
           <div className="space-y-2"><Label>PHI Area Code</Label><Input placeholder="Code" /></div>
-          <div className="space-y-2"><Label>Prepared By</Label><Input placeholder="PHI name" /></div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">Data Table</CardTitle></CardHeader>
-        <CardContent className="overflow-auto">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b"><th className="py-2 text-left font-medium min-w-[200px]">Category</th>{YEARS.map(y => <th key={y} className="px-2 py-2 text-center font-medium min-w-[100px]">{y}</th>)}</tr></thead>
-            <tbody>
-              {CATEGORIES.map((c, i) => (
-                <tr key={c.key} className={`border-b ${i < 4 ? 'bg-purple-50/40 dark:bg-purple-950/10' : i < 8 ? '' : i < 15 ? 'bg-red-50/40 dark:bg-red-950/10' : ''}`}>
-                  <td className="py-1.5 font-medium text-xs">{c.label}</td>
-                  {YEARS.map(y => (
-                    <td key={y} className="px-1 py-1"><Input type="number" className="h-8 text-center text-xs" value={data[c.key][y]} onChange={e => updateCell(c.key, y, e.target.value)} /></td>
-                  ))}
-                </tr>
