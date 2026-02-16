@@ -32,36 +32,3 @@ const CATEGORIES = [
 ];
 
 const currentYear = new Date().getFullYear();
-const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
-
-export default function StatisticsPage() {
-  const [data, setData] = useState<Record<string, Record<number, string>>>(() => {
-    const d: Record<string, Record<number, string>> = {};
-    CATEGORIES.forEach(c => { d[c.key] = {}; YEARS.forEach(y => { d[c.key][y] = ''; }); });
-    return d;
-  });
-
-  const updateCell = (cat: string, year: number, val: string) => {
-    setData(prev => ({ ...prev, [cat]: { ...prev[cat], [year]: val } }));
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/administration"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6 text-administration" />Five-Year Statistics (H796)</h1>
-            <p className="text-sm text-muted-foreground">Population and health statistics over {YEARS[0]}–{YEARS[4]}</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save</Button>
-        </div>
-      </div>
-
-      <Card>
-        <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area Code</Label><Input placeholder="Code" /></div>
