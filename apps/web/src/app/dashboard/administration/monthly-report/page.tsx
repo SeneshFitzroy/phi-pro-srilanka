@@ -70,3 +70,97 @@ const SECTIONS: Section[] = [
       { key: 'e3', label: 'Premises improved (sanitary)' },
       { key: 'e4', label: 'Drain/garbage complaints' },
       { key: 'e5', label: 'Building plan approvals' },
+    ],
+  },
+  {
+    title: '6. Health Education & Other',
+    color: 'bg-purple-50 dark:bg-purple-950/10',
+    items: [
+      { key: 'h1', label: 'Health education sessions' },
+      { key: 'h2', label: 'Participants in HE sessions' },
+      { key: 'h3', label: 'Home visits' },
+      { key: 'h4', label: 'Office days' },
+      { key: 'h5', label: 'Field days' },
+      { key: 'h6', label: 'Meetings attended' },
+      { key: 'h7', label: 'Leave days' },
+    ],
+  },
+];
+
+export default function MonthlyReportPage() {
+  const [data, setData] = useState<Record<string, string>>(() => {
+    const d: Record<string, string> = {};
+    SECTIONS.forEach(s => s.items.forEach(i => { d[i.key] = ''; }));
+    return d;
+  });
+
+  const totalActivities = useMemo(() =>
+    Object.values(data).reduce((sum, v) => sum + (parseInt(v) || 0), 0),
+    [data]
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/administration"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><FileText className="h-6 w-6 text-administration" />PHI Monthly Report (PHI-1)</h1>
+            <p className="text-sm text-muted-foreground">Comprehensive monthly activity summary across all domains</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save & Submit</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-4">
+          <div className="space-y-2"><Label>Month</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>PHI Name</Label><Input placeholder="Officer name" /></div>
+          <div className="space-y-2"><Label>PHI Area Code</Label><Input placeholder="Code" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="MOH area name" /></div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {SECTIONS.map(section => (
+          <Card key={section.title}>
+            <CardHeader className={`${section.color} rounded-t-lg`}>
+              <CardTitle className="text-sm">{section.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <table className="w-full text-sm">
+                <tbody>
+                  {section.items.map(item => (
+                    <tr key={item.key} className="border-b last:border-0">
+                      <td className="px-4 py-2 text-xs">{item.label}</td>
+                      <td className="w-24 px-4 py-1"><Input type="number" className="h-8 text-center text-xs" value={data[item.key]} onChange={e => setData(prev => ({ ...prev, [item.key]: e.target.value }))} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="bg-administration/5 border-administration/20">
+        <CardContent className="flex items-center justify-between p-4">
+          <div><span className="text-sm font-medium">Total Activity Count</span><p className="text-xs text-muted-foreground">Sum of all entries</p></div>
+          <span className="text-3xl font-bold text-administration">{totalActivities}</span>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Remarks & Narrative</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1"><Label className="text-xs">Key Achievements</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Notable accomplishments this month..." /></div>
+          <div className="space-y-1"><Label className="text-xs">Challenges & Issues</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Problems encountered..." /></div>
+          <div className="space-y-1"><Label className="text-xs">Next Month's Plan</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Planned activities for next month..." /></div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
