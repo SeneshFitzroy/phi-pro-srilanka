@@ -142,25 +142,3 @@ export default function MonthlyReportPage() {
                 </tbody>
               </table>
             </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="bg-administration/5 border-administration/20">
-        <CardContent className="flex items-center justify-between p-4">
-          <div><span className="text-sm font-medium">Total Activity Count</span><p className="text-xs text-muted-foreground">Sum of all entries</p></div>
-          <span className="text-3xl font-bold text-administration">{totalActivities}</span>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">Remarks & Narrative</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-1"><Label className="text-xs">Key Achievements</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Notable accomplishments this month..." /></div>
-          <div className="space-y-1"><Label className="text-xs">Challenges & Issues</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Problems encountered..." /></div>
-          <div className="space-y-1"><Label className="text-xs">Next Month's Plan</Label><textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Planned activities for next month..." /></div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
