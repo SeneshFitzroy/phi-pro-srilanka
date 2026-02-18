@@ -68,27 +68,3 @@ export default function AreaSurveyPage() {
             </thead>
             <tbody>
               {gnDivisions.map(g => (
-                <tr key={g.id} className="border-b">
-                  <td className="py-1"><Input className="h-8 text-xs" value={g.gnName} onChange={e => updateGN(g.id, 'gnName', e.target.value)} placeholder="Name" /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.population} onChange={e => updateGN(g.id, 'population', e.target.value)} /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.males} onChange={e => updateGN(g.id, 'males', e.target.value)} /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.females} onChange={e => updateGN(g.id, 'females', e.target.value)} /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.under5} onChange={e => updateGN(g.id, 'under5', e.target.value)} /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.over60} onChange={e => updateGN(g.id, 'over60', e.target.value)} /></td>
-                  <td className="px-1 py-1"><Input type="number" className="h-8 text-xs text-center" value={g.households} onChange={e => updateGN(g.id, 'households', e.target.value)} /></td>
-                  <td>{gnDivisions.length > 1 && <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => removeGN(g.id)}><Trash2 className="h-3 w-3" /></Button>}</td>
-                </tr>
-              ))}
-              <tr className="font-bold bg-muted/50">
-                <td className="py-2 text-xs">TOTAL</td>
-                <td className="text-center text-xs">{totals.population}</td>
-                <td className="text-center text-xs">{totals.males}</td>
-                <td className="text-center text-xs">{totals.females}</td>
-                <td></td><td></td>
-                <td className="text-center text-xs">{totals.households}</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
