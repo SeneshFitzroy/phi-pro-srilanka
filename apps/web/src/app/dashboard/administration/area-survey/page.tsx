@@ -137,3 +137,26 @@ export default function AreaSurveyPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Housing */}
+      <Card>
+        <CardHeader className="bg-orange-50 dark:bg-orange-950/10 rounded-t-lg"><CardTitle className="text-base">Section 5: Housing Types</CardTitle></CardHeader>
+        <CardContent className="p-4 grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2"><Label>Permanent</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Semi-permanent</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Temporary/Shanty</Label><Input type="number" placeholder="Count" /></div>
+        </CardContent>
+      </Card>
+
+      {/* Key Facilities */}
+      <Card>
+        <CardHeader className="bg-red-50 dark:bg-red-950/10 rounded-t-lg"><CardTitle className="text-base">Section 6: Key Facilities in Area</CardTitle></CardHeader>
+        <CardContent className="p-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {['Hospitals', 'MOH Offices', 'Schools', 'Pre-schools', 'Food Premises', 'Factories', 'Markets', 'Places of Worship', 'Hotels/Restaurants', 'Bakeries', 'Slaughter Houses', 'Cemeteries'].map(f => (
+            <div key={f} className="space-y-1"><Label className="text-xs">{f}</Label><Input type="number" placeholder="0" /></div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
