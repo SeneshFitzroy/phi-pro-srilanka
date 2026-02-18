@@ -45,26 +45,3 @@ export default function AreaSurveyPage() {
           <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save</Button>
         </div>
       </div>
-
-      <Card>
-        <CardContent className="grid gap-4 p-4 sm:grid-cols-4">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Code" /></div>
-          <div className="space-y-2"><Label>Survey Year</Label><Input type="number" placeholder="2025" /></div>
-          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" /></div>
-        </CardContent>
-      </Card>
-
-      {/* Demographics by GN Division */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between bg-purple-50 dark:bg-purple-950/10 rounded-t-lg">
-          <CardTitle className="text-base">Section 1: Demographics by GN Division</CardTitle>
-          <Button size="sm" onClick={addGN}><Plus className="mr-1 h-4 w-4" />Add GN</Button>
-        </CardHeader>
-        <CardContent className="overflow-auto p-4">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b"><th className="py-2 text-left text-xs">GN Division</th><th className="px-1 py-2 text-center text-xs">Population</th><th className="px-1 py-2 text-center text-xs">Males</th><th className="px-1 py-2 text-center text-xs">Females</th><th className="px-1 py-2 text-center text-xs">&lt;5 yrs</th><th className="px-1 py-2 text-center text-xs">&gt;60 yrs</th><th className="px-1 py-2 text-center text-xs">Households</th><th className="w-8"></th></tr>
-            </thead>
-            <tbody>
-              {gnDivisions.map(g => (
