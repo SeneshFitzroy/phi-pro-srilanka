@@ -30,3 +30,19 @@ export default function FoodGradesPage() {
   });
 
   return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-950 dark:to-gray-900">
+      <div className="container mx-auto max-w-4xl px-4 py-8 space-y-6">
+        <div className="flex items-center gap-3">
+          <Link href="/public"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><ShieldCheck className="h-6 w-6 text-green-600" />Food Safety Grades</h1>
+            <p className="text-sm text-muted-foreground">Search and verify food establishment hygiene grades</p>
+          </div>
+        </div>
+
+        {/* Grade Guide */}
+        <div className="grid grid-cols-3 gap-3">
+          {['A', 'B', 'C'].map(g => (
+            <Card key={g} className={`border-2 ${gradeColor(g)}`}>
+              <CardContent className="flex items-center gap-3 p-4">
+                <span className="text-3xl font-black">{g}</span>
