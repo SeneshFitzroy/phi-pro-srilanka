@@ -108,3 +108,30 @@ export default function SpotMapPage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Add Case Pin</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Disease Type</Label>
+                <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm" value={selectedDisease} onChange={e => setSelectedDisease(e.target.value)}>
+                  {Object.keys(DISEASE_COLORS).map(d => <option key={d}>{d}</option>)}
+                </select>
+              </div>
+              <Button size="sm" className="w-full" onClick={addPin}><Plus className="mr-1 h-4 w-4" />Place Pin ({selectedDisease})</Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="grid gap-3 p-4">
+              <div className="space-y-1"><Label className="text-xs">GN Division Filter</Label>
+                <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
+                  <option>All Divisions</option>
+                </select>
+              </div>
+              <div className="space-y-1"><Label className="text-xs">Date Range</Label>
+                <div className="flex gap-2"><Input type="date" className="h-9 text-xs" /><Input type="date" className="h-9 text-xs" /></div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
