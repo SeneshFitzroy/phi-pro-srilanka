@@ -135,3 +135,30 @@ export default function SpotMapPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Pin Data Table */}
+      {pins.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-base">Case Pins ({pins.length})</CardTitle></CardHeader>
+          <CardContent className="overflow-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="py-2 text-left text-xs">#</th>
+                  <th className="py-2 text-left text-xs">Disease</th>
+                  <th className="py-2 text-left text-xs">GN Division</th>
+                  <th className="py-2 text-left text-xs">Lat</th>
+                  <th className="py-2 text-left text-xs">Lng</th>
+                  <th className="py-2 text-left text-xs">Date</th>
+                  <th className="py-2 text-left text-xs">Age</th>
+                  <th className="py-2 text-left text-xs">Gender</th>
+                  <th className="py-2 text-left text-xs">Notes</th>
+                  <th className="w-8"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {pins.map((p, idx) => (
+                  <tr key={p.id} className="border-b">
+                    <td className="py-1"><div className="flex items-center gap-1"><div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: DISEASE_COLORS[p.disease] || '#999' }} />{idx + 1}</div></td>
+                    <td className="py-1">
