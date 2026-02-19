@@ -46,3 +46,19 @@ export default function FoodGradesPage() {
             <Card key={g} className={`border-2 ${gradeColor(g)}`}>
               <CardContent className="flex items-center gap-3 p-4">
                 <span className="text-3xl font-black">{g}</span>
+                <span className="text-xs">{gradeLabel(g)}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Search */}
+        <Card>
+          <CardContent className="flex flex-col gap-3 p-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input className="pl-9" placeholder="Search by name or address..." value={query} onChange={e => setQuery(e.target.value)} />
+            </div>
+            <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+              <option>All</option><option>Restaurant</option><option>Bakery</option><option>Hotel</option><option>Retail</option><option>Food Court</option>
+            </select>
