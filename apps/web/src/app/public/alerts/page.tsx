@@ -40,17 +40,3 @@ export default function AlertsPage() {
               <p className="text-sm text-red-100">For suspected disease outbreaks or acute public health emergencies, call immediately.</p>
             </div>
           </CardContent>
-        </Card>
-
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="text-xs">All</Button>
-          <Button variant="outline" size="sm" className="text-xs text-red-600 border-red-200">Critical</Button>
-          <Button variant="outline" size="sm" className="text-xs text-yellow-600 border-yellow-200">Warnings</Button>
-          <Button variant="outline" size="sm" className="text-xs text-blue-600 border-blue-200">Info</Button>
-        </div>
-
-        <div className="space-y-4">
-          {ALERTS.map(alert => {
-            const style = typeStyles[alert.type];
-            const Icon = alert.icon;
-            return (
