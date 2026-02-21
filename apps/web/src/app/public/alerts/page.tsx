@@ -68,3 +68,16 @@ export default function AlertsPage() {
                           <span>{alert.date}</span>
                           <span>Area: {alert.area}</span>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground pl-8">{alert.body}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
