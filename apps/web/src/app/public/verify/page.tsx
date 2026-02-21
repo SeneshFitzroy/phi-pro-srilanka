@@ -33,3 +33,20 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-950 dark:to-gray-900">
       <div className="container mx-auto max-w-lg px-4 py-8 space-y-6">
+        <div className="flex items-center gap-3">
+          <Link href="/public"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><ShieldCheck className="h-6 w-6 text-purple-600" />Verify Certificate</h1>
+            <p className="text-sm text-muted-foreground">Verify authenticity of PHI-PRO issued certificates</p>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div className="flex justify-center"><QrCode className="h-20 w-20 text-muted-foreground/30" /></div>
+            <p className="text-sm text-center text-muted-foreground">Scan the QR code on the certificate or enter the reference number below</p>
+            <form onSubmit={handleVerify} className="space-y-3">
+              <div className="space-y-2">
+                <Label>Certificate / Reference Number</Label>
+                <div className="flex gap-2">
+                  <Input value={code} onChange={e => setCode(e.target.value)} placeholder="e.g. FP-20250001 or CMP-12345678" required />
