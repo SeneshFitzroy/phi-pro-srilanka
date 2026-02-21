@@ -40,3 +40,31 @@ export default function AlertsPage() {
               <p className="text-sm text-red-100">For suspected disease outbreaks or acute public health emergencies, call immediately.</p>
             </div>
           </CardContent>
+        </Card>
+
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="text-xs">All</Button>
+          <Button variant="outline" size="sm" className="text-xs text-red-600 border-red-200">Critical</Button>
+          <Button variant="outline" size="sm" className="text-xs text-yellow-600 border-yellow-200">Warnings</Button>
+          <Button variant="outline" size="sm" className="text-xs text-blue-600 border-blue-200">Info</Button>
+        </div>
+
+        <div className="space-y-4">
+          {ALERTS.map(alert => {
+            const style = typeStyles[alert.type];
+            const Icon = alert.icon;
+            return (
+              <Card key={alert.id} className={`border-l-4 ${style.border} ${style.bg}`}>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-3">
+                      <Icon className="h-5 w-5 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${style.badge}`}>{style.badgeText}</span>
+                          <h3 className="font-semibold text-sm">{alert.title}</h3>
+                        </div>
+                        <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                          <span>{alert.date}</span>
+                          <span>Area: {alert.area}</span>
+                        </div>
