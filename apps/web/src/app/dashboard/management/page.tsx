@@ -48,3 +48,37 @@ export default function ManagementPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {QUICK_ACTIONS.map(action => (
+          <Link key={action.title} href={action.href}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+              <CardContent className="flex items-center gap-3 p-4">
+                <action.icon className={`h-8 w-8 shrink-0 ${action.color}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-sm">{action.title}</h3>
+                    {action.count != null && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium">{action.count}</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{action.desc}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      {/* Recent Submissions */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Recent Submissions</CardTitle>
+          <Link href="/dashboard/management/approvals"><Button variant="outline" size="sm">View All</Button></Link>
+        </CardHeader>
+        <CardContent className="overflow-auto">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b"><th className="py-2 text-left">Officer</th><th className="py-2 text-left">Form</th><th className="py-2 text-left">Area</th><th className="py-2 text-left">Date</th><th className="py-2 text-left">Status</th></tr></thead>
+            <tbody>
+              {RECENT_SUBMISSIONS.map(s => (
