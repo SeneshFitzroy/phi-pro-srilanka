@@ -81,18 +81,3 @@ export default function PaymentsPage() {
                 <div>
                   <p className="font-medium text-sm">{office.name}</p>
                   <p className="text-xs text-muted-foreground">{office.addr}</p>
-                </div>
-                <a href={`tel:${office.phone}`} className="text-sm font-mono text-primary hover:underline">{office.phone}</a>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <div className="text-center text-xs text-muted-foreground">
-          <p>Fee schedule effective from January 2025. Subject to revision by the Ministry of Health.</p>
-          <p>For queries contact your nearest MOH Office or call <strong>1390</strong>.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
