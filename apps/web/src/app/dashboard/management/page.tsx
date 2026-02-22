@@ -14,3 +14,21 @@ const QUICK_ACTIONS = [
   { title: 'Area Analytics', desc: 'Performance & trends', icon: BarChart3, href: '/dashboard/management/analytics', count: null, color: 'text-purple-500' },
   { title: 'System Settings', desc: 'Configure system preferences', icon: Settings, href: '/dashboard/settings', count: null, color: 'text-gray-500' },
 ];
+
+const RECENT_SUBMISSIONS = [
+  { id: 1, officer: 'K. Perera', form: 'H800 Inspection', area: 'Colombo North', date: '2025-02-10', status: 'pending' },
+  { id: 2, officer: 'M. Silva', form: 'H399 Weekly', area: 'Kaduwela East', date: '2025-02-10', status: 'pending' },
+  { id: 3, officer: 'R. Fernando', form: 'PHI-1 Monthly', area: 'Dehiwala West', date: '2025-02-09', status: 'approved' },
+  { id: 4, officer: 'S. Jayawardena', form: 'SIV Investigation', area: 'Moratuwa', date: '2025-02-09', status: 'pending' },
+  { id: 5, officer: 'A. Bandara', form: 'H1203 Factory', area: 'Homagama', date: '2025-02-08', status: 'approved' },
+];
+
+const statusColor = (s: string) => s === 'approved' ? 'bg-green-100 text-green-700' : s === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
+
+export default function ManagementPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Shield className="h-7 w-7 text-indigo-600" />Management Console</h1>
+        <p className="text-sm text-muted-foreground">SPHI / MOH Admin — oversight, approvals, and analytics</p>
+      </div>
