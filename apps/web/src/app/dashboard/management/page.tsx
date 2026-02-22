@@ -32,3 +32,19 @@ export default function ManagementPage() {
         <h1 className="text-2xl font-bold flex items-center gap-2"><Shield className="h-7 w-7 text-indigo-600" />Management Console</h1>
         <p className="text-sm text-muted-foreground">SPHI / MOH Admin — oversight, approvals, and analytics</p>
       </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: 'Active PHI Officers', value: '24', icon: Users, color: 'text-blue-500' },
+          { label: 'Pending Approvals', value: '12', icon: FileCheck, color: 'text-orange-500' },
+          { label: 'Open Complaints', value: '8', icon: AlertTriangle, color: 'text-red-500' },
+          { label: 'This Month Reports', value: '156', icon: TrendingUp, color: 'text-green-500' },
+        ].map(s => (
+          <Card key={s.label}>
+            <CardContent className="flex items-center gap-3 p-4">
+              <s.icon className={`h-8 w-8 ${s.color}`} />
+              <div><p className="text-2xl font-bold">{s.value}</p><p className="text-xs text-muted-foreground">{s.label}</p></div>
+            </CardContent>
+          </Card>
+        ))}
