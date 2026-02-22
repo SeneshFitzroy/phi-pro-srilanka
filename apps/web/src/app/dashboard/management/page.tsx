@@ -82,3 +82,18 @@ export default function ManagementPage() {
             <thead><tr className="border-b"><th className="py-2 text-left">Officer</th><th className="py-2 text-left">Form</th><th className="py-2 text-left">Area</th><th className="py-2 text-left">Date</th><th className="py-2 text-left">Status</th></tr></thead>
             <tbody>
               {RECENT_SUBMISSIONS.map(s => (
+                <tr key={s.id} className="border-b hover:bg-muted/50">
+                  <td className="py-2 font-medium">{s.officer}</td>
+                  <td className="py-2">{s.form}</td>
+                  <td className="py-2 text-muted-foreground">{s.area}</td>
+                  <td className="py-2 text-muted-foreground">{s.date}</td>
+                  <td className="py-2"><span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${statusColor(s.status)}`}>{s.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
