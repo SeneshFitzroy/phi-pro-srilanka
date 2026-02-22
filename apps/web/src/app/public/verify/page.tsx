@@ -84,3 +84,19 @@ export default function VerifyPage() {
                 </div>
               </CardContent>
             </Card>
+          ) : (
+            <Card className="border-red-300 bg-red-50 dark:bg-red-950/10">
+              <CardContent className="p-6 flex items-center gap-3">
+                <XCircle className="h-10 w-10 text-red-600 shrink-0" />
+                <div>
+                  <p className="font-bold text-red-800 dark:text-red-200">Not Found</p>
+                  <p className="text-sm text-muted-foreground">No certificate found with reference &quot;{code}&quot;. Please check the number and try again.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
