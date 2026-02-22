@@ -48,19 +48,3 @@ export default function PaymentsPage() {
             </div>
           </CardContent>
         </Card>
-
-        {FEES.map(section => (
-          <Card key={section.category}>
-            <CardHeader className="bg-muted/50"><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />{section.category}</CardTitle></CardHeader>
-            <CardContent className="p-0">
-              <table className="w-full text-sm">
-                <thead><tr className="border-b"><th className="px-4 py-2 text-left">Service</th><th className="px-4 py-2 text-right">Fee</th><th className="px-4 py-2 text-right">Validity</th></tr></thead>
-                <tbody>
-                  {section.items.map(item => (
-                    <tr key={item.name} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="px-4 py-3">{item.name}</td>
-                      <td className="px-4 py-3 text-right font-semibold">{item.fee}</td>
-                      <td className="px-4 py-3 text-right text-muted-foreground flex items-center justify-end gap-1"><Clock className="h-3 w-3" />{item.duration}</td>
-                    </tr>
-                  ))}
-                </tbody>
