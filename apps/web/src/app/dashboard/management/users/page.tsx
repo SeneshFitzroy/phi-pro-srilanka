@@ -17,3 +17,22 @@ const USERS = [
   { id: 6, name: 'Dr. N. Wickrama', email: 'n.wickrama@health.gov.lk', phone: '071-6789012', role: 'SPHI', area: 'Western Province', status: 'active', lastLogin: '2025-02-10' },
   { id: 7, name: 'Dr. T. Gunasekara', email: 't.gunasekara@health.gov.lk', phone: '077-7890123', role: 'MOH', area: 'Colombo MOH', status: 'active', lastLogin: '2025-02-10' },
 ];
+
+const roleColor = (r: string) => r === 'MOH' ? 'bg-purple-100 text-purple-700' : r === 'SPHI' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
+const statusColor = (s: string) => s === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
+
+export default function UserManagementPage() {
+  const [showForm, setShowForm] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All');
+
+  const filtered = USERS.filter(u => {
+    const matchRole = roleFilter === 'All' || u.role === roleFilter;
+    const matchSearch = !searchQ || u.name.toLowerCase().includes(searchQ.toLowerCase()) || u.email.toLowerCase().includes(searchQ.toLowerCase());
+    return matchRole && matchSearch;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
