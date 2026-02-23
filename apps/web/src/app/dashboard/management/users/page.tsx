@@ -36,3 +36,59 @@ export default function UserManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="h-6 w-6 text-blue-500" />User Management</h1>
+            <p className="text-sm text-muted-foreground">{USERS.length} users across {USERS.filter(u => u.role === 'PHI').length} PHI areas</p>
+          </div>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)}><UserPlus className="mr-2 h-4 w-4" />{showForm ? 'Cancel' : 'Add User'}</Button>
+      </div>
+
+      {showForm && (
+        <Card className="border-blue-200">
+          <CardHeader><CardTitle className="text-base">Create New User</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2"><Label>Full Name *</Label><Input placeholder="Full name" /></div>
+              <div className="space-y-2"><Label>Email *</Label><Input type="email" placeholder="email@health.gov.lk" /></div>
+              <div className="space-y-2"><Label>Phone</Label><Input type="tel" placeholder="07x xxx xxxx" /></div>
+              <div className="space-y-2"><Label>Role *</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option>PHI</option><option>SPHI</option><option>MOH</option>
+                </select>
+              </div>
+              <div className="space-y-2"><Label>Assigned Area *</Label><Input placeholder="Area name" /></div>
+              <div className="space-y-2"><Label>Temporary Password *</Label><Input type="password" placeholder="Min 8 characters" /></div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button onClick={() => setShowForm(false)}>Create User</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1 sm:max-w-xs">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input className="pl-9" placeholder="Search users..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+        </div>
+        <div className="flex gap-2">
+          {['All', 'PHI', 'SPHI', 'MOH'].map(r => (
+            <Button key={r} size="sm" variant={roleFilter === r ? 'default' : 'outline'} onClick={() => setRoleFilter(r)} className="text-xs">{r}</Button>
+          ))}
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="overflow-auto p-0">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">Name</th><th className="px-4 py-3 text-left text-xs">Contact</th><th className="px-4 py-3 text-left text-xs">Role</th><th className="px-4 py-3 text-left text-xs">Area</th><th className="px-4 py-3 text-left text-xs">Status</th><th className="px-4 py-3 text-left text-xs">Last Login</th><th className="px-4 py-3 text-left text-xs">Actions</th></tr></thead>
+            <tbody>
+              {filtered.map(u => (
+                <tr key={u.id} className="border-b hover:bg-muted/30">
+                  <td className="px-4 py-3 font-medium">{u.name}</td>
+                  <td className="px-4 py-3"><div className="flex flex-col text-xs text-muted-foreground"><span className="flex items-center gap-1"><Mail className="h-3 w-3" />{u.email}</span><span className="flex items-center gap-1"><Phone className="h-3 w-3" />{u.phone}</span></div></td>
+                  <td className="px-4 py-3"><span className={`rounded px-2 py-0.5 text-xs font-medium ${roleColor(u.role)}`}>{u.role}</span></td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.area}</td>
