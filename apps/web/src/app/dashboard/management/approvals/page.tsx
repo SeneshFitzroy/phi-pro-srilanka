@@ -46,3 +46,36 @@ export default function ApprovalsPage() {
           <Button variant="outline" size="sm" className="text-green-600" onClick={() => {}}><Check className="mr-1 h-4 w-4" />Approve All Pending</Button>
         </div>
       </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input className="sm:max-w-xs" placeholder="Search by officer, form, establishment..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+        <div className="flex gap-2">
+          {['all', 'pending', 'approved', 'rejected'].map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="capitalize text-xs">
+              {f === 'all' ? 'All' : f} {f === 'pending' ? `(${pendingCount})` : ''}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="overflow-auto p-0">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">ID</th><th className="px-4 py-3 text-left text-xs">Officer</th><th className="px-4 py-3 text-left text-xs">Form</th><th className="px-4 py-3 text-left text-xs">Subject</th><th className="px-4 py-3 text-left text-xs">Area</th><th className="px-4 py-3 text-left text-xs">Date</th><th className="px-4 py-3 text-left text-xs">Result</th><th className="px-4 py-3 text-left text-xs">Status</th><th className="px-4 py-3 text-left text-xs">Actions</th></tr></thead>
+            <tbody>
+              {filtered.map(s => (
+                <tr key={s.id} className="border-b hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{s.id}</td>
+                  <td className="px-4 py-3 font-medium">{s.officer}</td>
+                  <td className="px-4 py-3">{s.form}</td>
+                  <td className="px-4 py-3 text-muted-foreground max-w-[140px] truncate">{s.establishment}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.area}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.date}</td>
+                  <td className="px-4 py-3 text-xs">{s.grade}</td>
+                  <td className="px-4 py-3"><span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${statusColor(s.status)}`}>{s.status}</span></td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button>
+                      {s.status === 'pending' && (
+                        <>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600"><Check className="h-3.5 w-3.5" /></Button>
