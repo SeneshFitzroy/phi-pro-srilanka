@@ -79,3 +79,18 @@ export default function ApprovalsPage() {
                       {s.status === 'pending' && (
                         <>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600"><Check className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600"><X className="h-3.5 w-3.5" /></Button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">No submissions found</div>}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
