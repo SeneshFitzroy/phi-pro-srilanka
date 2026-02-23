@@ -73,22 +73,3 @@ export default function UserManagementPage() {
         <div className="relative flex-1 sm:max-w-xs">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input className="pl-9" placeholder="Search users..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
-        </div>
-        <div className="flex gap-2">
-          {['All', 'PHI', 'SPHI', 'MOH'].map(r => (
-            <Button key={r} size="sm" variant={roleFilter === r ? 'default' : 'outline'} onClick={() => setRoleFilter(r)} className="text-xs">{r}</Button>
-          ))}
-        </div>
-      </div>
-
-      <Card>
-        <CardContent className="overflow-auto p-0">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">Name</th><th className="px-4 py-3 text-left text-xs">Contact</th><th className="px-4 py-3 text-left text-xs">Role</th><th className="px-4 py-3 text-left text-xs">Area</th><th className="px-4 py-3 text-left text-xs">Status</th><th className="px-4 py-3 text-left text-xs">Last Login</th><th className="px-4 py-3 text-left text-xs">Actions</th></tr></thead>
-            <tbody>
-              {filtered.map(u => (
-                <tr key={u.id} className="border-b hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">{u.name}</td>
-                  <td className="px-4 py-3"><div className="flex flex-col text-xs text-muted-foreground"><span className="flex items-center gap-1"><Mail className="h-3 w-3" />{u.email}</span><span className="flex items-center gap-1"><Phone className="h-3 w-3" />{u.phone}</span></div></td>
-                  <td className="px-4 py-3"><span className={`rounded px-2 py-0.5 text-xs font-medium ${roleColor(u.role)}`}>{u.role}</span></td>
-                  <td className="px-4 py-3 text-muted-foreground">{u.area}</td>
