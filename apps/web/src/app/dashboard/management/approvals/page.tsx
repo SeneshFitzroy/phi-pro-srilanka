@@ -31,3 +31,18 @@ export default function ApprovalsPage() {
   });
 
   const pendingCount = SUBMISSIONS.filter(s => s.status === 'pending').length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><FileCheck className="h-6 w-6 text-orange-500" />Approvals</h1>
+            <p className="text-sm text-muted-foreground">{pendingCount} submissions pending review</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="text-green-600" onClick={() => {}}><Check className="mr-1 h-4 w-4" />Approve All Pending</Button>
+        </div>
+      </div>
