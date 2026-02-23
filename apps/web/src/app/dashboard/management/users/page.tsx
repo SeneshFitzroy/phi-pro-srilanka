@@ -54,22 +54,3 @@ export default function UserManagementPage() {
               <div className="space-y-2"><Label>Email *</Label><Input type="email" placeholder="email@health.gov.lk" /></div>
               <div className="space-y-2"><Label>Phone</Label><Input type="tel" placeholder="07x xxx xxxx" /></div>
               <div className="space-y-2"><Label>Role *</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option>PHI</option><option>SPHI</option><option>MOH</option>
-                </select>
-              </div>
-              <div className="space-y-2"><Label>Assigned Area *</Label><Input placeholder="Area name" /></div>
-              <div className="space-y-2"><Label>Temporary Password *</Label><Input type="password" placeholder="Min 8 characters" /></div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button onClick={() => setShowForm(false)}>Create User</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search users..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
