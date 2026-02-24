@@ -27,17 +27,3 @@ export default function ComplaintsManagementPage() {
   const [searchQ, setSearchQ] = useState('');
 
   const filtered = COMPLAINTS.filter(c => {
-    const matchStatus = filter === 'all' || c.status === filter;
-    const matchSearch = !searchQ || c.type.toLowerCase().includes(searchQ.toLowerCase()) || c.desc.toLowerCase().includes(searchQ.toLowerCase()) || c.id.toLowerCase().includes(searchQ.toLowerCase());
-    return matchStatus && matchSearch;
-  });
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><MessageSquare className="h-6 w-6 text-red-500" />Complaints Management</h1>
-          <p className="text-sm text-muted-foreground">{COMPLAINTS.filter(c => c.status === 'new').length} new, {COMPLAINTS.filter(c => c.status !== 'resolved' && c.status !== 'closed').length} open</p>
-        </div>
-      </div>
