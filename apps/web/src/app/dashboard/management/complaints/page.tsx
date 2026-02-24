@@ -56,17 +56,3 @@ export default function ComplaintsManagementPage() {
           <Card key={c.id} className={c.status === 'new' ? 'border-red-200 bg-red-50/30 dark:bg-red-950/5' : ''}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-xs text-muted-foreground">{c.id}</span>
-                    <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${statusColor(c.status)}`}>{c.status}</span>
-                    <span className={`text-xs ${priorityColor(c.priority)}`}>{c.priority} priority</span>
-                    <span className="rounded bg-muted px-2 py-0.5 text-xs">{c.type}</span>
-                  </div>
-                  <p className="text-sm">{c.desc}</p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{c.location}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{c.date}</span>
-                    <span>Reporter: {c.reporter}</span>
-                    {c.assigned !== '-' && <span>Assigned: <strong>{c.assigned}</strong></span>}
-                  </div>
