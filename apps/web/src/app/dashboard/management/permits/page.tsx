@@ -19,3 +19,23 @@ const PERMITS = [
 ];
 
 const statusBadge = (s: string) => {
+  const map: Record<string, string> = { active: 'bg-green-100 text-green-700', expiring: 'bg-yellow-100 text-yellow-700', expired: 'bg-red-100 text-red-700', pending: 'bg-blue-100 text-blue-700', suspended: 'bg-gray-100 text-gray-600' };
+  return map[s] || 'bg-gray-100 text-gray-600';
+};
+
+export default function PermitsPage() {
+  const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [showIssue, setShowIssue] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+
+  const filtered = PERMITS.filter(p => {
+    const matchStatus = filter === 'all' || p.status === filter;
+    const matchType = typeFilter === 'All' || p.type === typeFilter;
+    const matchSearch = !searchQ || p.holder.toLowerCase().includes(searchQ.toLowerCase()) || p.id.toLowerCase().includes(searchQ.toLowerCase());
+    return matchStatus && matchType && matchSearch;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
