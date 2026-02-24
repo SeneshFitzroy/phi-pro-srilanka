@@ -27,3 +27,59 @@ export default function ComplaintsManagementPage() {
   const [searchQ, setSearchQ] = useState('');
 
   const filtered = COMPLAINTS.filter(c => {
+    const matchStatus = filter === 'all' || c.status === filter;
+    const matchSearch = !searchQ || c.type.toLowerCase().includes(searchQ.toLowerCase()) || c.desc.toLowerCase().includes(searchQ.toLowerCase()) || c.id.toLowerCase().includes(searchQ.toLowerCase());
+    return matchStatus && matchSearch;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><MessageSquare className="h-6 w-6 text-red-500" />Complaints Management</h1>
+          <p className="text-sm text-muted-foreground">{COMPLAINTS.filter(c => c.status === 'new').length} new, {COMPLAINTS.filter(c => c.status !== 'resolved' && c.status !== 'closed').length} open</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input className="sm:max-w-xs" placeholder="Search complaints..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'new', 'assigned', 'investigating', 'resolved'].map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="capitalize text-xs">{f}</Button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map(c => (
+          <Card key={c.id} className={c.status === 'new' ? 'border-red-200 bg-red-50/30 dark:bg-red-950/5' : ''}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-xs text-muted-foreground">{c.id}</span>
+                    <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${statusColor(c.status)}`}>{c.status}</span>
+                    <span className={`text-xs ${priorityColor(c.priority)}`}>{c.priority} priority</span>
+                    <span className="rounded bg-muted px-2 py-0.5 text-xs">{c.type}</span>
+                  </div>
+                  <p className="text-sm">{c.desc}</p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{c.location}</span>
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{c.date}</span>
+                    <span>Reporter: {c.reporter}</span>
+                    {c.assigned !== '-' && <span>Assigned: <strong>{c.assigned}</strong></span>}
+                  </div>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  <Button variant="outline" size="sm" className="text-xs"><Eye className="mr-1 h-3 w-3" />View</Button>
+                  {c.status === 'new' && <Button size="sm" className="text-xs"><Check className="mr-1 h-3 w-3" />Assign</Button>}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
