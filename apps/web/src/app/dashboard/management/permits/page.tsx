@@ -1,0 +1,62 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { ArrowLeft, ClipboardList, Plus, Search, FileCheck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+const PERMITS = [
+  { id: 'PRM-2025-001', type: 'Food Premises', holder: 'Golden Dragon Restaurant', address: '45 Main St, Colombo 07', issued: '2024-06-15', expires: '2025-06-14', status: 'active', grade: 'A' },
+  { id: 'PRM-2025-002', type: 'Food Premises', holder: 'Fresh Bakery & Cafe', address: '12 Galle Rd, Dehiwala', issued: '2024-09-01', expires: '2025-08-31', status: 'active', grade: 'A' },
+  { id: 'PRM-2025-003', type: 'Factory Health', holder: 'Lanka Garments Ltd.', address: '50 Industrial Zone, Kaduwela', issued: '2024-07-20', expires: '2025-07-19', status: 'active', grade: '-' },
+  { id: 'PRM-2025-004', type: 'Food Premises', holder: 'Corner Deli', address: '5 Temple Rd, Nugegoda', issued: '2024-03-10', expires: '2025-03-09', status: 'expiring', grade: 'C' },
+  { id: 'PRM-2025-005', type: 'Trade License', holder: 'ABC Processing', address: '100 Factory Rd, Homagama', issued: '2024-01-15', expires: '2025-01-14', status: 'expired', grade: '-' },
+  { id: 'PRM-2025-006', type: 'Food Premises', holder: 'Sunrise Hotel', address: '200 Beach Rd, Mt. Lavinia', issued: '2025-02-01', expires: '2026-01-31', status: 'active', grade: 'A' },
+  { id: 'PRM-2025-007', type: 'Building Health', holder: 'New Commercial Center', address: '300 Main Rd, Piliyandala', issued: '2025-01-10', expires: 'N/A', status: 'pending', grade: '-' },
+];
+
+const statusBadge = (s: string) => {
+  const map: Record<string, string> = { active: 'bg-green-100 text-green-700', expiring: 'bg-yellow-100 text-yellow-700', expired: 'bg-red-100 text-red-700', pending: 'bg-blue-100 text-blue-700', suspended: 'bg-gray-100 text-gray-600' };
+  return map[s] || 'bg-gray-100 text-gray-600';
+};
+
+export default function PermitsPage() {
+  const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [showIssue, setShowIssue] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+
+  const filtered = PERMITS.filter(p => {
+    const matchStatus = filter === 'all' || p.status === filter;
+    const matchType = typeFilter === 'All' || p.type === typeFilter;
+    const matchSearch = !searchQ || p.holder.toLowerCase().includes(searchQ.toLowerCase()) || p.id.toLowerCase().includes(searchQ.toLowerCase());
+    return matchStatus && matchType && matchSearch;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><ClipboardList className="h-6 w-6 text-green-500" />Permits & Licenses</h1>
+            <p className="text-sm text-muted-foreground">{PERMITS.length} total — {PERMITS.filter(p => p.status === 'expiring').length} expiring soon</p>
+          </div>
+        </div>
+        <Button onClick={() => setShowIssue(!showIssue)}><Plus className="mr-2 h-4 w-4" />{showIssue ? 'Cancel' : 'Issue Permit'}</Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: 'Active', count: PERMITS.filter(p => p.status === 'active').length, icon: CheckCircle, color: 'text-green-500' },
+          { label: 'Expiring', count: PERMITS.filter(p => p.status === 'expiring').length, icon: Clock, color: 'text-yellow-500' },
+          { label: 'Expired', count: PERMITS.filter(p => p.status === 'expired').length, icon: AlertCircle, color: 'text-red-500' },
+          { label: 'Pending', count: PERMITS.filter(p => p.status === 'pending').length, icon: FileCheck, color: 'text-blue-500' },
+        ].map(s => (
+          <Card key={s.label}><CardContent className="flex items-center gap-3 p-4"><s.icon className={`h-6 w-6 ${s.color}`} /><div><p className="text-xl font-bold">{s.count}</p><p className="text-xs text-muted-foreground">{s.label}</p></div></CardContent></Card>
+        ))}
+      </div>
