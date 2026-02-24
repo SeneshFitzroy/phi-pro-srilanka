@@ -70,16 +70,3 @@ export default function ComplaintsManagementPage() {
                     <span>Reporter: {c.reporter}</span>
                     {c.assigned !== '-' && <span>Assigned: <strong>{c.assigned}</strong></span>}
                   </div>
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button variant="outline" size="sm" className="text-xs"><Eye className="mr-1 h-3 w-3" />View</Button>
-                  {c.status === 'new' && <Button size="sm" className="text-xs"><Check className="mr-1 h-3 w-3" />Assign</Button>}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
