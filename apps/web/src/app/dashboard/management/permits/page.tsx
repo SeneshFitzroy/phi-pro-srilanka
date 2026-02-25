@@ -80,3 +80,24 @@ export default function PermitsPage() {
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowIssue(false)}>Cancel</Button>
               <Button className="bg-green-600 hover:bg-green-700" onClick={() => setShowIssue(false)}>Issue Permit</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input className="sm:max-w-xs" placeholder="Search permits..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+        <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option>All</option><option>Food Premises</option><option>Factory Health</option><option>Trade License</option><option>Building Health</option>
+        </select>
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'active', 'expiring', 'expired', 'pending'].map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="capitalize text-xs">{f}</Button>
+          ))}
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="overflow-auto p-0">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">ID</th><th className="px-4 py-3 text-left text-xs">Type</th><th className="px-4 py-3 text-left text-xs">Holder</th><th className="px-4 py-3 text-left text-xs">Issued</th><th className="px-4 py-3 text-left text-xs">Expires</th><th className="px-4 py-3 text-left text-xs">Grade</th><th className="px-4 py-3 text-left text-xs">Status</th></tr></thead>
