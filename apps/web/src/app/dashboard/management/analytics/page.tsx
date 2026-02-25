@@ -97,23 +97,3 @@ export default function AnalyticsPage() {
               {phiPerformance.map(p => (
                 <tr key={p.name} className="border-b">
                   <td className="py-2 font-medium">{p.name}</td>
-                  <td className="py-2 text-muted-foreground">{p.area}</td>
-                  <td className="py-2 text-center">{p.inspections}</td>
-                  <td className="py-2 text-center">{p.reports}</td>
-                  <td className="py-2 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-2 w-16 rounded-full bg-muted overflow-hidden"><div className={`h-full rounded-full ${p.compliance >= 90 ? 'bg-green-500' : p.compliance >= 80 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${p.compliance}%` }} /></div>
-                      <span className="text-xs">{p.compliance}%</span>
-                    </div>
-                  </td>
-                  <td className="py-2 text-center">{p.trend === 'up' ? <TrendingUp className="h-4 w-4 text-green-500 mx-auto" /> : p.trend === 'down' ? <TrendingDown className="h-4 w-4 text-red-500 mx-auto" /> : <span className="text-xs text-muted-foreground">—</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {/* Domain Distribution */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {[
