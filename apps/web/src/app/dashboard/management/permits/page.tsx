@@ -39,3 +39,84 @@ export default function PermitsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><ClipboardList className="h-6 w-6 text-green-500" />Permits & Licenses</h1>
+            <p className="text-sm text-muted-foreground">{PERMITS.length} total — {PERMITS.filter(p => p.status === 'expiring').length} expiring soon</p>
+          </div>
+        </div>
+        <Button onClick={() => setShowIssue(!showIssue)}><Plus className="mr-2 h-4 w-4" />{showIssue ? 'Cancel' : 'Issue Permit'}</Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: 'Active', count: PERMITS.filter(p => p.status === 'active').length, icon: CheckCircle, color: 'text-green-500' },
+          { label: 'Expiring', count: PERMITS.filter(p => p.status === 'expiring').length, icon: Clock, color: 'text-yellow-500' },
+          { label: 'Expired', count: PERMITS.filter(p => p.status === 'expired').length, icon: AlertCircle, color: 'text-red-500' },
+          { label: 'Pending', count: PERMITS.filter(p => p.status === 'pending').length, icon: FileCheck, color: 'text-blue-500' },
+        ].map(s => (
+          <Card key={s.label}><CardContent className="flex items-center gap-3 p-4"><s.icon className={`h-6 w-6 ${s.color}`} /><div><p className="text-xl font-bold">{s.count}</p><p className="text-xs text-muted-foreground">{s.label}</p></div></CardContent></Card>
+        ))}
+      </div>
+
+      {showIssue && (
+        <Card className="border-green-200">
+          <CardHeader><CardTitle className="text-base">Issue New Permit</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2"><Label>Permit Type *</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option>Food Premises</option><option>Factory Health</option><option>Trade License</option><option>Building Health</option>
+                </select>
+              </div>
+              <div className="space-y-2"><Label>Holder Name *</Label><Input placeholder="Business / person name" /></div>
+              <div className="space-y-2"><Label>Address *</Label><Input placeholder="Full address" /></div>
+              <div className="space-y-2"><Label>Issue Date *</Label><Input type="date" /></div>
+              <div className="space-y-2"><Label>Expiry Date *</Label><Input type="date" /></div>
+              <div className="space-y-2"><Label>Fee Paid (LKR)</Label><Input type="number" placeholder="Amount" /></div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowIssue(false)}>Cancel</Button>
+              <Button className="bg-green-600 hover:bg-green-700" onClick={() => setShowIssue(false)}>Issue Permit</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input className="sm:max-w-xs" placeholder="Search permits..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+        <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option>All</option><option>Food Premises</option><option>Factory Health</option><option>Trade License</option><option>Building Health</option>
+        </select>
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'active', 'expiring', 'expired', 'pending'].map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="capitalize text-xs">{f}</Button>
+          ))}
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="overflow-auto p-0">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">ID</th><th className="px-4 py-3 text-left text-xs">Type</th><th className="px-4 py-3 text-left text-xs">Holder</th><th className="px-4 py-3 text-left text-xs">Issued</th><th className="px-4 py-3 text-left text-xs">Expires</th><th className="px-4 py-3 text-left text-xs">Grade</th><th className="px-4 py-3 text-left text-xs">Status</th></tr></thead>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.id} className={`border-b hover:bg-muted/30 ${p.status === 'expired' ? 'bg-red-50/50 dark:bg-red-950/5' : p.status === 'expiring' ? 'bg-yellow-50/50 dark:bg-yellow-950/5' : ''}`}>
+                  <td className="px-4 py-3 font-mono text-xs">{p.id}</td>
+                  <td className="px-4 py-3">{p.type}</td>
+                  <td className="px-4 py-3"><div><p className="font-medium">{p.holder}</p><p className="text-xs text-muted-foreground">{p.address}</p></div></td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.issued}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.expires}</td>
+                  <td className="px-4 py-3 font-medium">{p.grade}</td>
+                  <td className="px-4 py-3"><span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${statusBadge(p.status)}`}>{p.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
