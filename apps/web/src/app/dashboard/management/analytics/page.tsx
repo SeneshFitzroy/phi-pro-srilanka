@@ -58,3 +58,22 @@ export default function AnalyticsPage() {
 
       {/* Stacked Bar Chart (CSS-only) */}
       <Card>
+        <CardHeader><CardTitle className="text-base">Monthly Activity Breakdown</CardTitle></CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-3 h-48">
+            {barData.map(d => {
+              const total = d.food + d.school + d.epi + d.occ + d.admin;
+              const h = (total / (maxInspections || 1)) * 100;
+              return (
+                <div key={d.month} className="flex-1 flex flex-col items-center gap-1">
+                  <span className="text-xs font-medium">{total}</span>
+                  <div className="w-full flex flex-col rounded-t overflow-hidden" style={{ height: `${h}%` }}>
+                    <div className="bg-green-500" style={{ flex: d.food }} />
+                    <div className="bg-blue-500" style={{ flex: d.school }} />
+                    <div className="bg-red-500" style={{ flex: d.epi }} />
+                    <div className="bg-yellow-500" style={{ flex: d.occ }} />
+                    <div className="bg-purple-500" style={{ flex: d.admin }} />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{d.month}</span>
+                </div>
+              );
