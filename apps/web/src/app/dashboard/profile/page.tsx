@@ -50,3 +50,28 @@ export default function ProfilePage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2"><Label>Full Name</Label><Input defaultValue="K. Perera" /></div>
               <div className="space-y-2"><Label>NIC Number</Label><Input defaultValue="199012345V" /></div>
+              <div className="space-y-2"><Label>Email</Label><Input type="email" defaultValue="k.perera@health.gov.lk" /></div>
+              <div className="space-y-2"><Label>Phone</Label><Input type="tel" defaultValue="071-1234567" /></div>
+              <div className="space-y-2"><Label>Designation</Label><Input defaultValue="Public Health Inspector" readOnly className="bg-muted" /></div>
+              <div className="space-y-2"><Label>Assigned Area</Label><Input defaultValue="Colombo North" readOnly className="bg-muted" /></div>
+            </div>
+            <div className="flex justify-end"><Button><Save className="mr-2 h-4 w-4" />Save Changes</Button></div>
+          </CardContent>
+        </Card>
+
+        {/* Change Password */}
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle className="text-base">Change Password</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2"><Label>Current Password</Label><Input type="password" /></div>
+              <div className="space-y-2"><Label>New Password</Label><Input type="password" /></div>
+              <div className="space-y-2"><Label>Confirm Password</Label><Input type="password" /></div>
+            </div>
+            <div className="flex justify-end"><Button variant="outline">Update Password</Button></div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
