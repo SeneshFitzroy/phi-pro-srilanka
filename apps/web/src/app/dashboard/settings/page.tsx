@@ -39,22 +39,3 @@ export default function SettingsPage() {
               </label>
             ))}
           </CardContent>
-        </Card>
-
-        {/* Theme */}
-        <Card>
-          <CardHeader><CardTitle className="text-base flex items-center gap-2">{theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}Appearance</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              { code: 'light', label: 'Light', icon: Sun },
-              { code: 'dark', label: 'Dark', icon: Moon },
-              { code: 'system', label: 'System Default', icon: SettingsIcon },
-            ].map(t => (
-              <label key={t.code} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${theme === t.code ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
-                <input type="radio" name="theme" value={t.code} checked={theme === t.code} onChange={() => setTheme(t.code)} className="h-4 w-4" />
-                <t.icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{t.label}</span>
-              </label>
-            ))}
-          </CardContent>
-        </Card>
