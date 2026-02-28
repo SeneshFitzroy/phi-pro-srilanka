@@ -1,0 +1,65 @@
+{
+  "rules": {
+    "match /databases/{database}/documents": {
+      // =========================================================================
+      // Firestore Security Rules — PHI-PRO
+      // =========================================================================
+      // Role hierarchy: Public < PHI < SPHI < MOH Admin
+      // =========================================================================
+
+      "users/{userId}": {
+        "allow read": "request.auth != null && (request.auth.uid == userId || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
+        "allow create": "request.auth != null && hasRole('MOH_ADMIN')",
+        "allow update": "request.auth != null && (request.auth.uid == userId || hasRole('MOH_ADMIN'))",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "food_inspections/{docId}": {
+        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
+        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "school_health/{docId}": {
+        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
+        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "epidemiology/{docId}": {
+        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
+        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "occupational_health/{docId}": {
+        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
+        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "complaints/{docId}": {
+        "allow read": "request.auth != null || resource.data.isPublic == true",
+        "allow create": "true",
+        "allow update": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      },
+
+      "public_alerts/{docId}": {
+        "allow read": "true",
+        "allow write": "request.auth != null && hasAnyRole(['SPHI', 'MOH_ADMIN'])"
+      },
+
+      "permits/{docId}": {
+        "allow read": "request.auth != null",
+        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
+        "allow update": "request.auth != null && hasAnyRole(['SPHI', 'MOH_ADMIN'])",
+        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
+      }
+    }
+  }
+}
