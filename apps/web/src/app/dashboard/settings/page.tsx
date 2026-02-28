@@ -79,3 +79,23 @@ export default function SettingsPage() {
               </div>
             ))}
           </CardContent>
+        </Card>
+
+        {/* Data & Storage */}
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Database className="h-4 w-4" />Data & Storage</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div><p className="text-sm font-medium">Offline Storage</p><p className="text-xs text-muted-foreground">Cache data for offline use</p></div>
+              <span className="text-xs text-muted-foreground">12.4 MB used</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div><p className="text-sm font-medium">Auto-sync</p><p className="text-xs text-muted-foreground">Sync when connection restored</p></div>
+              <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">Enabled</span>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="text-xs">Clear Cache</Button>
+              <Button variant="outline" size="sm" className="text-xs">Export My Data</Button>
+            </div>
+          </CardContent>
+        </Card>
