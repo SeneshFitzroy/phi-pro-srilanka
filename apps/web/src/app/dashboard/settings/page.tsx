@@ -39,3 +39,82 @@ export default function SettingsPage() {
               </label>
             ))}
           </CardContent>
+        </Card>
+
+        {/* Theme */}
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2">{theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}Appearance</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { code: 'light', label: 'Light', icon: Sun },
+              { code: 'dark', label: 'Dark', icon: Moon },
+              { code: 'system', label: 'System Default', icon: SettingsIcon },
+            ].map(t => (
+              <label key={t.code} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${theme === t.code ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
+                <input type="radio" name="theme" value={t.code} checked={theme === t.code} onChange={() => setTheme(t.code)} className="h-4 w-4" />
+                <t.icon className="h-4 w-4" />
+                <span className="text-sm font-medium">{t.label}</span>
+              </label>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Notifications */}
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Bell className="h-4 w-4" />Notifications</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { key: 'email' as const, label: 'Email Notifications', desc: 'Receive updates via email' },
+              { key: 'push' as const, label: 'Push Notifications', desc: 'Browser push notifications' },
+              { key: 'sms' as const, label: 'SMS Alerts', desc: 'Critical alerts via SMS' },
+            ].map(n => (
+              <div key={n.key} className="flex items-center justify-between rounded-lg border p-3">
+                <div><p className="text-sm font-medium">{n.label}</p><p className="text-xs text-muted-foreground">{n.desc}</p></div>
+                <button
+                  onClick={() => setNotifications(prev => ({ ...prev, [n.key]: !prev[n.key] }))}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${notifications[n.key] ? 'bg-primary' : 'bg-muted'}`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition-transform ${notifications[n.key] ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Data & Storage */}
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Database className="h-4 w-4" />Data & Storage</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div><p className="text-sm font-medium">Offline Storage</p><p className="text-xs text-muted-foreground">Cache data for offline use</p></div>
+              <span className="text-xs text-muted-foreground">12.4 MB used</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div><p className="text-sm font-medium">Auto-sync</p><p className="text-xs text-muted-foreground">Sync when connection restored</p></div>
+              <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">Enabled</span>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="text-xs">Clear Cache</Button>
+              <Button variant="outline" size="sm" className="text-xs">Export My Data</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* About */}
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle className="text-base">About PHI-PRO System</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid gap-2 sm:grid-cols-3 text-sm">
+              <div><span className="text-muted-foreground">Version</span><p className="font-medium">1.0.0</p></div>
+              <div><span className="text-muted-foreground">Build</span><p className="font-medium">2025.02.10</p></div>
+              <div><span className="text-muted-foreground">Environment</span><p className="font-medium">Production</p></div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-4">PHI-PRO: Digital Health Enforcement & Integrated Intelligence System. Developed for PUSL3190 Final Year Project, University of Plymouth.</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex justify-end"><Button><Save className="mr-2 h-4 w-4" />Save Settings</Button></div>
+    </div>
+  );
+}
