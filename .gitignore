@@ -1,6 +1,10 @@
+# =============================================================================
+# PHI-PRO .gitignore
+# =============================================================================
+
 # Dependencies
 node_modules/
-.pnp
+.pnp/
 .pnp.js
 
 # Build outputs
@@ -10,22 +14,14 @@ dist/
 build/
 *.tsbuildinfo
 
-# Expo
-.expo/
-android/
-ios/
-*.apk
-*.ipa
-
 # Testing
 coverage/
+*.lcov
 
-# Environment
+# Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
 # Firebase
 .firebase/
@@ -33,20 +29,37 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
-# IDE
-.vscode/settings.json
+# IDE & Editors
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 ehthumbs.db
+Desktop.ini
 
 # Turbo
 .turbo/
 
-# Scripts
-create-history.js
+# Debug logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel/
+
+# PWA generated
+sw.js
+workbox-*.js
+sw.js.map
+
+# Misc
+*.tgz
+.cache/
