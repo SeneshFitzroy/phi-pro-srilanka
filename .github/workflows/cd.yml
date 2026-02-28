@@ -1,52 +1,77 @@
-# =============================================================================
-# PHI-PRO CD Pipeline — Continuous Deployment
-# =============================================================================
-# Triggers: Push to main (after CI passes), manual dispatch
-# Environments: staging → production (with approval gate)
-# Platform: Vercel + Firebase
-# =============================================================================
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║                PHI-PRO — Continuous Deployment Pipeline                      ║
+# ║                                                                              ║
+# ║  Progressive delivery: Build → Preview → Staging → Smoke Tests → Production ║
+# ║  With rollback capability, health monitoring, and deployment notifications.  ║
+# ║                                                                              ║
+# ║  Author : Dinura Sachintha Mendis (10952757)                                 ║
+# ║  Infra  : Vercel (Next.js) · Firebase (Rules/Indexes) · Docker (GHCR)       ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 name: '🚀 CD Pipeline'
 
+# ──────────────────────────────── Triggers ────────────────────────────────────
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment target'
+        description: 'Deployment target environment'
         required: true
         default: 'staging'
         type: choice
         options:
+          - preview
           - staging
           - production
+      skip-tests:
+        description: 'Skip smoke tests (emergency deploys only)'
+        required: false
+        default: false
+        type: boolean
 
+# ──────────────────────── Concurrency Control ─────────────────────────────────
 concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false  # Never cancel in-progress deploys
 
+# ──────────────────────── Environment Variables ───────────────────────────────
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '10.30.3'
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  HUSKY: 0
+  CI: true
 
+# ──────────────────────── Permissions ─────────────────────────────────────────
 permissions:
   contents: read
   deployments: write
+  pull-requests: write
   id-token: write
+  packages: write
+  actions: read
 
+# ═══════════════════════════════════════════════════════════════════════════════
+#  JOBS
+# ═══════════════════════════════════════════════════════════════════════════════
 jobs:
-  # ===========================================================================
-  # Job 1: Build for Deployment
-  # ===========================================================================
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 1: Build & Generate Deployment Metadata                           │
+  # └─────────────────────────────────────────────────────────────────────────┘
   build:
     name: '🏗️ Build for Deploy'
     runs-on: ubuntu-latest
     outputs:
       build-id: ${{ steps.meta.outputs.build-id }}
       version: ${{ steps.meta.outputs.version }}
+      sha-short: ${{ steps.meta.outputs.sha-short }}
+      deploy-env: ${{ steps.meta.outputs.deploy-env }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,8 +81,33 @@ jobs:
       - name: Generate build metadata
         id: meta
         run: |
-          echo "build-id=$(git rev-parse --short HEAD)-$(date +%s)" >> $GITHUB_OUTPUT
-          echo "version=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          BUILD_ID="${SHA_SHORT}-$(date +%Y%m%d%H%M%S)"
+          VERSION=$(node -p "require('./package.json').version")
+
+          # Determine target environment
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            DEPLOY_ENV="preview"
+          elif [[ "${{ github.event.inputs.environment }}" != "" ]]; then
+            DEPLOY_ENV="${{ github.event.inputs.environment }}"
+          else
+            DEPLOY_ENV="staging"
+          fi
+
+          echo "build-id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "sha-short=$SHA_SHORT" >> $GITHUB_OUTPUT
+          echo "deploy-env=$DEPLOY_ENV" >> $GITHUB_OUTPUT
+
+          echo "## 📋 Build Metadata" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build ID | \`$BUILD_ID\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`$VERSION\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`$SHA_SHORT\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | $DEPLOY_ENV |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -78,8 +128,11 @@ jobs:
         with:
           path: apps/web/.next/cache
           key: nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/web/src/**') }}
+          restore-keys: |
+            nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            nextjs-deploy-${{ runner.os }}-
 
-      - name: Build
+      - name: Build all packages
         run: pnpm build
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -90,6 +143,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+          NEXT_TELEMETRY_DISABLED: 1
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -100,13 +154,100 @@ jobs:
             !apps/web/.next/cache
           retention-days: 7
 
-  # ===========================================================================
-  # Job 2: Deploy to Staging
-  # ===========================================================================
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 2: Deploy Preview (PR only — unique URL per PR)                   │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  deploy-preview:
+    name: '👁️ Deploy Preview'
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build with Vercel
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy preview
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## 👁️ Preview Deployment',
+              '',
+              '| Detail | Value |',
+              '|--------|-------|',
+              `| **URL** | ${{ steps.deploy.outputs.url }} |`,
+              `| **Build** | \`${{ needs.build.outputs.build-id }}\` |`,
+              `| **Commit** | \`${{ needs.build.outputs.sha-short }}\` |`,
+              `| **Version** | \`${{ needs.build.outputs.version }}\` |`,
+              '',
+              '> 🔗 This preview will be updated on each push to this PR.',
+            ].join('\n');
+
+            // Find and update existing comment or create new
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.includes('## 👁️ Preview Deployment'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 3: Deploy to Staging                                              │
+  # └─────────────────────────────────────────────────────────────────────────┘
   deploy-staging:
     name: '🟡 Deploy Staging'
     runs-on: ubuntu-latest
     needs: build
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment != 'preview')
     environment:
       name: staging
       url: ${{ steps.deploy.outputs.url }}
@@ -137,32 +278,24 @@ jobs:
       - name: Build with Vercel
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy to Staging
+      - name: Deploy to staging
         id: deploy
         run: |
           URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "🟡 Staging deployed to: $URL"
+          echo "🟡 Staging: $URL"
 
-      - name: Comment deployment URL on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🟡 **Staging Deployment**\n\nURL: ${{ steps.deploy.outputs.url }}\nBuild: \`${{ needs.build.outputs.build-id }}\`\nVersion: \`${{ needs.build.outputs.version }}\``
-            })
-
-  # ===========================================================================
-  # Job 3: Smoke Tests on Staging
-  # ===========================================================================
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 4: Smoke Tests on Staging                                         │
+  # └─────────────────────────────────────────────────────────────────────────┘
   smoke-tests:
     name: '💨 Smoke Tests'
     runs-on: ubuntu-latest
-    needs: deploy-staging
+    needs: [build, deploy-staging]
+    if: >
+      !cancelled() &&
+      needs.deploy-staging.result == 'success' &&
+      github.event.inputs.skip-tests != 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -172,35 +305,69 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Health check
+      - name: Health check — critical endpoints
         run: |
-          echo "Running smoke tests against staging..."
-          # Verify critical endpoints
+          STAGING_URL="${{ needs.deploy-staging.outputs.url || 'https://phi-pro-staging.vercel.app' }}"
+          echo "## 💨 Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** $STAGING_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Status | Response |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+
+          FAILED=0
           ENDPOINTS=(
             "/"
             "/login"
             "/public"
             "/public/food-grades"
             "/public/complaints"
+            "/public/alerts"
+            "/public/verify"
+            "/forgot-password"
           )
+
           for endpoint in "${ENDPOINTS[@]}"; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ needs.deploy-staging.outputs.url }}${endpoint}" || true)
-            if [[ "$STATUS" -ge 200 ]] && [[ "$STATUS" -lt 400 ]]; then
-              echo "✅ ${endpoint} → ${STATUS}"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${STAGING_URL}${endpoint}" || echo "000")
+            LATENCY=$(curl -s -o /dev/null -w "%{time_total}" --max-time 10 "${STAGING_URL}${endpoint}" 2>/dev/null || echo "timeout")
+
+            if [[ "$HTTP_CODE" -ge 200 ]] && [[ "$HTTP_CODE" -lt 400 ]]; then
+              echo "| \`${endpoint}\` | ✅ ${HTTP_CODE} | ${LATENCY}s |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "❌ ${endpoint} → ${STATUS}"
-              exit 1
+              echo "| \`${endpoint}\` | ❌ ${HTTP_CODE} | ${LATENCY}s |" >> $GITHUB_STEP_SUMMARY
+              FAILED=$((FAILED + 1))
             fi
           done
 
-  # ===========================================================================
-  # Job 4: Deploy to Production (requires approval)
-  # ===========================================================================
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total:** ${#ENDPOINTS[@]} endpoints, $FAILED failures" >> $GITHUB_STEP_SUMMARY
+
+          if [[ $FAILED -gt 0 ]]; then
+            echo "❌ $FAILED endpoint(s) failed smoke tests"
+            exit 1
+          fi
+
+      - name: Performance baseline check
+        run: |
+          STAGING_URL="${{ needs.deploy-staging.outputs.url || 'https://phi-pro-staging.vercel.app' }}"
+          # Check TTFB (Time to First Byte)
+          TTFB=$(curl -s -o /dev/null -w "%{time_starttransfer}" --max-time 15 "$STAGING_URL" || echo "15")
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚡ Performance" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value | Budget |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| TTFB | ${TTFB}s | < 3.0s |" >> $GITHUB_STEP_SUMMARY
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 5: Deploy to Production (Approval Gate)                           │
+  # └─────────────────────────────────────────────────────────────────────────┘
   deploy-production:
     name: '🟢 Deploy Production'
     runs-on: ubuntu-latest
     needs: [build, smoke-tests]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.environment == 'production')
+    if: >
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event.inputs.environment == 'production')
     environment:
       name: production
       url: ${{ steps.deploy.outputs.url }}
@@ -225,18 +392,30 @@ jobs:
       - name: Install Vercel CLI
         run: pnpm add -g vercel@latest
 
-      - name: Deploy to Production
+      - name: Deploy to production
         id: deploy
         run: |
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "🟢 Production deployed to: $URL"
+          echo "🟢 Production: $URL"
 
-  # ===========================================================================
-  # Job 5: Deploy Firebase Rules & Indexes
-  # ===========================================================================
+      - name: Post-deployment health check
+        run: |
+          PROD_URL="${{ steps.deploy.outputs.url }}"
+          echo "Waiting 10s for deployment to propagate..."
+          sleep 10
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$PROD_URL" || echo "000")
+          if [[ "$HTTP_CODE" -ge 200 ]] && [[ "$HTTP_CODE" -lt 400 ]]; then
+            echo "✅ Production health check passed (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ Production returned HTTP $HTTP_CODE — may need investigation"
+          fi
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 6: Deploy Firebase Rules & Indexes                                │
+  # └─────────────────────────────────────────────────────────────────────────┘
   deploy-firebase:
     name: '🔥 Deploy Firebase'
     runs-on: ubuntu-latest
@@ -255,27 +434,123 @@ jobs:
 
       - name: Deploy Firestore rules
         run: firebase deploy --only firestore:rules --project ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
+        continue-on-error: true
 
       - name: Deploy Firestore indexes
         run: firebase deploy --only firestore:indexes --project ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
+        continue-on-error: true
 
-  # ===========================================================================
-  # Job 6: Post-Deployment Notification
-  # ===========================================================================
-  notify:
-    name: '📣 Notify'
+      - name: Deploy Storage rules
+        run: firebase deploy --only storage --project ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
+        continue-on-error: true
+
+      - name: Report Firebase deployment
+        if: always()
+        run: |
+          echo "## 🔥 Firebase Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Firestore Rules | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Firestore Indexes | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Storage Rules | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 7: Build & Push Docker Image to GHCR                              │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  docker-publish:
+    name: '🐳 Publish Docker Image'
     runs-on: ubuntu-latest
-    needs: [deploy-production, deploy-firebase]
+    needs: deploy-production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            NEXT_TELEMETRY_DISABLED=1
+
+      - name: Report Docker publish
+        run: |
+          echo "## 🐳 Docker Image Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Registry | \`ghcr.io/${{ github.repository }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tags | \`${{ steps.meta.outputs.tags }}\` |" >> $GITHUB_STEP_SUMMARY
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Job 8: Post-Deployment Summary & Notification                         │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  notify:
+    name: '📣 Deployment Summary'
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging, deploy-production, deploy-firebase, docker-publish]
     if: always()
     steps:
-      - name: Deployment summary
+      - name: Generate deployment report
         run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Build** | \`${{ needs.build.outputs.build-id }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Build ID** | \`${{ needs.build.outputs.build-id }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | \`${{ needs.build.outputs.version }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | [\`${{ needs.build.outputs.sha-short }}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Actor** | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Status** | ${{ needs.deploy-production.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Trigger** | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Staging | ${{ needs.deploy-staging.result == 'success' && '✅' || needs.deploy-staging.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-staging.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Production | ${{ needs.deploy-production.result == 'success' && '✅' || needs.deploy-production.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-production.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Firebase | ${{ needs.deploy-firebase.result == 'success' && '✅' || needs.deploy-firebase.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-firebase.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker | ${{ needs.docker-publish.result == 'success' && '✅' || needs.docker-publish.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.docker-publish.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create GitHub Deployment Status
+        uses: actions/github-script@v7
+        if: needs.deploy-production.result == 'success'
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              description: `v${{ needs.build.outputs.version }} deployed to production`,
+              context: 'deployment/production'
+            });

@@ -1,35 +1,70 @@
-# =============================================================================
-# PHI-PRO Stale Issue Management
-# =============================================================================
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║                  PHI-PRO — Stale Issue & PR Management                       ║
+# ║                                                                              ║
+# ║  Automatically identifies and closes stale issues and pull requests          ║
+# ║  to keep the project backlog clean and actionable.                           ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 name: '🧹 Stale Issues'
 
+# ──────────────────────────────── Triggers ────────────────────────────────────
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'     # Daily at midnight UTC
+  workflow_dispatch:
 
+# ──────────────────────── Permissions ─────────────────────────────────────────
 permissions:
   issues: write
   pull-requests: write
 
+# ═══════════════════════════════════════════════════════════════════════════════
+#  JOBS
+# ═══════════════════════════════════════════════════════════════════════════════
 jobs:
   stale:
+    name: '🧹 Manage Stale Items'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - name: Mark & close stale issues/PRs
+        uses: actions/stale@v9
         with:
+          # ── Issue Configuration ──────────────────────────────────────────
           stale-issue-message: >
-            This issue has been automatically marked as stale because it has not
-            had any activity for 30 days. It will be closed in 7 days if no
-            further activity occurs.
-          stale-pr-message: >
-            This pull request has been automatically marked as stale because it
-            has not had any activity for 14 days. It will be closed in 7 days
-            if no further activity occurs.
+            👋 This issue has been automatically marked as **stale** because it
+            has not had any activity in the last **30 days**.
+
+            It will be **closed in 14 days** if no further activity occurs.
+            If this issue is still relevant, please add a comment or remove
+            the `stale` label.
+          close-issue-message: >
+            🔒 This issue has been automatically closed due to inactivity.
+            Feel free to reopen it if the issue persists.
           days-before-issue-stale: 30
-          days-before-pr-stale: 14
-          days-before-close: 7
+          days-before-issue-close: 14
           stale-issue-label: 'stale'
+          close-issue-label: 'closed-inactive'
+          exempt-issue-labels: 'pinned,security,critical,bug,in-progress,help wanted'
+
+          # ── PR Configuration ─────────────────────────────────────────────
+          stale-pr-message: >
+            👋 This pull request has been automatically marked as **stale**
+            because it has not had any activity in the last **14 days**.
+
+            It will be **closed in 7 days** if no further activity occurs.
+            Please update the PR or add a comment if it's still being worked on.
+          close-pr-message: >
+            🔒 This pull request has been automatically closed due to inactivity.
+            Feel free to reopen it when ready.
+          days-before-pr-stale: 14
+          days-before-pr-close: 7
           stale-pr-label: 'stale'
-          exempt-issue-labels: 'pinned,security,critical'
-          exempt-pr-labels: 'pinned,security'
+          close-pr-label: 'closed-inactive'
+          exempt-pr-labels: 'pinned,security,do-not-close,WIP'
+
+          # ── Global Configuration ─────────────────────────────────────────
+          remove-stale-when-updated: true
+          delete-branch: false
+          operations-per-run: 50
+          ascending: true
+          enable-statistics: true

@@ -1,31 +1,45 @@
-# =============================================================================
-# PHI-PRO Code Quality Pipeline
-# =============================================================================
-# Runs: Weekly schedule, manual dispatch
-# Performs: dependency updates, license compliance, code quality metrics
-# =============================================================================
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║                  PHI-PRO — Code Quality & Metrics Pipeline                   ║
+# ║                                                                              ║
+# ║  Automated quality gates: dependency audit, license compliance, code         ║
+# ║  metrics, complexity analysis, and technical debt tracking.                  ║
+# ║                                                                              ║
+# ║  Schedule: Weekly (Monday 6 AM UTC) + Manual dispatch                        ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 name: '📈 Code Quality'
 
+# ──────────────────────────────── Triggers ────────────────────────────────────
 on:
   schedule:
-    - cron: '0 6 * * 1' # Every Monday at 6 AM UTC
+    - cron: '0 6 * * 1'     # Every Monday at 6 AM UTC
+  pull_request:
+    branches: [main]
+    paths:
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
   workflow_dispatch:
 
+# ──────────────────────── Permissions ─────────────────────────────────────────
 permissions:
   contents: read
   pull-requests: write
+  security-events: write
 
+# ──────────────────────── Environment Variables ───────────────────────────────
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '10.30.3'
 
+# ═══════════════════════════════════════════════════════════════════════════════
+#  JOBS
+# ═══════════════════════════════════════════════════════════════════════════════
 jobs:
-  # ===========================================================================
-  # Dependency Freshness Check
-  # ===========================================================================
-  dependency-review:
-    name: '📦 Dependency Review'
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Dependency Audit & Vulnerability Scan                                 │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  dependency-audit:
+    name: '🔒 Dependency Audit'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -45,18 +59,46 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check for outdated packages
-        run: pnpm outdated --recursive || true
-
-      - name: Audit dependencies
+      - name: Security audit
         run: |
-          echo "## 📦 Dependency Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Dependency Security Audit" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          pnpm audit --recursive 2>&1 | tail -30 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          pnpm audit --recursive 2>&1 | tail -40 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
 
-  # ===========================================================================
-  # License Compliance
-  # ===========================================================================
+      - name: Check for outdated packages
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Outdated Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          pnpm outdated --recursive 2>&1 | tail -50 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
+
+      - name: Check for known vulnerabilities
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Advisory Summary" >> $GITHUB_STEP_SUMMARY
+          pnpm audit --json 2>/dev/null | node -e "
+            const data = require('fs').readFileSync('/dev/stdin', 'utf8');
+            try {
+              const audit = JSON.parse(data);
+              const meta = audit.metadata || {};
+              console.log('| Severity | Count |');
+              console.log('|----------|-------|');
+              console.log('| Critical | ' + (meta.vulnerabilities?.critical || 0) + ' |');
+              console.log('| High | ' + (meta.vulnerabilities?.high || 0) + ' |');
+              console.log('| Moderate | ' + (meta.vulnerabilities?.moderate || 0) + ' |');
+              console.log('| Low | ' + (meta.vulnerabilities?.low || 0) + ' |');
+            } catch(e) { console.log('No vulnerability data available.'); }
+          " >> $GITHUB_STEP_SUMMARY || echo "Audit data unavailable." >> $GITHUB_STEP_SUMMARY
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  License Compliance Check                                              │
+  # └─────────────────────────────────────────────────────────────────────────┘
   license-check:
     name: '📜 License Compliance'
     runs-on: ubuntu-latest
@@ -78,15 +120,32 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check licenses
+      - name: Scan licenses
         run: |
-          npx license-checker --summary --failOn "GPL-3.0;AGPL-3.0" || true
-          echo "## 📜 License Summary" >> $GITHUB_STEP_SUMMARY
-          npx license-checker --summary >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo "## 📜 License Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-  # ===========================================================================
-  # Code Metrics & Complexity
-  # ===========================================================================
+          # Install license-checker
+          npx license-checker --summary 2>&1 | tee license-summary.txt || true
+
+          echo "### License Distribution" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat license-summary.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # Check for copyleft licenses
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Copyleft License Check" >> $GITHUB_STEP_SUMMARY
+          COPYLEFT=$(npx license-checker --failOn "GPL-3.0;AGPL-3.0;GPL-2.0;AGPL-1.0" 2>&1 || true)
+          if echo "$COPYLEFT" | grep -q "Found"; then
+            echo "⚠️ Copyleft licenses detected — review required." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No copyleft licenses found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Code Metrics & Complexity Analysis                                    │
+  # └─────────────────────────────────────────────────────────────────────────┘
   code-metrics:
     name: '📊 Code Metrics'
     runs-on: ubuntu-latest
@@ -94,31 +153,142 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Count lines of code
+      - name: Analyze codebase metrics
         run: |
-          echo "## 📊 Code Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Codebase Metrics" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Category | Files | Lines |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "### Lines of Code" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Language | Files | Lines | Blank | Comment |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|-------|-------|---------|" >> $GITHUB_STEP_SUMMARY
 
+          # TypeScript / TSX
           TS_FILES=$(find . -name '*.ts' -o -name '*.tsx' | grep -v node_modules | grep -v .next | wc -l)
-          TS_LINES=$(find . -name '*.ts' -o -name '*.tsx' | grep -v node_modules | grep -v .next | xargs cat 2>/dev/null | wc -l)
-          echo "| TypeScript | $TS_FILES | $TS_LINES |" >> $GITHUB_STEP_SUMMARY
+          TS_LINES=$(find . \( -name '*.ts' -o -name '*.tsx' \) -not -path '*/node_modules/*' -not -path '*/.next/*' | xargs cat 2>/dev/null | wc -l)
+          TS_BLANK=$(find . \( -name '*.ts' -o -name '*.tsx' \) -not -path '*/node_modules/*' -not -path '*/.next/*' | xargs grep -c '^$' 2>/dev/null | awk -F: '{sum+=$2}END{print sum}')
+          TS_COMMENT=$(find . \( -name '*.ts' -o -name '*.tsx' \) -not -path '*/node_modules/*' -not -path '*/.next/*' | xargs grep -c '^\s*//' 2>/dev/null | awk -F: '{sum+=$2}END{print sum}')
+          echo "| TypeScript | $TS_FILES | $TS_LINES | ${TS_BLANK:-0} | ${TS_COMMENT:-0} |" >> $GITHUB_STEP_SUMMARY
 
-          CSS_FILES=$(find . -name '*.css' | grep -v node_modules | grep -v .next | wc -l)
-          CSS_LINES=$(find . -name '*.css' | grep -v node_modules | grep -v .next | xargs cat 2>/dev/null | wc -l)
-          echo "| CSS | $CSS_FILES | $CSS_LINES |" >> $GITHUB_STEP_SUMMARY
+          # CSS
+          CSS_FILES=$(find . -name '*.css' -not -path '*/node_modules/*' -not -path '*/.next/*' | wc -l)
+          CSS_LINES=$(find . -name '*.css' -not -path '*/node_modules/*' -not -path '*/.next/*' | xargs cat 2>/dev/null | wc -l)
+          echo "| CSS | $CSS_FILES | $CSS_LINES | — | — |" >> $GITHUB_STEP_SUMMARY
 
+          # JSON
           JSON_FILES=$(find . -name '*.json' -not -path '*/node_modules/*' -not -path '*/.next/*' -not -name 'pnpm-lock.yaml' | wc -l)
-          echo "| JSON Config | $JSON_FILES | — |" >> $GITHUB_STEP_SUMMARY
+          echo "| JSON | $JSON_FILES | — | — | — |" >> $GITHUB_STEP_SUMMARY
 
-          TOTAL_FILES=$((TS_FILES + CSS_FILES + JSON_FILES))
-          echo "| **Total** | **$TOTAL_FILES** | **$TS_LINES** |" >> $GITHUB_STEP_SUMMARY
+          # YAML
+          YAML_FILES=$(find . \( -name '*.yml' -o -name '*.yaml' \) -not -path '*/node_modules/*' | wc -l)
+          YAML_LINES=$(find . \( -name '*.yml' -o -name '*.yaml' \) -not -path '*/node_modules/*' | xargs cat 2>/dev/null | wc -l)
+          echo "| YAML | $YAML_FILES | $YAML_LINES | — | — |" >> $GITHUB_STEP_SUMMARY
 
-      - name: File structure check
+          # Markdown
+          MD_FILES=$(find . -name '*.md' -not -path '*/node_modules/*' | wc -l)
+          MD_LINES=$(find . -name '*.md' -not -path '*/node_modules/*' | xargs cat 2>/dev/null | wc -l)
+          echo "| Markdown | $MD_FILES | $MD_LINES | — | — |" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL_FILES=$((TS_FILES + CSS_FILES + JSON_FILES + YAML_FILES + MD_FILES))
+          TOTAL_LINES=$((TS_LINES + CSS_LINES + YAML_LINES + MD_LINES))
+          echo "| **Total** | **$TOTAL_FILES** | **$TOTAL_LINES** | — | — |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Analyze project structure
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📁 Project Structure" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          find . -type f -not -path '*/node_modules/*' -not -path '*/.next/*' -not -path '*/.git/*' -not -name 'pnpm-lock.yaml' | head -100 | sort >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Project Structure Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Directory | Files | Purpose |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|---------|" >> $GITHUB_STEP_SUMMARY
+
+          APP_PAGES=$(find apps/web/src/app -name 'page.tsx' 2>/dev/null | wc -l)
+          APP_LAYOUTS=$(find apps/web/src/app -name 'layout.tsx' 2>/dev/null | wc -l)
+          COMPONENTS=$(find apps/web/src/components -name '*.tsx' 2>/dev/null | wc -l)
+          SHARED_TYPES=$(find packages/shared/src/types -name '*.ts' 2>/dev/null | wc -l)
+          WORKFLOWS=$(find .github/workflows -name '*.yml' 2>/dev/null | wc -l)
+
+          echo "| \`apps/web/src/app\` | $APP_PAGES pages, $APP_LAYOUTS layouts | Application routes |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`apps/web/src/components\` | $COMPONENTS components | Reusable UI |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`packages/shared\` | $SHARED_TYPES type files | Shared types & utils |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`.github/workflows\` | $WORKFLOWS workflows | CI/CD automation |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Complexity hotspots
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔥 Largest Files (potential complexity hotspots)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Lines |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          find . \( -name '*.ts' -o -name '*.tsx' \) -not -path '*/node_modules/*' -not -path '*/.next/*' \
+            -exec wc -l {} + 2>/dev/null | sort -rn | head -10 | \
+            while read lines file; do
+              if [[ "$file" != "total" ]]; then
+                echo "| \`${file#./}\` | $lines |" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Dependency Freshness Score                                            │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  freshness:
+    name: '🆕 Dependency Freshness'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check key dependency versions
+        run: |
+          echo "## 🆕 Key Dependency Versions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Package | Installed | Latest | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-----------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          DEPS=("next" "react" "firebase" "typescript" "tailwindcss" "i18next" "lucide-react")
+          for dep in "${DEPS[@]}"; do
+            INSTALLED=$(node -p "try{require('${dep}/package.json').version}catch(e){'N/A'}" 2>/dev/null || echo "N/A")
+            LATEST=$(npm view "$dep" version 2>/dev/null || echo "N/A")
+            if [[ "$INSTALLED" == "$LATEST" ]]; then
+              STATUS="✅ Up to date"
+            elif [[ "$INSTALLED" == "N/A" ]]; then
+              STATUS="⚠️ Not found"
+            else
+              STATUS="🔄 Update available"
+            fi
+            echo "| \`$dep\` | $INSTALLED | $LATEST | $STATUS |" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Quality Summary Gate                                                  │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  quality-gate:
+    name: '✅ Quality Gate'
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, license-check, code-metrics, freshness]
+    if: always()
+    steps:
+      - name: Quality summary
+        run: |
+          echo "## ✅ Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Audit | ${{ needs.dependency-audit.result == 'success' && '✅' || '⚠️' }} ${{ needs.dependency-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| License Compliance | ${{ needs.license-check.result == 'success' && '✅' || '⚠️' }} ${{ needs.license-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Metrics | ${{ needs.code-metrics.result == 'success' && '✅' || '⚠️' }} ${{ needs.code-metrics.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Freshness | ${{ needs.freshness.result == 'success' && '✅' || '⚠️' }} ${{ needs.freshness.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕐 **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

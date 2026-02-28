@@ -1,0 +1,100 @@
+# ═══════════════════════════════════════════════════════════════
+# PHI-PRO — PR Auto-Labeling Rules
+# Used by .github/workflows/pr-validation.yml
+# ═══════════════════════════════════════════════════════════════
+
+# ── Domain Labels ──────────────────────────────────────────────
+'module:food-safety':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/food/**'
+
+'module:school-health':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/school/**'
+
+'module:epidemiology':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/epidemiology/**'
+
+'module:occupational':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/occupational/**'
+
+'module:administration':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/administration/**'
+
+'module:public-portal':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/public/**'
+
+'module:management':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/app/dashboard/management/**'
+
+# ── Area Labels ────────────────────────────────────────────────
+'area:ui':
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/src/components/**'
+
+'area:auth':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/web/src/contexts/auth-context.tsx'
+      - 'apps/web/src/components/auth-guard.tsx'
+      - 'apps/web/src/app/login/**'
+      - 'apps/web/src/app/forgot-password/**'
+
+'area:i18n':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/web/src/i18n/**'
+      - 'apps/web/src/contexts/i18n-context.tsx'
+
+'area:types':
+  - changed-files:
+    - any-glob-to-any-file: 'packages/shared/src/types/**'
+
+'area:firebase':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'firestore.*'
+      - 'storage.rules'
+      - 'firebase.json'
+      - 'apps/web/src/lib/firebase.ts'
+      - 'apps/web/src/lib/firestore.ts'
+
+# ── Infra Labels ───────────────────────────────────────────────
+'infra:ci':
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**'
+
+'infra:docker':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+
+'infra:deps':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+
+'documentation':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+'config':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.config.*'
+      - '.editorconfig'
+      - '.prettierignore'
+      - '.vscode/**'
+      - 'turbo.json'
+      - 'tsconfig*.json'

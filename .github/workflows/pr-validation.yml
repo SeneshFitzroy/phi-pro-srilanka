@@ -1,0 +1,202 @@
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║                  PHI-PRO — PR Preview & Validation Pipeline                  ║
+# ║                                                                              ║
+# ║  Automated PR checks: label enforcement, size analysis, commit message       ║
+# ║  validation, and automated labeling based on changed files.                  ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
+
+name: '🏷️ PR Validation'
+
+# ──────────────────────────────── Triggers ────────────────────────────────────
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
+
+# ──────────────────────── Permissions ─────────────────────────────────────────
+permissions:
+  contents: read
+  pull-requests: write
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  JOBS
+# ═══════════════════════════════════════════════════════════════════════════════
+jobs:
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Auto-label PRs based on file changes                                  │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  labeler:
+    name: '🏷️ Auto Label'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Label PR based on changed files
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+        continue-on-error: true
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  PR Size Analysis                                                      │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  size-check:
+    name: '📏 PR Size Check'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze PR size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+
+            const additions = files.reduce((sum, f) => sum + f.additions, 0);
+            const deletions = files.reduce((sum, f) => sum + f.deletions, 0);
+            const totalChanges = additions + deletions;
+            const fileCount = files.length;
+
+            let sizeLabel = 'size/S';
+            let emoji = '🟢';
+            if (totalChanges > 1000) { sizeLabel = 'size/XL'; emoji = '🔴'; }
+            else if (totalChanges > 500) { sizeLabel = 'size/L'; emoji = '🟠'; }
+            else if (totalChanges > 200) { sizeLabel = 'size/M'; emoji = '🟡'; }
+
+            // Add size label
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: [sizeLabel],
+              });
+            } catch (e) { console.log('Could not add label:', e.message); }
+
+            // Write summary
+            const summary = [
+              `## 📏 PR Size Analysis`,
+              '',
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| Files Changed | ${fileCount} |`,
+              `| Additions | +${additions} |`,
+              `| Deletions | -${deletions} |`,
+              `| Total Changes | ${totalChanges} |`,
+              `| Size | ${emoji} ${sizeLabel} |`,
+              '',
+            ];
+
+            if (totalChanges > 500) {
+              summary.push('> ⚠️ **Large PR** — consider splitting into smaller, focused PRs for easier review.');
+            }
+
+            await core.summary.addRaw(summary.join('\n')).write();
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  Commit Message Validation                                             │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  commit-lint:
+    name: '📝 Commit Messages'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.30.3'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install commitlint
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate commit messages
+        run: |
+          echo "## 📝 Commit Message Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose 2>&1 | tee commitlint-output.txt || true
+
+          if grep -q "found 0 problems" commitlint-output.txt 2>/dev/null; then
+            echo "✅ All commit messages follow conventional format." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Some commit messages may not follow the conventional format." >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat commitlint-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+        continue-on-error: true
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  PR Description Check                                                  │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  pr-description:
+    name: '📋 PR Description'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            const title = pr.title || '';
+
+            const checks = [];
+            let allPassed = true;
+
+            // Check title length
+            if (title.length < 10) {
+              checks.push('❌ Title too short (min 10 chars)');
+              allPassed = false;
+            } else {
+              checks.push('✅ Title length OK');
+            }
+
+            // Check description exists
+            if (body.length < 20) {
+              checks.push('❌ Description too short (min 20 chars)');
+              allPassed = false;
+            } else {
+              checks.push('✅ Description provided');
+            }
+
+            // Check for template sections
+            const hasType = body.includes('Type of Change') || body.includes('type of change');
+            const hasDescription = body.includes('Description') || body.includes('description');
+            checks.push(hasType ? '✅ Change type specified' : '⚠️ No change type section');
+            checks.push(hasDescription ? '✅ Description section found' : '⚠️ No description section');
+
+            const summary = [
+              '## 📋 PR Description Quality',
+              '',
+              '| Check | Status |',
+              '|-------|--------|',
+              ...checks.map(c => `| ${c.substring(2)} | ${c.substring(0, 1)} |`),
+              '',
+            ];
+
+            if (!allPassed) {
+              summary.push('> 💡 Please use the PR template for consistent descriptions.');
+            }
+
+            await core.summary.addRaw(summary.join('\n')).write();
