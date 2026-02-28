@@ -37,7 +37,7 @@ cd phi-pro-srilanka
 pnpm install
 
 # Copy environment variables
-cp apps/web/.env.local.example apps/web/.env.local
+cp apps/web/.env.example apps/web/.env.local
 
 # Start development server
 pnpm dev

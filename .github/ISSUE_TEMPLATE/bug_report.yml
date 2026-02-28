@@ -1,0 +1,165 @@
+name: "\U0001F41B Bug Report"
+description: Report a bug or unexpected behavior in PHI-PRO
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees:
+  - SeneshFitzroy
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for reporting a bug!
+        Please fill out the sections below so we can reproduce and fix the issue quickly.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I click the submit button on the food inspection form, the page crashes...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the behavior.
+      placeholder: |
+        1. Navigate to Dashboard → Food Safety → Inspection
+        2. Fill in the establishment name field
+        3. Click 'Submit Inspection'
+        4. Observe the error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+      placeholder: The inspection form should submit successfully and display a confirmation toast.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened instead.
+      placeholder: The page shows a white screen with "TypeError: Cannot read property..." in the console.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Screen Recordings
+      description: If applicable, add screenshots or screen recordings to help explain the problem.
+      placeholder: Drag and drop images here or paste URLs.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected Module
+      description: Which module does this bug affect?
+      multiple: true
+      options:
+        - "\U0001F7E2 Food Safety"
+        - "\U0001F535 School Health"
+        - "\U0001F534 Epidemiology"
+        - "\U0001F7E1 Occupational Health"
+        - "\U0001F7E3 Administration"
+        - "\U0001F310 Public Portal"
+        - "\U0001F4CA Management Dashboard"
+        - "\U0001F512 Authentication / RBAC"
+        - "\U0001F30D Internationalization (i18n)"
+        - "\U0001F4F1 PWA / Offline"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - "\U0001F6D1 Critical — System crash / data loss"
+        - "\U0001F534 High — Major feature broken"
+        - "\U0001F7E0 Medium — Feature partially broken"
+        - "\U0001F7E2 Low — Minor / cosmetic issue"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: e.g., Windows 11, macOS 14.2, Ubuntu 22.04
+      placeholder: Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & Version
+      description: e.g., Chrome 121, Firefox 122, Safari 17.2
+      placeholder: Chrome 121
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: e.g., Desktop (1920×1080), iPhone 15 Pro, Samsung Galaxy S24
+      placeholder: Desktop (1920×1080)
+    validations:
+      required: false
+
+  - type: dropdown
+    id: user-role
+    attributes:
+      label: User Role
+      description: What role were you logged in as when this bug occurred?
+      options:
+        - Public User (not logged in)
+        - PHI Officer
+        - SPHI (Supervisor)
+        - MOH Admin
+    validations:
+      required: false
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: Console Errors
+      description: Paste any relevant browser console errors (F12 → Console tab).
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate.
+          required: true
+        - label: I have tested with the latest version of the application.
+          required: false
+        - label: I can reliably reproduce this issue.
+          required: false

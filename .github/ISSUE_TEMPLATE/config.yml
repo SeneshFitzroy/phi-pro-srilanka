@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "\U0001F4AC Discussions"
+    url: https://github.com/SeneshFitzroy/phi-pro-srilanka/discussions
+    about: Ask questions, share ideas, or discuss features in GitHub Discussions.
+  - name: "\U0001F4D6 Documentation"
+    url: https://github.com/SeneshFitzroy/phi-pro-srilanka#readme
+    about: Read the project documentation before opening an issue.
+  - name: "\U0001F512 Security Vulnerability"
+    url: https://github.com/SeneshFitzroy/phi-pro-srilanka/security/policy
+    about: "Report security vulnerabilities privately — DO NOT open a public issue."

@@ -1,66 +1,107 @@
 ## Description
 
-<!-- Provide a brief description of the changes in this PR -->
+<!-- Provide a concise summary of the changes and their motivation. -->
+<!-- If this fixes a bug, describe what was wrong and how this PR fixes it. -->
 
 ## Type of Change
 
-- [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
-- [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to change)
-- [ ] 📝 Documentation update
-- [ ] ♻️ Refactoring (no functional changes)
-- [ ] 🎨 Style/UI update
-- [ ] ⚡ Performance improvement
-- [ ] 🔒 Security fix
+- [ ] 🐛 **Bug fix** — Non-breaking change that fixes an issue
+- [ ] ✨ **New feature** — Non-breaking change that adds functionality
+- [ ] 💥 **Breaking change** — Fix or feature that would cause existing functionality to change
+- [ ] 📝 **Documentation** — Updates to docs, README, or comments only
+- [ ] ♻️ **Refactoring** — Code restructuring with no functional changes
+- [ ] 🎨 **Style / UI** — Visual or formatting changes
+- [ ] ⚡ **Performance** — Optimization with no functional changes
+- [ ] 🔒 **Security** — Fix for a security vulnerability
+- [ ] 🧪 **Tests** — Adding or updating tests only
+- [ ] 🔧 **Configuration** — Changes to build, CI, or tooling
 
 ## Related Issues
 
-<!-- Link related issues: Fixes #123, Relates to #456 -->
+<!-- Link related issues using GitHub keywords: -->
+<!-- Fixes #123 | Closes #456 | Relates to #789 -->
 
 ## Module(s) Affected
 
-- [ ] Food Safety
-- [ ] School Health
-- [ ] Epidemiology
-- [ ] Occupational Health
-- [ ] Administration
-- [ ] Public Portal
-- [ ] Management
-- [ ] Shared Package
-- [ ] Infrastructure/Config
+- [ ] 🟢 Food Safety
+- [ ] 🔵 School Health
+- [ ] 🔴 Epidemiology
+- [ ] 🟡 Occupational Health
+- [ ] 🟣 Administration
+- [ ] 🌐 Public Portal
+- [ ] 📊 Management Dashboard
+- [ ] 📦 Shared Package (`@phi-pro/shared`)
+- [ ] 🔐 Authentication / RBAC
+- [ ] 🌍 Internationalization (i18n)
+- [ ] ⚙️ Infrastructure / Config / CI
 
 ## Changes Made
 
-<!-- List the specific changes made -->
+<!-- List the specific changes in this PR. Be specific enough for reviewers. -->
 
-- 
-- 
-- 
+-
+-
+-
 
-## Testing
+## Screenshots / Recordings
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests pass
-- [ ] Manual testing performed
-- [ ] Tested in all supported browsers (Chrome, Firefox, Safari, Edge)
-- [ ] Tested responsive design (mobile, tablet, desktop)
-- [ ] Tested trilingual support (English, Sinhala, Tamil)
-
-## Screenshots
-
-<!-- Add screenshots for UI changes -->
+<!-- Required for UI changes. Use the comparison table for before/after. -->
 
 | Before | After |
 |--------|-------|
 |        |       |
 
+## Testing
+
+### Automated Tests
+- [ ] Unit tests added / updated
+- [ ] Integration tests pass
+- [ ] E2E tests pass (if applicable)
+
+### Manual Testing
+- [ ] Tested in Chrome (latest)
+- [ ] Tested in Firefox (latest)
+- [ ] Tested in Safari (latest)
+- [ ] Tested in Edge (latest)
+- [ ] Tested responsive design — Mobile (320px)
+- [ ] Tested responsive design — Tablet (768px)
+- [ ] Tested responsive design — Desktop (1440px+)
+
+### Internationalization
+- [ ] Tested in English (`en`)
+- [ ] Tested in Sinhala (`si`)
+- [ ] Tested in Tamil (`ta`)
+- [ ] Translation keys added to all 3 locale files
+
+## Deployment Notes
+
+<!-- Any special deployment steps, environment variables, or migration notes? -->
+<!-- e.g., "Requires MAPBOX_ACCESS_TOKEN in production environment" -->
+
+N/A
+
 ## Checklist
 
-- [ ] Code follows project conventions and style guide
+### Code Quality
+- [ ] Code follows project conventions and [CONTRIBUTING.md](CONTRIBUTING.md) guidelines
 - [ ] Self-review of code performed
-- [ ] Comments added for complex logic
-- [ ] Documentation updated (if applicable)
-- [ ] No new warnings or errors introduced
-- [ ] All CI checks pass
+- [ ] Complex logic is commented and documented
+- [ ] No `console.log`, `debugger`, or temporary code left behind
+- [ ] No `any` types — proper TypeScript typing used
+- [ ] Imports are from `@phi-pro/shared` for shared types (not local duplicates)
+
+### Standards
 - [ ] Accessibility standards maintained (WCAG 2.1 AA)
-- [ ] No sensitive data exposed (API keys, credentials)
+- [ ] No sensitive data exposed (API keys, credentials, PII)
+- [ ] All new components use the domain color scheme
+- [ ] Forms use React Hook Form + Zod validation
+
+### CI/CD
+- [ ] All CI checks pass (lint, type-check, tests, build)
+- [ ] No new ESLint warnings introduced
+- [ ] Bundle size has not increased significantly
+- [ ] Lighthouse scores maintained (perf ≥90, a11y ≥95)
+
+---
+
+> **Reviewer Note**: Please verify the [Quality Gates](README.md#quality-gates) are satisfied before approving.

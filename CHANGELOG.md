@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-01
+
+### Added
+- **Enterprise CI/CD Pipeline** — 7 GitHub Actions workflows with 40+ jobs
+  - `ci.yml` — 12-job CI with path filtering, Lighthouse auditing, Docker verification
+  - `cd.yml` — 8-job progressive delivery with PR previews, smoke tests, GHCR publishing
+  - `security.yml` — CodeQL SAST, TruffleHog secret scanning, OWASP headers, dependency review
+  - `pr-validation.yml` — Auto-labeling (15+ labels), PR size analysis, commit linting
+  - `quality.yml` — 5-job code quality with dependency freshness tracking
+  - `release.yml` — 4-job automated releases with Docker image publishing
+  - `stale.yml` — Enhanced stale management with separate issue/PR policies
+- **GitHub Issue Forms** — Upgraded from Markdown to YAML-based issue forms
+  - Bug report form with severity, module, role, and console error fields
+  - Feature request form with acceptance criteria and priority
+  - Documentation issue form
+  - Template chooser configuration
+- **Repository Governance**
+  - `CODEOWNERS` — Automatic PR review assignments by file path
+  - `dependabot.yml` — Automated dependency updates (npm, GitHub Actions, Docker)
+  - `FUNDING.yml` — Sponsor configuration
+  - `.github/labeler.yml` — 15+ auto-labeling rules for PRs
+
+### Changed
+- **LICENSE** — Corrected from Apache 2.0 to MIT (matching all README references)
+- **Firestore Rules** — Rewritten in proper Firebase security rules syntax with helper functions, field validation, and audit log collection
+- **CONTRIBUTING.md** — Fixed environment file reference to `.env.example`
+- **README.md** — Updated CI/CD section to reflect 7 workflows (40+ jobs), enhanced security documentation, expanded project structure tree
+
+### Removed
+- Redundant `apps/web/.env.local.example` (consolidated to `.env.example`)
+- Old Markdown issue templates (replaced with YAML forms)
+
 ## [1.0.0] - 2026-02-28
 
 ### Added

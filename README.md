@@ -11,7 +11,9 @@
 [![Firebase](https://img.shields.io/badge/Firebase-11.x-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![pnpm](https://img.shields.io/badge/pnpm-10.30-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
-[![License](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+[![Security](https://github.com/SeneshFitzroy/phi-pro-srilanka/actions/workflows/security.yml/badge.svg)](https://github.com/SeneshFitzroy/phi-pro-srilanka/actions/workflows/security.yml)
+[![Code Quality](https://github.com/SeneshFitzroy/phi-pro-srilanka/actions/workflows/quality.yml/badge.svg)](https://github.com/SeneshFitzroy/phi-pro-srilanka/actions/workflows/quality.yml)
 
 **A comprehensive, production-grade Progressive Web Application (PWA) designed to digitize and modernize the operational workflows of Sri Lanka's 1,793 Public Health Inspectors across 354 MOH areas.**
 
@@ -318,15 +320,23 @@ Supervisory tools for SPHIs and MOH administrators.
 phi-pro-srilanka/
 │
 ├── .github/                          # GitHub Configuration
-│   ├── workflows/                    # CI/CD Pipeline Definitions
-│   │   ├── ci.yml                    # Continuous Integration (8 jobs)
-│   │   ├── cd.yml                    # Continuous Deployment (6 jobs)
-│   │   ├── quality.yml               # Weekly code quality analysis
-│   │   ├── release.yml               # Automated release creation
+│   ├── workflows/                    # CI/CD Pipeline Definitions (7 workflows)
+│   │   ├── ci.yml                    # Continuous Integration (12 jobs)
+│   │   ├── cd.yml                    # Continuous Deployment (8 jobs)
+│   │   ├── security.yml              # Security analysis (CodeQL, secrets, OWASP)
+│   │   ├── pr-validation.yml         # PR automation (labels, size, linting)
+│   │   ├── quality.yml               # Code quality metrics (5 jobs)
+│   │   ├── release.yml               # Automated release creation (4 jobs)
 │   │   └── stale.yml                 # Stale issue/PR management
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md             # Bug report template
-│   │   └── feature_request.md        # Feature request template
+│   ├── ISSUE_TEMPLATE/               # GitHub Issue Form Templates
+│   │   ├── bug_report.yml            # Bug report form (YAML)
+│   │   ├── feature_request.yml       # Feature request form (YAML)
+│   │   ├── documentation.yml         # Documentation issue form
+│   │   └── config.yml                # Template chooser configuration
+│   ├── labeler.yml                   # Auto-labeling rules (15+ labels)
+│   ├── dependabot.yml                # Automated dependency updates
+│   ├── CODEOWNERS                    # Code ownership for PR reviews
+│   ├── FUNDING.yml                   # Sponsor configuration
 │   └── pull_request_template.md      # PR template with checklist
 │
 ├── .husky/                           # Git Hooks
@@ -539,49 +549,59 @@ docker compose --profile dev up
 
 ## 🔄 CI/CD Pipeline
 
-PHI-PRO implements a comprehensive, multi-stage CI/CD pipeline using GitHub Actions with 5 workflow definitions and 25+ automated jobs.
+PHI-PRO implements a comprehensive, enterprise-grade CI/CD pipeline using GitHub Actions with **7 workflow definitions** and **40+ automated jobs**, including security scanning, PR automation, and progressive delivery.
 
 ### Pipeline Architecture
 
 ```
-┌──────────────────────────── CI PIPELINE ────────────────────────────┐
-│                                                                      │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐     │
-│  │ Install  │───→│   Lint   │───→│  Build   │───→│  Bundle  │     │
-│  │  Deps    │    │ + Format │    │ Verify   │    │ Analysis │     │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘     │
-│       │          ┌──────────┐    ┌──────────┐                      │
-│       ├─────────→│  Type    │    │ Security │                      │
-│       │          │  Check   │    │  Audit   │                      │
-│       │          └──────────┘    └──────────┘                      │
-│       │          ┌──────────┐                                       │
-│       └─────────→│  Tests   │ (3 parallel shards)                  │
-│                  └──────────┘                                       │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────── CI PIPELINE (12 jobs) ─────────────────────────────────┐
+│                                                                                        │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────┐    │
+│  │ Change   │───→│ Install  │───→│   Lint   │───→│  Build   │───→│   Bundle     │    │
+│  │ Detect   │    │  Deps    │    │ + Format │    │ Verify   │    │  Analysis    │    │
+│  └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────────┘    │
+│                       │          ┌──────────┐    ┌──────────┐    ┌──────────────┐    │
+│                       ├─────────→│  Type    │    │ Security │    │  Lighthouse  │    │
+│                       │          │  Check   │    │  Audit   │    │  (Perf/A11y) │    │
+│                       │          └──────────┘    └──────────┘    └──────────────┘    │
+│                       │          ┌──────────┐    ┌──────────┐    ┌──────────────┐    │
+│                       └─────────→│  Tests   │───→│ Coverage │    │   Docker     │    │
+│                                  │ (3 shards)│    │  Merge   │    │   Verify     │    │
+│                                  └──────────┘    └──────────┘    └──────────────┘    │
+└───────────────────────────────────────────────────────────────────────────────────────┘
                               │ all gates pass
-┌─────────────────────────────┼── CD PIPELINE ────────────────────────┐
-│                              ▼                                       │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐     │
-│  │  Build   │───→│  Deploy  │───→│  Smoke   │───→│  Deploy  │     │
-│  │  Prod    │    │  Staging │    │  Tests   │    │   Prod   │     │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘     │
-│                                                        │            │
-│                                                   ┌────┴─────┐     │
-│                                                   │ Firebase │     │
-│                                                   │  Deploy  │     │
-│                                                   └──────────┘     │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────┼──── CD PIPELINE (8 jobs) ─────────────────────────────┐
+│                              ▼                                                       │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐      │
+│  │  Build   │───→│ PR Prev. │───→│  Smoke   │───→│  Deploy  │───→│ Firebase │      │
+│  │  Prod    │    │ /Staging │    │  Tests   │    │   Prod   │    │  Deploy  │      │
+│  └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘      │
+│                                                        │         ┌──────────┐      │
+│                                                        └────────→│  Docker  │      │
+│                                                                   │  GHCR   │      │
+│                                                                   └──────────┘      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────┼── SECURITY & QUALITY ─────────────────────────────────┐
+│                              ▼                                                       │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐      │
+│  │  CodeQL  │    │ Trufflehog│    │  OWASP   │    │Dependabot│    │PR Valid. │      │
+│  │  SAST    │    │ Secrets  │    │ Headers  │    │ Updates  │    │ + Labels │      │
+│  └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Workflow Definitions
 
 | Workflow | Trigger | Jobs | Purpose |
 |----------|---------|------|---------|
-| [`ci.yml`](.github/workflows/ci.yml) | Push, PR | 8 | Lint, type-check, test (3 shards), build, security audit, bundle analysis |
-| [`cd.yml`](.github/workflows/cd.yml) | Push to main | 6 | Build, deploy staging, smoke tests, deploy production, Firebase rules |
-| [`quality.yml`](.github/workflows/quality.yml) | Weekly (Mon) | 3 | Dependency review, license compliance, code metrics |
-| [`release.yml`](.github/workflows/release.yml) | Version tags | 1 | Automated GitHub Release with changelog |
-| [`stale.yml`](.github/workflows/stale.yml) | Daily | 1 | Auto-close stale issues and PRs |
+| [`ci.yml`](.github/workflows/ci.yml) | Push, PR, merge_group | 12 | Path filtering, lint, type-check, test (3 shards), build, security, bundle analysis, Lighthouse, Docker verify, coverage merge |
+| [`cd.yml`](.github/workflows/cd.yml) | Push to main, PR | 8 | PR preview, staging deploy, smoke tests (8 endpoints), production (approval gate), Firebase deploy, Docker publish (GHCR), notifications |
+| [`security.yml`](.github/workflows/security.yml) | PR, Weekly, Manual | 5 | CodeQL (security-extended), TruffleHog secret scanning, dependency review, OWASP headers, security gate |
+| [`pr-validation.yml`](.github/workflows/pr-validation.yml) | Pull Request | 4 | Auto-labeling (15+ labels), PR size analysis (S/M/L/XL), commit message linting, PR description quality |
+| [`quality.yml`](.github/workflows/quality.yml) | Weekly (Mon) | 5 | Dependency audit, license compliance, code metrics, dependency freshness, quality gate |
+| [`release.yml`](.github/workflows/release.yml) | Version tags, Manual | 4 | Semver validation, categorized changelog, Docker image publish (GHCR), GitHub Release with artifacts |
+| [`stale.yml`](.github/workflows/stale.yml) | Daily | 1 | Auto-close stale issues (30d) and PRs (14d) with separate policies |
 
 ### Quality Gates
 
@@ -590,10 +610,13 @@ Every pull request must pass all gates before merge:
 - ✅ **ESLint** — Zero errors, zero warnings
 - ✅ **Prettier** — Consistent code formatting
 - ✅ **TypeScript** — Strict type checking (`noEmit`)
-- ✅ **Tests** — All suites passing (3 parallel shards)
+- ✅ **Tests** — All suites passing (3 parallel shards with coverage)
 - ✅ **Build** — Successful production build (49/49 routes)
-- ✅ **Security** — GitHub CodeQL analysis clean
+- ✅ **Security** — CodeQL + TruffleHog + dependency review clean
 - ✅ **Bundle** — No size regression vs. base branch
+- ✅ **Lighthouse** — Performance ≥90, Accessibility ≥95, Best Practices ≥95, SEO ≥90
+- ✅ **Docker** — Container build verification passes
+- ✅ **PR Validation** — Conventional commits, description quality, auto-labels
 
 ### Deployment Environments
 
@@ -699,12 +722,16 @@ pnpm test -- --coverage      # With coverage report
 | Measure | Implementation |
 |---------|---------------|
 | **Authentication** | Firebase Auth (JWT tokens, session management) |
-| **Authorization** | RBAC via Firestore security rules |
+| **Authorization** | RBAC via Firestore security rules (4-tier hierarchy) |
 | **Storage** | File type + size validation in storage rules |
 | **Input Validation** | Zod schemas (client + shared package) |
 | **Secrets** | Environment variables (never committed) |
-| **Code Analysis** | GitHub CodeQL on every push |
-| **Dependencies** | Automated `pnpm audit` in CI |
+| **SAST** | GitHub CodeQL with `security-extended` + `security-and-quality` queries |
+| **Secret Scanning** | TruffleHog verified secret detection in CI |
+| **Dependency Review** | Automated vulnerability blocking on PRs (high severity) |
+| **License Compliance** | GPL/copyleft license detection in quality pipeline |
+| **OWASP** | Security headers validation |
+| **Dependencies** | Dependabot automated weekly updates + `pnpm audit` in CI |
 | **HTTPS** | Enforced via Vercel Edge Network |
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting.
@@ -735,6 +762,8 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Contributor Covenant v2.1 |
 | [LICENSE](LICENSE) | MIT License |
 | [.env.example](apps/web/.env.example) | Environment variable reference |
+| [CODEOWNERS](.github/CODEOWNERS) | Code ownership for PR reviews |
+| [dependabot.yml](.github/dependabot.yml) | Automated dependency configuration |
 
 ---
 

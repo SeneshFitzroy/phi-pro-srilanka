@@ -1,65 +1,219 @@
-{
-  "rules": {
-    "match /databases/{database}/documents": {
-      // =========================================================================
-      // Firestore Security Rules — PHI-PRO
-      // =========================================================================
-      // Role hierarchy: Public < PHI < SPHI < MOH Admin
-      // =========================================================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-      "users/{userId}": {
-        "allow read": "request.auth != null && (request.auth.uid == userId || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
-        "allow create": "request.auth != null && hasRole('MOH_ADMIN')",
-        "allow update": "request.auth != null && (request.auth.uid == userId || hasRole('MOH_ADMIN'))",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    // =========================================================================
+    // Firestore Security Rules — PHI-PRO
+    // =========================================================================
+    // Role hierarchy: Public (L1) < PHI (L2) < SPHI (L3) < MOH Admin (L4)
+    // All authenticated access requires valid Firebase Auth token.
+    // =========================================================================
 
-      "food_inspections/{docId}": {
-        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
-        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    // ── Helper Functions ────────────────────────────────────────────────────
 
-      "school_health/{docId}": {
-        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
-        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    /// Check if the request is from an authenticated user.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
 
-      "epidemiology/{docId}": {
-        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
-        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    /// Check if the authenticated user owns the resource (createdBy field).
+    function isOwner() {
+      return isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
 
-      "occupational_health/{docId}": {
-        "allow read": "request.auth != null && (isOwner() || hasRole('SPHI') || hasRole('MOH_ADMIN'))",
-        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow update": "request.auth != null && (isOwner() || hasRole('MOH_ADMIN'))",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    /// Check if the authenticated user matches a specific userId.
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
 
-      "complaints/{docId}": {
-        "allow read": "request.auth != null || resource.data.isPublic == true",
-        "allow create": "true",
-        "allow update": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      },
+    /// Check if the authenticated user has a specific role stored in custom claims.
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
 
-      "public_alerts/{docId}": {
-        "allow read": "true",
-        "allow write": "request.auth != null && hasAnyRole(['SPHI', 'MOH_ADMIN'])"
-      },
+    /// Check if the authenticated user has any of the specified roles.
+    function hasAnyRole(roles) {
+      return isAuthenticated() && request.auth.token.role in roles;
+    }
 
-      "permits/{docId}": {
-        "allow read": "request.auth != null",
-        "allow create": "request.auth != null && hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN'])",
-        "allow update": "request.auth != null && hasAnyRole(['SPHI', 'MOH_ADMIN'])",
-        "allow delete": "request.auth != null && hasRole('MOH_ADMIN')"
-      }
+    /// Check if the user is a supervisor (SPHI or MOH Admin).
+    function isSupervisor() {
+      return hasAnyRole(['SPHI', 'MOH_ADMIN']);
+    }
+
+    /// Check if the user is an administrator (MOH Admin).
+    function isAdmin() {
+      return hasRole('MOH_ADMIN');
+    }
+
+    /// Check if the user is a field officer or higher.
+    function isFieldOfficer() {
+      return hasAnyRole(['PHI', 'SPHI', 'MOH_ADMIN']);
+    }
+
+    /// Validate that required fields are present in the incoming data.
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    /// Validate that a timestamp field is set to the server timestamp.
+    function isValidTimestamp(field) {
+      return request.resource.data[field] == request.time;
+    }
+
+    // ── User Profiles ───────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      // Users can read their own profile; supervisors can read all profiles
+      allow read: if isUser(userId) || isSupervisor();
+
+      // Only MOH Admins can create new user profiles
+      allow create: if isAdmin()
+                    && hasRequiredFields(['email', 'role', 'fullName', 'mohArea']);
+
+      // Users can update their own profile; admins can update any
+      allow update: if isUser(userId) || isAdmin();
+
+      // Only MOH Admins can delete user profiles
+      allow delete: if isAdmin();
+    }
+
+    // ── Food Safety Module (H800, H801, H802, H803) ────────────────────────
+
+    match /food_inspections/{docId} {
+      // Owner, supervisors, and admins can read
+      allow read: if isOwner() || isSupervisor();
+
+      // Field officers and above can create inspections
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['establishmentName', 'type', 'createdBy', 'createdAt'])
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      // Owner can update their own; admins can update any
+      allow update: if isOwner() || isAdmin();
+
+      // Only MOH Admins can delete
+      allow delete: if isAdmin();
+    }
+
+    // ── School Health Module (H1214, H1046, H1015, H1247, H1014) ───────────
+
+    match /school_health/{docId} {
+      allow read: if isOwner() || isSupervisor();
+
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['schoolName', 'type', 'createdBy', 'createdAt'])
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      allow update: if isOwner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Epidemiology Module (H399, H411, Health-160, SIV) ──────────────────
+
+    match /epidemiology/{docId} {
+      allow read: if isOwner() || isSupervisor();
+
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['type', 'createdBy', 'createdAt'])
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      allow update: if isOwner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Occupational Health Module (H1203, H1204, H1205, OHS) ──────────────
+
+    match /occupational_health/{docId} {
+      allow read: if isOwner() || isSupervisor();
+
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['facilityName', 'type', 'createdBy', 'createdAt'])
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      allow update: if isOwner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Administration Module (H795, H796, PHI-1, H1200) ───────────────────
+
+    match /administration/{docId} {
+      allow read: if isOwner() || isSupervisor();
+
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['type', 'createdBy', 'createdAt'])
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      allow update: if isOwner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Public Complaints ───────────────────────────────────────────────────
+
+    match /complaints/{docId} {
+      // Public complaints with isPublic=true are readable by anyone;
+      // otherwise, only authenticated users can read
+      allow read: if resource.data.isPublic == true || isAuthenticated();
+
+      // Anyone can create a complaint (public portal)
+      allow create: if hasRequiredFields(['subject', 'description', 'contactEmail']);
+
+      // Only field officers and above can update complaint status
+      allow update: if isFieldOfficer();
+
+      // Only MOH Admins can delete complaints
+      allow delete: if isAdmin();
+    }
+
+    // ── Public Health Alerts ────────────────────────────────────────────────
+
+    match /public_alerts/{docId} {
+      // Public alerts are readable by everyone
+      allow read: if true;
+
+      // Only supervisors and admins can manage alerts
+      allow create: if isSupervisor()
+                    && hasRequiredFields(['title', 'severity', 'createdBy', 'createdAt']);
+
+      allow update: if isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    // ── Health Permits & Certificates ───────────────────────────────────────
+
+    match /permits/{docId} {
+      // All authenticated users can read permits
+      allow read: if isAuthenticated();
+
+      // Field officers and above can create permits
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['type', 'applicantName', 'createdBy', 'createdAt']);
+
+      // Only supervisors and admins can approve/update permits
+      allow update: if isSupervisor();
+
+      // Only MOH Admins can revoke/delete permits
+      allow delete: if isAdmin();
+    }
+
+    // ── Audit Log (immutable) ───────────────────────────────────────────────
+
+    match /audit_log/{docId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+
+      // System can create audit entries (via Cloud Functions)
+      allow create: if isAuthenticated();
+
+      // Audit logs are immutable — no updates or deletes
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── Deny all other access ───────────────────────────────────────────────
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

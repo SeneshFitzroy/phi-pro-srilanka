@@ -1,0 +1,142 @@
+name: "\u2728 Feature Request"
+description: Suggest a new feature or enhancement for PHI-PRO
+title: "[FEATURE]: "
+labels: ["enhancement"]
+assignees:
+  - SeneshFitzroy
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Help us improve PHI-PRO! Please describe the feature you'd like to see.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A clear and concise description of the proposed feature.
+      placeholder: Add the ability to export inspection reports as PDF directly from the dashboard...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? Is this related to a frustration?
+      placeholder: Currently, PHIs have to manually transcribe digital records back to paper forms for their supervisors...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+      placeholder: |
+        - Add a "Download PDF" button to each completed inspection form
+        - The PDF should match the official MOH H-series form layout
+        - Include the PHI's digital signature and QR verification code
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or features you've considered.
+      placeholder: We could also add a "Print" button that opens the browser's print dialog with a print-optimized stylesheet.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Target Module
+      description: Which module would this feature belong to?
+      multiple: true
+      options:
+        - "\U0001F7E2 Food Safety"
+        - "\U0001F535 School Health"
+        - "\U0001F534 Epidemiology"
+        - "\U0001F7E1 Occupational Health"
+        - "\U0001F7E3 Administration"
+        - "\U0001F310 Public Portal"
+        - "\U0001F4CA Management Dashboard"
+        - "\U0001F512 Authentication / RBAC"
+        - "\U0001F30D Internationalization (i18n)"
+        - "\U0001F6E0\uFE0F Infrastructure / DevOps"
+        - "Cross-cutting (affects multiple modules)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested Priority
+      description: How important is this feature to your workflow?
+      options:
+        - "\U0001F534 Critical — Cannot work without this"
+        - "\U0001F7E0 High — Significantly improves workflow"
+        - "\U0001F7E1 Medium — Nice to have"
+        - "\U0001F7E2 Low — Minor improvement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-role
+    attributes:
+      label: Primary User Role
+      description: Which user role would primarily benefit from this feature?
+      multiple: true
+      options:
+        - Public User
+        - PHI Officer
+        - SPHI (Supervisor)
+        - MOH Admin
+        - All roles
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Define measurable criteria for when this feature is considered complete.
+      placeholder: |
+        - [ ] PDF export button is visible on completed inspection forms
+        - [ ] Generated PDF matches the official H800 form layout
+        - [ ] PDF includes digital signature and QR code
+        - [ ] PDF can be downloaded in all 3 languages
+        - [ ] Export works on mobile devices
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups / References
+      description: Add any mockups, wireframes, screenshots, or links to similar features in other products.
+      placeholder: Drag and drop images here or paste URLs.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, technical considerations, or related issues.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched existing issues and feature requests to avoid duplicates.
+          required: true
+        - label: This feature aligns with the project's scope (public health inspection digitization).
+          required: true

@@ -1,0 +1,46 @@
+# =============================================================================
+# CODEOWNERS — PHI-PRO Digital Health Enforcement System
+# =============================================================================
+# Defines code ownership for automatic PR review requests.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# =============================================================================
+
+# ── Global Owner (all files) ─────────────────────────────────────────────────
+*                                       @SeneshFitzroy
+
+# ── CI/CD & Infrastructure ──────────────────────────────────────────────────
+.github/                                @SeneshFitzroy
+Dockerfile                              @SeneshFitzroy
+docker-compose.yml                      @SeneshFitzroy
+.dockerignore                           @SeneshFitzroy
+turbo.json                              @SeneshFitzroy
+
+# ── Firebase Configuration ──────────────────────────────────────────────────
+firebase.json                           @SeneshFitzroy
+firestore.rules                         @SeneshFitzroy
+firestore.indexes.json                  @SeneshFitzroy
+storage.rules                           @SeneshFitzroy
+.firebaserc                             @SeneshFitzroy
+
+# ── Shared Package (types, validation, utils) ──────────────────────────────
+packages/shared/                        @SeneshFitzroy
+
+# ── Web Application ────────────────────────────────────────────────────────
+apps/web/src/app/                       @SeneshFitzroy
+apps/web/src/components/                @SeneshFitzroy
+apps/web/src/contexts/                  @SeneshFitzroy
+apps/web/src/lib/                       @SeneshFitzroy
+apps/web/src/i18n/                      @SeneshFitzroy
+
+# ── Domain Modules ─────────────────────────────────────────────────────────
+apps/web/src/app/dashboard/food/        @SeneshFitzroy
+apps/web/src/app/dashboard/school/      @SeneshFitzroy
+apps/web/src/app/dashboard/epidemiology/ @SeneshFitzroy
+apps/web/src/app/dashboard/occupational/ @SeneshFitzroy
+apps/web/src/app/dashboard/administration/ @SeneshFitzroy
+apps/web/src/app/dashboard/management/  @SeneshFitzroy
+apps/web/src/app/public/                @SeneshFitzroy
+
+# ── Documentation ──────────────────────────────────────────────────────────
+*.md                                    @SeneshFitzroy
+LICENSE                                 @SeneshFitzroy

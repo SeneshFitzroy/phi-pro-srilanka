@@ -1,0 +1,46 @@
+name: "\U0001F4DD Documentation Issue"
+description: Report missing, incorrect, or unclear documentation
+title: "[DOCS]: "
+labels: ["documentation"]
+assignees:
+  - SeneshFitzroy
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Documentation Issue
+        Help us improve our documentation!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what documentation is missing, incorrect, or unclear.
+      placeholder: The README section on "Getting Started" doesn't mention the required Firebase project setup steps...
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where in the documentation is the issue? (file path, URL, or section name)
+      placeholder: README.md → Getting Started → Installation
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: How would you improve this documentation?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate.
+          required: true

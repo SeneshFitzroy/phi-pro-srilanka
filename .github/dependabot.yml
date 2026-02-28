@@ -1,0 +1,169 @@
+# =============================================================================
+# Dependabot Configuration — PHI-PRO
+# =============================================================================
+# Automated dependency update management.
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+# =============================================================================
+
+version: 2
+updates:
+  # ── npm (pnpm) dependencies ───────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "SeneshFitzroy"
+    assignees:
+      - "SeneshFitzroy"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Group minor and patch updates to reduce PR noise
+    groups:
+      next-ecosystem:
+        patterns:
+          - "next"
+          - "next-*"
+          - "@next/*"
+          - "eslint-config-next"
+        update-types:
+          - "minor"
+          - "patch"
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      firebase:
+        patterns:
+          - "firebase"
+          - "firebase-*"
+          - "@firebase/*"
+        update-types:
+          - "minor"
+          - "patch"
+      ui-components:
+        patterns:
+          - "@radix-ui/*"
+          - "lucide-react"
+          - "class-variance-authority"
+          - "tailwind-merge"
+          - "clsx"
+          - "cmdk"
+          - "sonner"
+        update-types:
+          - "minor"
+          - "patch"
+      forms-validation:
+        patterns:
+          - "react-hook-form"
+          - "zod"
+          - "@hookform/*"
+        update-types:
+          - "minor"
+          - "patch"
+      i18n:
+        patterns:
+          - "i18next"
+          - "react-i18next"
+          - "i18next-*"
+        update-types:
+          - "minor"
+          - "patch"
+      visualization:
+        patterns:
+          - "recharts"
+          - "mapbox-gl"
+          - "react-map-gl"
+          - "@react-pdf/*"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-tools:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "prettier"
+          - "typescript"
+          - "@types/*"
+          - "tailwindcss"
+          - "postcss"
+          - "autoprefixer"
+        update-types:
+          - "minor"
+          - "patch"
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "@testing-library/*"
+          - "playwright"
+          - "@playwright/*"
+          - "msw"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignore major version bumps for stability
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ── GitHub Actions ────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "SeneshFitzroy"
+    assignees:
+      - "SeneshFitzroy"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "ci"
+      - "automated"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ── Docker ────────────────────────────────────────────────────────────────
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "SeneshFitzroy"
+    assignees:
+      - "SeneshFitzroy"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "docker"
+      - "automated"
