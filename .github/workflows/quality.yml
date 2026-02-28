@@ -1,0 +1,124 @@
+# =============================================================================
+# PHI-PRO Code Quality Pipeline
+# =============================================================================
+# Runs: Weekly schedule, manual dispatch
+# Performs: dependency updates, license compliance, code quality metrics
+# =============================================================================
+
+name: '📈 Code Quality'
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Every Monday at 6 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.3'
+
+jobs:
+  # ===========================================================================
+  # Dependency Freshness Check
+  # ===========================================================================
+  dependency-review:
+    name: '📦 Dependency Review'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for outdated packages
+        run: pnpm outdated --recursive || true
+
+      - name: Audit dependencies
+        run: |
+          echo "## 📦 Dependency Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          pnpm audit --recursive 2>&1 | tail -30 >> $GITHUB_STEP_SUMMARY || true
+
+  # ===========================================================================
+  # License Compliance
+  # ===========================================================================
+  license-check:
+    name: '📜 License Compliance'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check licenses
+        run: |
+          npx license-checker --summary --failOn "GPL-3.0;AGPL-3.0" || true
+          echo "## 📜 License Summary" >> $GITHUB_STEP_SUMMARY
+          npx license-checker --summary >> $GITHUB_STEP_SUMMARY 2>&1 || true
+
+  # ===========================================================================
+  # Code Metrics & Complexity
+  # ===========================================================================
+  code-metrics:
+    name: '📊 Code Metrics'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Count lines of code
+        run: |
+          echo "## 📊 Code Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Files | Lines |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|-------|" >> $GITHUB_STEP_SUMMARY
+
+          TS_FILES=$(find . -name '*.ts' -o -name '*.tsx' | grep -v node_modules | grep -v .next | wc -l)
+          TS_LINES=$(find . -name '*.ts' -o -name '*.tsx' | grep -v node_modules | grep -v .next | xargs cat 2>/dev/null | wc -l)
+          echo "| TypeScript | $TS_FILES | $TS_LINES |" >> $GITHUB_STEP_SUMMARY
+
+          CSS_FILES=$(find . -name '*.css' | grep -v node_modules | grep -v .next | wc -l)
+          CSS_LINES=$(find . -name '*.css' | grep -v node_modules | grep -v .next | xargs cat 2>/dev/null | wc -l)
+          echo "| CSS | $CSS_FILES | $CSS_LINES |" >> $GITHUB_STEP_SUMMARY
+
+          JSON_FILES=$(find . -name '*.json' -not -path '*/node_modules/*' -not -path '*/.next/*' -not -name 'pnpm-lock.yaml' | wc -l)
+          echo "| JSON Config | $JSON_FILES | — |" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL_FILES=$((TS_FILES + CSS_FILES + JSON_FILES))
+          echo "| **Total** | **$TOTAL_FILES** | **$TS_LINES** |" >> $GITHUB_STEP_SUMMARY
+
+      - name: File structure check
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Project Structure" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          find . -type f -not -path '*/node_modules/*' -not -path '*/.next/*' -not -path '*/.git/*' -not -name 'pnpm-lock.yaml' | head -100 | sort >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
