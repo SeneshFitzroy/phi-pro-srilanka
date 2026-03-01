@@ -10,7 +10,6 @@ import {
   Camera,
   MapPin,
   AlertTriangle,
-  CheckCircle,
   Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,7 +109,7 @@ type Scores = Record<string, number>;
 
 export default function NewFoodInspectionPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  useAuth();
   const [scores, setScores] = useState<Scores>({});
   const [premisesInfo, setPremisesInfo] = useState({
     premisesName: '',

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ClipboardList, Plus, Search, FileCheck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Plus, FileCheck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

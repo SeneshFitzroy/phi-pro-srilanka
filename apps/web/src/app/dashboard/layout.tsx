@@ -16,7 +16,6 @@ import {
   FileText,
   BarChart3,
   Settings,
-  User,
   LogOut,
   ChevronLeft,
   Bell,

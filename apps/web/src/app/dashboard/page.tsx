@@ -12,10 +12,8 @@ import {
   Clock,
   AlertTriangle,
   FileText,
-  TrendingUp,
   ArrowRight,
   Calendar,
-  MapPin,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 

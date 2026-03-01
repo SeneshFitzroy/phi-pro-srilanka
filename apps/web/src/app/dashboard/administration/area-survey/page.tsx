@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface HousingEntry { id: number; type: string; permanent: string; semipermanent: string; temporary: string; }
-
 const WATER_SOURCES = ['Pipe-borne (treated)', 'Protected well', 'Unprotected well', 'Tube well', 'Stream/river', 'Rainwater', 'Bowser/vendor'];
 const TOILET_TYPES = ['Water-sealed', 'Pour flush', 'Pit latrine', 'No latrine'];
 const WASTE_METHODS = ['Municipal collection', 'Open burning', 'Burying', 'Composting', 'Open dumping'];

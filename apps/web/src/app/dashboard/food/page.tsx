@@ -57,7 +57,7 @@ function GradeBadge({ grade }: { grade: string }) {
 }
 
 export default function FoodModulePage() {
-  const { t } = useTranslation();
+  useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
 
   return (

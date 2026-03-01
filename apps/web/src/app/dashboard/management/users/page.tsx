@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Users, UserPlus, Edit, Trash2, Shield, Search, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, Edit, Trash2, Search, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

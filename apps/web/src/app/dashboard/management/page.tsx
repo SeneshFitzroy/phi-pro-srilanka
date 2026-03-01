@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { Users, Shield, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, MapPin, TrendingUp, UserPlus, Building2 } from 'lucide-react';
+import { Users, Shield, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
