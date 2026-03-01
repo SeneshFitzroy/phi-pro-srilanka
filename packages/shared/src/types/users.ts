@@ -73,6 +73,7 @@ export interface AuthState {
   user: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  error: string | null;
 }
 
 /** Public user (anonymous or registered complaint submitter) */

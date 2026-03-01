@@ -161,3 +161,11 @@ export enum PaymentStatus {
   REFUNDED = 'REFUNDED',
   WAIVED = 'WAIVED',
 }
+
+/** Offline sync status */
+export enum SyncStatus {
+  SYNCED = 'SYNCED',
+  PENDING = 'PENDING',
+  FAILED = 'FAILED',
+  CONFLICT = 'CONFLICT',
+}
