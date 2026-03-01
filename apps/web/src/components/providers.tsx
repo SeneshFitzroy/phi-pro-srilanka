@@ -3,6 +3,7 @@
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/auth-context';
 import { I18nProvider } from '@/contexts/i18n-context';
+import { Toaster } from 'sonner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +14,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <I18nProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </AuthProvider>
       </I18nProvider>
     </ThemeProvider>
   );
