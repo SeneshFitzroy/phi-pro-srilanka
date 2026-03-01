@@ -98,3 +98,6 @@ export interface PaymentRecord {
   receiptNo?: string;
   receiptUrl?: string;
   
+  createdAt: string;
+  updatedAt: string;
+}

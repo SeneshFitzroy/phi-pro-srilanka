@@ -58,3 +58,11 @@ export interface Complaint {
 export type ComplaintCategory =
   | 'FOOD_HYGIENE'
   | 'FOOD_ADULTERATION'
+  | 'WATER_POLLUTION'
+  | 'NOISE_POLLUTION'
+  | 'VECTOR_BREEDING'
+  | 'WASTE_MANAGEMENT'
+  | 'UNSANITARY_PREMISES'
+  | 'ILLEGAL_CONSTRUCTION'
+  | 'OCCUPATIONAL_HAZARD'
+  | 'OTHER';

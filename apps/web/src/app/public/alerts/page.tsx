@@ -26,3 +26,32 @@ export default function AlertsPage() {
       <div className="container mx-auto max-w-3xl px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
           <Link href="/public"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><AlertCircle className="h-6 w-6 text-red-500" />Public Health Alerts</h1>
+            <p className="text-sm text-muted-foreground">Stay informed about health advisories in your area</p>
+          </div>
+        </div>
+
+        {ALERTS.map(alert => {
+          const style = typeStyles[alert.type];
+          return (
+            <Card key={alert.id} className={`border-l-4 ${style.border} ${style.bg}`}>
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <alert.icon className="h-5 w-5" />
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${style.badge}`}>{style.badgeText}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{alert.date}</span>
+                </div>
+                <h2 className="font-semibold">{alert.title}</h2>
+                <p className="text-sm text-muted-foreground">{alert.body}</p>
+                <p className="text-xs text-muted-foreground">Affected Area: {alert.area}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

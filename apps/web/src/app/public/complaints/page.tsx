@@ -78,3 +78,44 @@ export default function ComplaintsPage() {
             <CardHeader><CardTitle className="text-base">Complaint Details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <Label>Complaint Type *</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
+                  <option value="">Select type...</option>
+                  {COMPLAINT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Description *</Label>
+                <textarea className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Describe the issue in detail..." required />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Location / Address *</Label>
+                  <Input placeholder="Street address or area" required />
+                </div>
+                <div className="space-y-2">
+                  <Label>GN Division</Label>
+                  <Input placeholder="If known" />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Your Name</Label>
+                  <Input placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Contact (Phone / Email)</Label>
+                  <Input placeholder="For follow-up" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Link href="/public"><Button variant="outline">Cancel</Button></Link>
+                <Button type="submit" className="bg-orange-500 hover:bg-orange-600"><Send className="mr-2 h-4 w-4" />Submit Complaint</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </div>
+    </div>
+  );
+}

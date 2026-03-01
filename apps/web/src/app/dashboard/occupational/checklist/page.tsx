@@ -98,3 +98,14 @@ export default function OHSChecklistPage() {
                           {val === 'yes' ? 'Yes' : val === 'no' ? 'No' : 'N/A'}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

@@ -79,3 +79,42 @@
 /* PWA standalone mode */
 @media all and (display-mode: standalone) {
   body {
+    overscroll-behavior: none;
+  }
+  .pwa-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pwa-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Domain accent colors */
+.text-food { color: #22c55e; }
+.text-school { color: #3b82f6; }
+.text-epidemiology { color: #ef4444; }
+.text-occupational { color: #f59e0b; }
+.text-administration { color: #8b5cf6; }
+
+.bg-food-light { background-color: #f0fdf4; }
+.bg-school-light { background-color: #eff6ff; }
+.bg-epidemiology-light { background-color: #fef2f2; }
+.bg-occupational-light { background-color: #fffbeb; }
+.bg-administration-light { background-color: #f5f3ff; }
+
+.border-food { border-color: #22c55e; }
+.border-school { border-color: #3b82f6; }
+.border-epidemiology { border-color: #ef4444; }
+.border-occupational { border-color: #f59e0b; }
+.border-administration { border-color: #8b5cf6; }
+
+/* Print styles */
+@media print {
+  nav, aside, header, footer, button {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

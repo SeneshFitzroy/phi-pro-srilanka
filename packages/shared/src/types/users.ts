@@ -68,4 +68,11 @@ export interface UserProfile extends BaseDocument {
   failedLoginAttempts?: number;
 }
 
+/** Authentication state for the client-side auth context */
+export interface AuthState {
+  user: UserProfile | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+}
+
 /** Public user (anonymous or registered complaint submitter) */

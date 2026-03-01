@@ -70,3 +70,37 @@ export default function EpidemiologyMonthlyPage() {
           <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Month</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>Year</Label><Input type="number" placeholder="2026" /></div>
+        </CardContent>
+      </Card>
+
+      {sections.map((section) => (
+        <Card key={section.title}>
+          <CardHeader><CardTitle className="text-base">{section.title}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {section.items.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4">
+                  <Label className="text-sm flex-1">{item.label}</Label>
+                  <Input
+                    type={item.type}
+                    min="0"
+                    className="w-28 text-center"
+                    value={values[item.id] || ''}
+                    onChange={(e) => update(item.id, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

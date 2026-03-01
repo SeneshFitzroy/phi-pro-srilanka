@@ -150,3 +150,78 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <Settings className="h-5 w-5" />
             {!collapsed && <span>{t('nav.settings')}</span>}
+          </Link>
+          <Link
+            href="/dashboard/profile"
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors',
+              collapsed && 'justify-center px-2',
+            )}
+          >
+            <User className="h-5 w-5" />
+            {!collapsed && <span>{user?.displayName ?? t('nav.profile')}</span>}
+          </Link>
+          <button
+            onClick={() => signOut()}
+            className={cn(
+              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors',
+              collapsed && 'justify-center px-2',
+            )}
+          >
+            <LogOut className="h-5 w-5" />
+            {!collapsed && <span>{t('nav.logout')}</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Main content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Top bar */}
+        <header className="flex h-16 items-center justify-between border-b bg-card px-4 lg:px-6">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="text-muted-foreground lg:hidden"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Language switcher */}
+            <div className="flex items-center gap-1 rounded-lg border p-1">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code as 'en' | 'si' | 'ta')}
+                  className={cn(
+                    'rounded px-2 py-0.5 text-xs font-medium transition-colors',
+                    language === lang.code
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Notifications */}
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+      </div>
+    </div>
+  );
+}

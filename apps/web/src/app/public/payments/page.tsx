@@ -81,3 +81,14 @@ export default function PaymentsPage() {
                 <div>
                   <p className="font-medium text-sm">{office.name}</p>
                   <p className="text-xs text-muted-foreground">{office.addr}</p>
+                  <p className="text-xs text-muted-foreground">{office.phone}</p>
+                </div>
+                <Button variant="outline" size="sm" className="text-xs"><ExternalLink className="mr-1 h-3 w-3" />Directions</Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

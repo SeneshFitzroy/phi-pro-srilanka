@@ -9,3 +9,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider
       attribute="class"
       defaultTheme="light"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <I18nProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}

@@ -118,3 +118,35 @@ export default function MonthlyReportPage() {
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-4">
           <div className="space-y-2"><Label>Month</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="MOH area" /></div>
+          <div className="space-y-2"><Label>Total Activities</Label><Input value={totalActivities} readOnly className="font-bold" /></div>
+        </CardContent>
+      </Card>
+
+      {SECTIONS.map((section) => (
+        <Card key={section.title}>
+          <CardHeader className={section.color}>
+            <CardTitle className="text-base">{section.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {section.items.map((item) => (
+                <div key={item.key} className="flex items-center justify-between gap-2">
+                  <Label className="text-sm flex-1">{item.label}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    className="w-24 text-center"
+                    value={data[item.key]}
+                    onChange={(e) => setData(prev => ({ ...prev, [item.key]: e.target.value }))}
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

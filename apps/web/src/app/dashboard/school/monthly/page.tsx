@@ -101,3 +101,12 @@ export default function SchoolMonthlyPage() {
                     <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.male || ''} onChange={(e) => updateValue(cat.id, sub, 'male', e.target.value)} />
                     <Input type="number" min="0" className="h-8 text-center text-sm" value={values[cat.id]?.[sub]?.female || ''} onChange={(e) => updateValue(cat.id, sub, 'female', e.target.value)} />
                   </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}

@@ -93,3 +93,7 @@ export default function SchoolActivityPage() {
             ))}
           </div>
         </CardContent>
+      </Card>
+    </div>
+  );
+}

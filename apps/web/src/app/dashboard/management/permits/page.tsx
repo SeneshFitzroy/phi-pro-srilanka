@@ -101,3 +101,22 @@ export default function PermitsPage() {
         <CardContent className="overflow-auto p-0">
           <table className="w-full text-sm">
             <thead><tr className="border-b bg-muted/50"><th className="px-4 py-3 text-left text-xs">ID</th><th className="px-4 py-3 text-left text-xs">Type</th><th className="px-4 py-3 text-left text-xs">Holder</th><th className="px-4 py-3 text-left text-xs">Issued</th><th className="px-4 py-3 text-left text-xs">Expires</th><th className="px-4 py-3 text-left text-xs">Grade</th><th className="px-4 py-3 text-left text-xs">Status</th></tr></thead>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.id} className="border-b last:border-0 hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{p.id}</td>
+                  <td className="px-4 py-3 text-xs">{p.type}</td>
+                  <td className="px-4 py-3 text-xs font-medium">{p.holder}</td>
+                  <td className="px-4 py-3 text-xs">{p.issued}</td>
+                  <td className="px-4 py-3 text-xs">{p.expires}</td>
+                  <td className="px-4 py-3 text-xs font-bold">{p.grade}</td>
+                  <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadge(p.status)}`}>{p.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

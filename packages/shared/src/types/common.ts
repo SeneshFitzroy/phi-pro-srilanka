@@ -84,3 +84,11 @@ export interface UserNotification {
   type: AlertType;
   
   // Action
+  actionUrl?: string;
+  
+  // Status
+  read: boolean;
+  readAt?: string;
+  
+  createdAt: string;
+}

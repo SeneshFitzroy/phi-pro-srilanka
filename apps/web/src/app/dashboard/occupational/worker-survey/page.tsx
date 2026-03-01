@@ -80,3 +80,21 @@ export default function WorkerSurveyPage() {
                     <Label className="text-xs">Health Issues</Label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.healthIssues} onChange={(e) => updateRecord(r.id, 'healthIssues', e.target.value)}>
                       <option value="">None</option><option>Respiratory</option><option>Skin Condition</option><option>Hearing Loss</option><option>Musculoskeletal</option><option>Eye Strain</option><option>Chemical Exposure</option><option>Fatigue/Stress</option><option>Other</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">PPE Compliant</Label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={r.ppeCompliant ? 'yes' : 'no'} onChange={(e) => updateRecord(r.id, 'ppeCompliant', e.target.value === 'yes')}>
+                      <option value="yes">Yes</option><option value="no">No</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1"><Label className="text-xs">Last Medical Exam</Label><Input type="date" value={r.lastMedical} onChange={(e) => updateRecord(r.id, 'lastMedical', e.target.value)} /></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

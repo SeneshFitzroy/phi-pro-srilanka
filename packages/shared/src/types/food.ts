@@ -137,3 +137,16 @@ export interface FoodPremisesRegistration {
   foodType: string;          // e.g., "Restaurant", "Bakery", "Grocery"
   foodTypeDetail?: string;
   riskLevel: FoodRiskLevel;
+  registrationDate: string;
+  expiryDate: string;
+  isActive: boolean;
+  lastInspectionDate?: string;
+  nextInspectionDue?: string;
+  currentGrade?: string;
+  numberOfEmployees?: number;
+  seatingCapacity?: number;
+  hasLiquorLicense: boolean;
+  photos?: string[];
+  createdAt: string;
+  updatedAt: string;
+}

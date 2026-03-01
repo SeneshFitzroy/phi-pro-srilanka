@@ -263,3 +263,17 @@ export interface SpotMapEntry {
 
 export interface PHITask {
   id: string;
+  title: string;
+  description?: string;
+  domain: string;
+  assignedPhiId: string;
+  assignedPhiName: string;
+  dueDate: string;
+  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  relatedFormId?: string;
+  relatedFormCode?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}

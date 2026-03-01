@@ -113,3 +113,28 @@ export default function FoodCalendarPage() {
         {/* Sidebar: Selected Day Details */}
         <Card>
           <CardHeader>
+            <CardTitle className="text-base">{selectedDate ? `${MONTHS[month]} ${selectedDate}` : 'Select a date'}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedDate ? (
+              selectedEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedEvents.map((ev, i) => (
+                    <div key={i} className={`rounded-lg border p-3 ${typeColors[ev.type]}`}>
+                      <p className="text-sm font-medium">{ev.title}</p>
+                      <p className="text-xs mt-1 flex items-center gap-1"><MapPin className="h-3 w-3" />{ev.premises}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No events scheduled for this date.</p>
+              )
+            ) : (
+              <p className="text-sm text-muted-foreground">Click on a date to view scheduled inspections.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

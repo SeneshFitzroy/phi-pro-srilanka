@@ -162,3 +162,23 @@ export default function FoodModulePage() {
                       <td className="py-3 pr-4 font-mono text-xs">{item.id}</td>
                       <td className="py-3 pr-4 font-medium">{item.premises}</td>
                       <td className="py-3 pr-4"><GradeBadge grade={item.grade} /></td>
+                      <td className="py-3 pr-4">{item.score}/100</td>
+                      <td className="py-3 pr-4">{item.date}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${item.status === 'Approved' ? 'bg-green-100 text-green-700' : item.status === 'Follow-up Required' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <Button variant="ghost" size="sm" className="text-xs">View</Button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

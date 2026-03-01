@@ -78,3 +78,10 @@ export default function EpidemiologyWeeklyPage() {
                 <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.cases || ''} onChange={(e) => updateValue(disease, 'cases', e.target.value)} />
                 <Input type="number" min="0" className="h-8 text-center text-sm" value={values[disease]?.deaths || ''} onChange={(e) => updateValue(disease, 'deaths', e.target.value)} />
               </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

@@ -77,3 +77,50 @@ export default function AnalyticsPage() {
                   <span className="text-xs text-muted-foreground">{d.month}</span>
                 </div>
               );
+            })}
+          </div>
+          <div className="flex justify-center gap-4 mt-4 text-xs">
+            <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded bg-green-500" />Food</span>
+            <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded bg-blue-500" />School</span>
+            <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded bg-red-500" />Epidemiology</span>
+            <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded bg-yellow-500" />Occupational</span>
+            <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded bg-purple-500" />Administration</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* PHI Performance Table */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">PHI Officer Performance</CardTitle></CardHeader>
+        <CardContent>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-muted-foreground">
+                <th className="pb-2 font-medium">Officer</th>
+                <th className="pb-2 font-medium">Area</th>
+                <th className="pb-2 font-medium text-center">Inspections</th>
+                <th className="pb-2 font-medium text-center">Reports</th>
+                <th className="pb-2 font-medium text-center">Compliance</th>
+                <th className="pb-2 font-medium text-center">Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {phiPerformance.map((phi) => (
+                <tr key={phi.name} className="border-b last:border-0">
+                  <td className="py-2 font-medium">{phi.name}</td>
+                  <td className="py-2 text-muted-foreground">{phi.area}</td>
+                  <td className="py-2 text-center">{phi.inspections}</td>
+                  <td className="py-2 text-center">{phi.reports}</td>
+                  <td className="py-2 text-center">{phi.compliance}%</td>
+                  <td className="py-2 text-center">
+                    {phi.trend === 'up' ? <TrendingUp className="h-4 w-4 text-green-500 inline" /> : phi.trend === 'down' ? <TrendingDown className="h-4 w-4 text-red-500 inline" /> : <span className="text-muted-foreground">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

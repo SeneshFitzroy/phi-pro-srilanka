@@ -99,3 +99,11 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex justify-end">
+        <Button className="bg-primary"><Save className="mr-2 h-4 w-4" />Save Settings</Button>
+      </div>
+    </div>
+  );
+}

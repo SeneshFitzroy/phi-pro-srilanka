@@ -36,3 +36,18 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+      router.push('/dashboard');
+      return;
+    }
+  }, [isLoading, isAuthenticated, pathname, router, requireAuth, allowedRoles, user]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

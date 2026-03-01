@@ -120,3 +120,44 @@ export enum FactoryScale {
   MEDIUM = 'MEDIUM',   // Madya Paimana: 50-250 workers
   LARGE = 'LARGE',     // Mahapaimana: 250+ workers
 }
+
+/** Supported UI languages */
+export enum Language {
+  EN = 'EN',
+  SI = 'SI',
+  TA = 'TA',
+}
+
+/** System alert / notification type */
+export enum AlertType {
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+  CRITICAL = 'CRITICAL',
+  SUCCESS = 'SUCCESS',
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+}
+
+/** Priority levels */
+export enum Priority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+/** Geographic area type (H795 survey) */
+export enum AreaType {
+  URBAN = 'URBAN',
+  SEMI_URBAN = 'SEMI_URBAN',
+  RURAL = 'RURAL',
+  ESTATE = 'ESTATE',
+}
+
+/** Payment status for permits */
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  WAIVED = 'WAIVED',
+}

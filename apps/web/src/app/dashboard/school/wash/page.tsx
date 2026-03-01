@@ -112,3 +112,24 @@ export default function SchoolWASHPage() {
       ))}
 
       <Card>
+        <CardHeader><CardTitle className="text-base">Additional Observations</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Overall WASH Rating</Label>
+            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData['overall_rating'] || ''} onChange={(e) => update('overall_rating', e.target.value)}>
+              <option value="">Select rating...</option>
+              <option value="Good">Good</option>
+              <option value="Satisfactory">Satisfactory</option>
+              <option value="Needs Improvement">Needs Improvement</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label>Recommendations</Label>
+            <textarea className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Enter recommendations..." value={formData['recommendations'] || ''} onChange={(e) => update('recommendations', e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
