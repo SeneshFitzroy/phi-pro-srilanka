@@ -7,6 +7,7 @@ import {
   CheckCircle,
   Shield,
   ArrowRight,
+  FileText,
 } from 'lucide-react';
 
 export default function PublicPortalPage() {
@@ -45,6 +46,13 @@ export default function PublicPortalPage() {
               desc: 'Search restaurants and food establishments by name or area to view their hygiene grade.',
               href: '/public/food-grades',
               color: 'text-food bg-food-light',
+            },
+            {
+              icon: FileText,
+              title: 'Published Health Reports',
+              desc: 'View official PHI inspection reports, surveillance data, and public health statistics.',
+              href: '/public/reports',
+              color: 'text-indigo-600 bg-indigo-50',
             },
             {
               icon: MessageSquare,

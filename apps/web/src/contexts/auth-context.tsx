@@ -85,11 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           let profile = await fetchUserProfile(firebaseUser);
           if (!profile) {
+            // Default to PUBLIC role for safety — admins promote users via Firestore
             profile = await createUserProfile(
               firebaseUser,
               firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-              UserRole.PHI,
+              UserRole.PUBLIC,
             );
+          }
+          // Check if account is suspended
+          if (profile.status === AccountStatus.SUSPENDED) {
+            await firebaseSignOut(auth);
+            setState({
+              user: null,
+              isLoading: false,
+              isAuthenticated: false,
+              error: 'Your account has been suspended. Contact your MOH Administrator.',
+            });
+            return;
           }
           setState({
             user: profile,
@@ -97,12 +109,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isAuthenticated: true,
             error: null,
           });
-        } catch {
+        } catch (err) {
+          console.error('Auth state error:', err);
           setState({
             user: null,
             isLoading: false,
             isAuthenticated: false,
-            error: 'Failed to load user profile',
+            error: 'Failed to load user profile. Please try again.',
           });
         }
       } else {
@@ -121,13 +134,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will handle setting the user state
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Sign in failed';
       let friendly = message;
       if (message.includes('user-not-found') || message.includes('wrong-password') || message.includes('invalid-credential')) {
-        friendly = 'Invalid email or password';
+        friendly = 'Invalid email or password. Please check your credentials.';
       } else if (message.includes('too-many-requests')) {
-        friendly = 'Too many attempts. Please try again later.';
+        friendly = 'Too many attempts. Please try again in a few minutes.';
+      } else if (message.includes('network-request-failed')) {
+        friendly = 'Network error. Check your internet connection.';
+      } else if (message.includes('user-disabled')) {
+        friendly = 'This account has been disabled. Contact your MOH Administrator.';
       }
       setState((prev) => ({ ...prev, error: friendly, isLoading: false }));
       throw new Error(friendly);

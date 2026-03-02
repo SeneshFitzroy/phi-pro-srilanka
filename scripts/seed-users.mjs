@@ -10,6 +10,7 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
 import {
@@ -143,8 +144,35 @@ async function seedUsers() {
       console.log(`  ✓ Done\n`);
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {
-        console.log(`  ⚠ Account already exists — skipping\n`);
-        await signOut(auth).catch(() => {});
+        console.log(`  ⚠ Auth account already exists — updating Firestore profile...`);
+        try {
+          // Sign in to get the UID, then ensure Firestore profile is up to date
+          const cred = await signInWithEmailAndPassword(auth, u.email, u.password);
+          const uid = cred.user.uid;
+          const now = new Date().toISOString();
+          const profile = {
+            uid,
+            email: u.email,
+            displayName: u.displayName,
+            nameInSinhala: u.nameInSinhala || '',
+            role: u.role,
+            status: 'ACTIVE',
+            preferredLanguage: 'EN',
+            domains: u.domains || [],
+            updatedAt: now,
+            createdBy: uid,
+            lastLoginAt: now,
+          };
+          if (u.phiArea) profile.phiArea = u.phiArea;
+          if (u.assignedPHIAreas) profile.assignedPHIAreas = u.assignedPHIAreas;
+          if (u.mohAreaId) profile.mohAreaId = u.mohAreaId;
+          await setDoc(doc(db, 'users', uid), profile, { merge: true });
+          console.log(`  ✓ Firestore profile updated (UID: ${uid})\n`);
+          await signOut(auth);
+        } catch (updateErr) {
+          console.log(`  ⚠ Could not update profile: ${updateErr.message}\n`);
+          await signOut(auth).catch(() => {});
+        }
       } else {
         console.error(`  ✗ Error: ${err.message}\n`);
         await signOut(auth).catch(() => {});

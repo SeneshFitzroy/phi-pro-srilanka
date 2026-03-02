@@ -63,3 +63,4 @@ sw.js.map
 # Misc
 *.tgz
 .cache/
+"temp_response.txt"  

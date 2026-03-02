@@ -26,14 +26,19 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    /// Check if the authenticated user has a specific role stored in custom claims.
+    /// Get the user's role from their Firestore profile document.
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    /// Check if the authenticated user has a specific role.
     function hasRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
+      return isAuthenticated() && getUserRole() == role;
     }
 
     /// Check if the authenticated user has any of the specified roles.
     function hasAnyRole(roles) {
-      return isAuthenticated() && request.auth.token.role in roles;
+      return isAuthenticated() && getUserRole() in roles;
     }
 
     /// Check if the user is a supervisor (SPHI or MOH Admin).
@@ -67,9 +72,9 @@ service cloud.firestore {
       // Users can read their own profile; supervisors can read all profiles
       allow read: if isUser(userId) || isSupervisor();
 
-      // Only MOH Admins can create new user profiles
-      allow create: if isAdmin()
-                    && hasRequiredFields(['email', 'role', 'fullName', 'mohArea']);
+      // Users can create their own profile on first login/signup
+      // MOH Admins can create profiles for other users
+      allow create: if isUser(userId) || isAdmin();
 
       // Users can update their own profile; admins can update any
       allow update: if isUser(userId) || isAdmin();
@@ -176,6 +181,32 @@ service cloud.firestore {
                     && hasRequiredFields(['title', 'severity', 'createdBy', 'createdAt']);
 
       allow update: if isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    // ── Published Reports (public-facing summaries from PHI work) ───────────
+
+    match /published_reports/{docId} {
+      // Anyone can read published reports (public portal)
+      allow read: if true;
+
+      // Only field officers and above can publish reports
+      allow create: if isFieldOfficer()
+                    && hasRequiredFields(['title', 'type', 'createdBy', 'createdAt']);
+
+      allow update: if isFieldOfficer();
+      allow delete: if isAdmin();
+    }
+
+    // ── Public Food Grades (published inspection grades) ────────────────────
+
+    match /food_grades/{docId} {
+      // Anyone can read food grades (public portal search)
+      allow read: if true;
+
+      // Only field officers and above can create/update grades
+      allow create: if isFieldOfficer();
+      allow update: if isFieldOfficer();
       allow delete: if isAdmin();
     }
 
