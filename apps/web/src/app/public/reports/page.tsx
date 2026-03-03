@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   FileText,
@@ -9,8 +10,8 @@ import {
   Calendar,
   MapPin,
   BarChart3,
-  Shield,
   TrendingUp,
+  User,
   Activity,
   UtensilsCrossed,
   Bug,
@@ -232,8 +233,8 @@ export default function PublishedReportsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1">
-              <Shield className="h-3.5 w-3.5 text-blue-700" />
+            <div className="flex items-center gap-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1">
+              <Image src="/phi-emblem.png" alt="" width={16} height={16} className="opacity-80" />
               <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Official Data</span>
             </div>
           </div>
@@ -361,7 +362,7 @@ export default function PublishedReportsPage() {
                         {report.mohArea}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Shield className="h-3 w-3" />
+                        <User className="h-3 w-3" />
                         {report.author} ({report.authorRole})
                       </span>
                     </div>

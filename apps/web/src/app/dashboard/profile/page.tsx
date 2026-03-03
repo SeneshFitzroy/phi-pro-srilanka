@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, User, Mail, Phone, MapPin, Camera, Save, Shield } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, User, Mail, Phone, MapPin, Camera, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +38,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4" />k.perera@health.gov.lk</div>
               <div className="flex items-center gap-2 text-muted-foreground"><Phone className="h-4 w-4" />071-1234567</div>
               <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-4 w-4" />Colombo North PHI Area</div>
-              <div className="flex items-center gap-2 text-muted-foreground"><Shield className="h-4 w-4" />Role: PHI Officer</div>
+              <div className="flex items-center gap-2 text-muted-foreground"><Image src="/phi-emblem.png" alt="" width={16} height={16} className="rounded-sm" />Role: PHI Officer</div>
             </div>
           </CardContent>
         </Card>
