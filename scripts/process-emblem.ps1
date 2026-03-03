@@ -6,14 +6,102 @@ Write-Host "Source: $($src.Width)x$($src.Height)"
 
 $bmp = New-Object System.Drawing.Bitmap($src)
 
-# Find bounding box of the emblem (non-light pixels)
-$minX = $bmp.Width; $minY = $bmp.Height; $maxX = 0; $maxY = 0
-$threshold = 200
+# Background color sampled from corners: R=226 G=236 B=201 (olive/green tint)
+$bgR = 226; $bgG = 236; $bgB = 201
 
-for ($y = 0; $y -lt $bmp.Height; $y++) {
-    for ($x = 0; $x -lt $bmp.Width; $x++) {
-        $p = $bmp.GetPixel($x, $y)
-        if ($p.R -lt $threshold -or $p.G -lt $threshold -or $p.B -lt $threshold) {
+# ---- FLOOD FILL background removal from all edges ----
+$w = $bmp.Width; $h = $bmp.Height
+$isBackground = New-Object 'bool[,]' $w, $h
+$colorTolerance = 55  # how far from bg color to still count as background
+
+# Queue-based flood fill from all edge pixels
+$queue = New-Object System.Collections.Generic.Queue[System.Drawing.Point]
+
+# Seed all edge pixels
+for ($x = 0; $x -lt $w; $x++) {
+    $queue.Enqueue((New-Object System.Drawing.Point($x, 0)))
+    $queue.Enqueue((New-Object System.Drawing.Point($x, $h - 1)))
+}
+for ($y = 1; $y -lt $h - 1; $y++) {
+    $queue.Enqueue((New-Object System.Drawing.Point(0, $y)))
+    $queue.Enqueue((New-Object System.Drawing.Point($w - 1, $y)))
+}
+
+$visited = New-Object 'bool[,]' $w, $h
+
+while ($queue.Count -gt 0) {
+    $pt = $queue.Dequeue()
+    $px = $pt.X; $py = $pt.Y
+    if ($px -lt 0 -or $px -ge $w -or $py -lt 0 -or $py -ge $h) { continue }
+    if ($visited[$px, $py]) { continue }
+    $visited[$px, $py] = $true
+    
+    $p = $bmp.GetPixel($px, $py)
+    $dist = [Math]::Sqrt(($p.R - $bgR) * ($p.R - $bgR) + ($p.G - $bgG) * ($p.G - $bgG) + ($p.B - $bgB) * ($p.B - $bgB))
+    
+    # Also treat very light pixels as background
+    $brightness = ($p.R + $p.G + $p.B) / 3
+    $isLight = ($brightness -gt 200 -and $p.R -gt 180 -and $p.G -gt 180 -and $p.B -gt 160)
+    
+    if ($dist -lt $colorTolerance -or $isLight) {
+        $isBackground[$px, $py] = $true
+        # Add 4-connected neighbors
+        if ($px -gt 0) { $queue.Enqueue((New-Object System.Drawing.Point(($px-1), $py))) }
+        if ($px -lt $w-1) { $queue.Enqueue((New-Object System.Drawing.Point(($px+1), $py))) }
+        if ($py -gt 0) { $queue.Enqueue((New-Object System.Drawing.Point($px, ($py-1)))) }
+        if ($py -lt $h-1) { $queue.Enqueue((New-Object System.Drawing.Point($px, ($py+1)))) }
+    }
+}
+
+Write-Host "Flood fill complete"
+
+# Convert to 32bpp ARGB and apply transparency
+$result = New-Object System.Drawing.Bitmap($w, $h, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$gTemp = [System.Drawing.Graphics]::FromImage($result)
+$gTemp.DrawImage($bmp, 0, 0)
+$gTemp.Dispose()
+
+$bgCount = 0
+for ($y = 0; $y -lt $h; $y++) {
+    for ($x = 0; $x -lt $w; $x++) {
+        if ($isBackground[$x, $y]) {
+            $result.SetPixel($x, $y, [System.Drawing.Color]::FromArgb(0, 0, 0, 0))
+            $bgCount++
+        }
+    }
+}
+Write-Host "Removed $bgCount background pixels out of $($w*$h) total"
+
+# ---- Anti-alias edges ----
+$aaResult = New-Object System.Drawing.Bitmap($result)
+for ($y = 1; $y -lt $h - 1; $y++) {
+    for ($x = 1; $x -lt $w - 1; $x++) {
+        $p = $result.GetPixel($x, $y)
+        if ($p.A -gt 0) {
+            $transCount = 0
+            for ($dy = -1; $dy -le 1; $dy++) {
+                for ($dx = -1; $dx -le 1; $dx++) {
+                    if ($dx -eq 0 -and $dy -eq 0) { continue }
+                    $np = $result.GetPixel($x + $dx, $y + $dy)
+                    if ($np.A -eq 0) { $transCount++ }
+                }
+            }
+            if ($transCount -gt 0 -and $transCount -lt 6) {
+                $alpha = [int](255 * (8 - $transCount) / 8)
+                $aaResult.SetPixel($x, $y, [System.Drawing.Color]::FromArgb($alpha, $p.R, $p.G, $p.B))
+            }
+        }
+    }
+}
+$result.Dispose()
+Write-Host "Edge anti-aliasing applied"
+
+# ---- Find bounding box of non-transparent pixels ----
+$minX = $w; $minY = $h; $maxX = 0; $maxY = 0
+for ($y = 0; $y -lt $h; $y++) {
+    for ($x = 0; $x -lt $w; $x++) {
+        $p = $aaResult.GetPixel($x, $y)
+        if ($p.A -gt 0) {
             if ($x -lt $minX) { $minX = $x }
             if ($y -lt $minY) { $minY = $y }
             if ($x -gt $maxX) { $maxX = $x }
@@ -22,85 +110,31 @@ for ($y = 0; $y -lt $bmp.Height; $y++) {
     }
 }
 
-Write-Host "Bounding box: x=$minX y=$minY to x=$maxX y=$maxY"
-$cropW = $maxX - $minX + 1
-$cropH = $maxY - $minY + 1
-Write-Host "Crop region: ${cropW}x${cropH}"
+Write-Host "Content bounding box: x=$minX y=$minY to x=$maxX y=$maxY"
+$contentW = $maxX - $minX + 1
+$contentH = $maxY - $minY + 1
 
-# Add padding
-$pad = 6
-$cx = [Math]::Max(0, $minX - $pad)
-$cy = [Math]::Max(0, $minY - $pad)
-$cw = [Math]::Min($bmp.Width - $cx, $cropW + 2*$pad)
-$ch = [Math]::Min($bmp.Height - $cy, $cropH + 2*$pad)
+# Make square with padding
+$pad = 8
+$squareSize = [Math]::Max($contentW, $contentH) + 2 * $pad
+$centerX = $minX + $contentW / 2
+$centerY = $minY + $contentH / 2
 
-# Make it square (use the larger dimension)
-$size = [Math]::Max($cw, $ch)
-$centerX = $cx + $cw/2
-$centerY = $cy + $ch/2
-$sx = [Math]::Max(0, [int]($centerX - $size/2))
-$sy = [Math]::Max(0, [int]($centerY - $size/2))
+Write-Host "Content: ${contentW}x${contentH}, Square target: ${squareSize}"
 
-# Ensure we don't go out of bounds
-if ($sx + $size -gt $bmp.Width) { $sx = $bmp.Width - $size }
-if ($sy + $size -gt $bmp.Height) { $sy = $bmp.Height - $size }
-if ($sx -lt 0) { $sx = 0; $size = $bmp.Width }
-if ($sy -lt 0) { $sy = 0; $size = [Math]::Min($size, $bmp.Height) }
+# Create square canvas and draw centered
+$square = New-Object System.Drawing.Bitmap($squareSize, $squareSize, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$gSq = [System.Drawing.Graphics]::FromImage($square)
+$gSq.Clear([System.Drawing.Color]::Transparent)
+$drawX = [int](($squareSize - $contentW) / 2)
+$drawY = [int](($squareSize - $contentH) / 2)
+$srcRect = New-Object System.Drawing.Rectangle($minX, $minY, $contentW, $contentH)
+$destRect = New-Object System.Drawing.Rectangle($drawX, $drawY, $contentW, $contentH)
+$gSq.DrawImage($aaResult, $destRect, $srcRect, [System.Drawing.GraphicsUnit]::Pixel)
+$gSq.Dispose()
+$aaResult.Dispose()
 
-# Make sure size is square and fits
-$finalCropSize = [Math]::Min($size, [Math]::Min($bmp.Width - $sx, $bmp.Height - $sy))
-Write-Host "Square crop: x=$sx y=$sy size=$finalCropSize"
-
-# Crop to square region
-$cropRect = New-Object System.Drawing.Rectangle($sx, $sy, $finalCropSize, $finalCropSize)
-$cropped = $bmp.Clone($cropRect, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-
-Write-Host "Cropped to $($cropped.Width)x$($cropped.Height)"
-
-# Remove background - make light/whitish/greenish-white pixels transparent
-# Use a smart approach: check if pixel is "background-like"
-for ($y = 0; $y -lt $cropped.Height; $y++) {
-    for ($x = 0; $x -lt $cropped.Width; $x++) {
-        $p = $cropped.GetPixel($x, $y)
-        $brightness = ($p.R + $p.G + $p.B) / 3
-        
-        # Light background pixels (white/off-white/light green tint)
-        if ($brightness -gt 195 -and $p.R -gt 180 -and $p.G -gt 180 -and $p.B -gt 170) {
-            $cropped.SetPixel($x, $y, [System.Drawing.Color]::FromArgb(0, 0, 0, 0))
-        }
-    }
-}
-
-Write-Host "Background removed"
-
-# Now do edge anti-aliasing pass - soften edges between transparent and non-transparent
-# Check pixels adjacent to transparent ones and make them semi-transparent for smooth edges
-$edgeBmp = New-Object System.Drawing.Bitmap($cropped)
-for ($y = 1; $y -lt $cropped.Height - 1; $y++) {
-    for ($x = 1; $x -lt $cropped.Width - 1; $x++) {
-        $p = $cropped.GetPixel($x, $y)
-        if ($p.A -gt 0) {
-            # Count transparent neighbors
-            $transCount = 0
-            for ($dy = -1; $dy -le 1; $dy++) {
-                for ($dx = -1; $dx -le 1; $dx++) {
-                    if ($dx -eq 0 -and $dy -eq 0) { continue }
-                    $np = $cropped.GetPixel($x + $dx, $y + $dy)
-                    if ($np.A -eq 0) { $transCount++ }
-                }
-            }
-            # If on edge (has transparent neighbors), apply partial transparency
-            if ($transCount -gt 0 -and $transCount -lt 6) {
-                $alpha = [int](255 * (8 - $transCount) / 8)
-                $edgeBmp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb($alpha, $p.R, $p.G, $p.B))
-            }
-        }
-    }
-}
-$cropped.Dispose()
-$cropped = $edgeBmp
-
-Write-Host "Edge anti-aliasing applied"
+Write-Host "Created square canvas: ${squareSize}x${squareSize}"
 
 # Resize to 512x512 with high quality
 $final = New-Object System.Drawing.Bitmap(512, 512)
@@ -110,8 +144,9 @@ $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
 $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 $g.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
 $g.Clear([System.Drawing.Color]::Transparent)
-$g.DrawImage($cropped, 0, 0, 512, 512)
+$g.DrawImage($square, 0, 0, 512, 512)
 $g.Dispose()
+$square.Dispose()
 
 # Save main emblem
 $final.Save("$basePath\phi-emblem.png", [System.Drawing.Imaging.ImageFormat]::Png)
@@ -149,7 +184,6 @@ $fav.Dispose()
 Write-Host "Generated favicon.ico"
 
 $final.Dispose()
-$cropped.Dispose()
 $bmp.Dispose()
 $src.Dispose()
 
