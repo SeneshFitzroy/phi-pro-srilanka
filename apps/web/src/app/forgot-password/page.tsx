@@ -117,7 +117,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          PHI-PRO &bull; Ministry of Health, Sri Lanka
+          PHI-PRO &bull; Ministry of Health, Sri Lanka &bull; Est. 1913
         </p>
       </div>
     </div>

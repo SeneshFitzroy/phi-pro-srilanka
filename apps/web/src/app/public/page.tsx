@@ -1,11 +1,11 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Search,
   MessageSquare,
   AlertTriangle,
   CreditCard,
   CheckCircle,
-  Shield,
   ArrowRight,
   FileText,
 } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function PublicPortalPage() {
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
+            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg" />
             <span className="text-xl font-bold text-primary">PHI-PRO</span>
           </Link>
           <Link
@@ -103,7 +103,8 @@ export default function PublicPortalPage() {
 
       <footer className="mt-12 border-t bg-card py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} PHI-PRO &mdash; Ministry of Health, Sri Lanka
+          &copy; {new Date().getFullYear()} PHI-PRO &mdash; Ministry of Health, Sri Lanka &bull;{' '}
+          <a href="https://phi.lk" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">phi.lk</a>
         </div>
       </footer>
     </div>

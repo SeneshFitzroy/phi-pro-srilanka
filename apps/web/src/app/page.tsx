@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   UtensilsCrossed,
   School,
@@ -14,6 +15,8 @@ import {
   BarChart3,
   Lock,
   Smartphone,
+  Users,
+  Calendar,
 } from 'lucide-react';
 
 const domains = [
@@ -109,9 +112,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 shadow-md shadow-blue-900/25">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
+            <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={36} height={36} className="rounded-lg shadow-md" />
             <div className="flex flex-col">
               <span className="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">PHI-PRO</span>
               <span className="hidden text-[10px] font-medium leading-tight text-slate-500 dark:text-slate-400 sm:block">Sri Lanka Health Enforcement</span>
@@ -142,6 +143,11 @@ export default function HomePage() {
         
         <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
+            {/* Official PHI Logo */}
+            <div className="mb-8 flex justify-center">
+              <Image src="/phi-logo.png" alt="The Public Health Inspector's Union of Sri Lanka" width={320} height={63} className="h-auto w-64 sm:w-80 drop-shadow-md" priority />
+            </div>
+
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -160,6 +166,11 @@ export default function HomePage() {
               The unified digital platform that digitizes all 5 PHI domains — from food safety 
               inspections to disease surveillance — with offline-first capabilities, GIS intelligence,
               and real-time analytics.
+            </p>
+
+            {/* PHI Motto */}
+            <p className="mx-auto mt-4 italic text-slate-500 dark:text-slate-500">
+              &ldquo;Prevention is better than cure&rdquo;
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -182,16 +193,16 @@ export default function HomePage() {
             {/* Trust indicators */}
             <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-500 dark:text-slate-500">
               <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-blue-700" />
-                <span>Ministry of Health</span>
+                <Calendar className="h-4 w-4 text-blue-700" />
+                <span>Established 1913</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-blue-700" />
+                <span>1,793+ PHIs Island-wide</span>
               </div>
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-blue-700" />
                 <span>Sinhala &bull; Tamil &bull; English</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-blue-700" />
-                <span>Enterprise Security</span>
               </div>
             </div>
           </div>
@@ -261,6 +272,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Mission & Vision */}
+      <section className="border-t border-slate-200 bg-white py-20 dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 dark:border-blue-900 dark:from-blue-950/30 dark:to-indigo-950/30">
+              <div className="inline-flex rounded-xl bg-blue-700 p-2.5 shadow-sm">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Our Mission</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                Environmental Health Management focusing on Control of Communicable &amp; Non-Communicable Diseases, 
+                Resuscitation of Health &amp; Enforcement of Health Regulations across all regions of Sri Lanka.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-8 dark:border-amber-900 dark:from-amber-950/30 dark:to-orange-950/30">
+              <div className="inline-flex rounded-xl bg-amber-600 p-2.5 shadow-sm">
+                <Globe className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Our Vision</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                A Healthy Nation built on a safe environment — empowering over 1,793 Public Health Inspectors 
+                island-wide with digital tools since the establishment of the PHI service in 1913.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="border-t border-slate-200 bg-gradient-to-br from-blue-700 to-blue-900 dark:border-slate-800">
         <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
@@ -291,18 +330,26 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900">
-                <Shield className="h-4 w-4 text-white" />
+          <div className="flex flex-col items-center gap-6">
+            <div className="flex items-center gap-3">
+              <Image src="/phi-emblem.png" alt="PHI Emblem" width={32} height={32} className="rounded-lg" />
+              <div>
+                <span className="text-sm font-bold text-slate-900 dark:text-white">PHI-PRO</span>
+                <span className="ml-2 text-xs text-slate-400">Est. 1913</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">PHI-PRO</span>
             </div>
-            <div className="text-center text-sm text-slate-500 dark:text-slate-500">
-              &copy; {new Date().getFullYear()} Digital Health Enforcement &amp; Integrated Intelligence System
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-500">
+              <a href="https://health.gov.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700">Ministry of Health</a>
+              <span className="hidden sm:inline">&bull;</span>
+              <a href="https://epid.gov.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700">Epidemiology Unit</a>
+              <span className="hidden sm:inline">&bull;</span>
+              <a href="https://phi.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700">PHI Union of Sri Lanka</a>
             </div>
-            <div className="text-sm text-slate-500 dark:text-slate-500">
-              Ministry of Health, Sri Lanka
+            <div className="text-center text-xs text-slate-400 dark:text-slate-600">
+              &copy; {new Date().getFullYear()} PHI-PRO — Digital Health Enforcement &amp; Integrated Intelligence System
+              <br className="sm:hidden" />
+              <span className="hidden sm:inline"> &bull; </span>
+              673 Maradana Road, Colombo 01000, Sri Lanka
             </div>
           </div>
         </div>

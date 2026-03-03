@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
-  Shield,
   LayoutDashboard,
   UtensilsCrossed,
   School,
@@ -85,9 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className={cn('flex h-16 items-center border-b border-slate-100 dark:border-slate-800', collapsed ? 'justify-center px-2' : 'justify-between px-4')}>
             {!collapsed && (
               <Link href="/dashboard" className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 shadow-sm">
-                  <Shield className="h-4.5 w-4.5 text-white" />
-                </div>
+                <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg shadow-sm" />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">PHI-PRO</span>
                   <span className="text-[10px] font-medium leading-none text-slate-400">Health Enforcement</span>
@@ -95,9 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             )}
             {collapsed && (
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 shadow-sm">
-                <Shield className="h-4.5 w-4.5 text-white" />
-              </div>
+              <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg shadow-sm" />
             )}
             <button
               onClick={() => setCollapsed(!collapsed)}

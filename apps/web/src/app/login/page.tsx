@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 import {
-  Shield,
   Eye,
   EyeOff,
   Globe,
@@ -70,13 +70,14 @@ export default function LoginPage() {
 
         {/* Center Content */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-12">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 shadow-xl backdrop-blur-sm">
-            <Shield className="h-10 w-10 text-white" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/10 shadow-xl backdrop-blur-sm p-3">
+            <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={72} height={72} className="drop-shadow-lg" />
           </div>
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white">PHI-PRO</h1>
           <p className="mt-2 text-center text-lg font-medium text-blue-100">
             Digital Health Enforcement &<br />Integrated Intelligence System
           </p>
+          <p className="mt-4 text-sm italic text-blue-200/80">&ldquo;Prevention is better than cure&rdquo;</p>
 
           {/* Domain Icons Row */}
           <div className="mt-10 flex items-center gap-6">
@@ -94,7 +95,7 @@ export default function LoginPage() {
         {/* Bottom */}
         <div className="relative z-10 p-8 text-center">
           <p className="text-sm text-white/50">
-            Ministry of Health, Sri Lanka &bull; PHI Service
+            Ministry of Health, Sri Lanka &bull; PHI Service &bull; Est. 1913
           </p>
         </div>
       </div>
@@ -104,9 +105,7 @@ export default function LoginPage() {
         {/* Top Bar */}
         <div className="flex items-center justify-between p-4 sm:p-6">
           <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900">
-              <Shield className="h-4 w-4 text-white" />
-            </div>
+            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg" />
             <span className="text-lg font-bold text-slate-900 dark:text-white">PHI-PRO</span>
           </Link>
 
@@ -238,7 +237,7 @@ export default function LoginPage() {
 
         {/* Bottom */}
         <div className="p-4 text-center text-xs text-slate-400 dark:text-slate-600">
-          Ministry of Health, Sri Lanka &bull; Public Health Inspector Service
+          PHI-PRO &bull; Ministry of Health, Sri Lanka &bull; <a href="https://phi.lk" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 transition-colors">phi.lk</a>
         </div>
       </div>
     </div>
