@@ -29,21 +29,21 @@ const FEES = [
 
 export default function PaymentsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-950 dark:to-gray-900">
       <div className="container mx-auto max-w-3xl px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
           <Link href="/public"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><CreditCard className="h-6 w-6 text-emerald-600" />Fees & Payments</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><CreditCard className="h-6 w-6 text-blue-700" />Fees & Payments</h1>
             <p className="text-sm text-muted-foreground">Fee schedule and payment information for PHI services</p>
           </div>
         </div>
 
-        <Card className="border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/10">
+        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/10">
           <CardContent className="p-4 flex items-start gap-3">
-            <Info className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+            <Info className="h-5 w-5 text-blue-700 shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold text-emerald-800 dark:text-emerald-200">Payment Methods</p>
+              <p className="font-semibold text-blue-800 dark:text-blue-200">Payment Methods</p>
               <p className="text-muted-foreground mt-1">Payments can be made at the MOH Office during working hours (8:30 AM – 4:15 PM, Mon–Fri). Online payments via GovPay will be available soon.</p>
             </div>
           </CardContent>

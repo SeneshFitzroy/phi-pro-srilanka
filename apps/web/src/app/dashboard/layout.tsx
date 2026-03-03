@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className={cn('flex h-16 items-center border-b border-slate-100 dark:border-slate-800', collapsed ? 'justify-center px-2' : 'justify-between px-4')}>
             {!collapsed && (
               <Link href="/dashboard" className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 shadow-sm">
                   <Shield className="h-4.5 w-4.5 text-white" />
                 </div>
                 <div className="flex flex-col">
@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             )}
             {collapsed && (
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 shadow-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 shadow-sm">
                 <Shield className="h-4.5 w-4.5 text-white" />
               </div>
             )}
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       isActive
                         ? accent
                           ? `${accent.activeBg} ${accent.text}`
-                          : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-blue-700/10 text-blue-700 dark:text-blue-400'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
                       collapsed && 'justify-center px-2',
                     )}
@@ -138,11 +138,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   >
                     <item.icon className={cn(
                       'h-[18px] w-[18px] shrink-0 transition-colors',
-                      isActive && accent ? accent.text : isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300',
+                      isActive && accent ? accent.text : isActive ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300',
                     )} />
                     {!collapsed && <span>{t(item.labelKey)}</span>}
                     {!collapsed && isActive && (
-                      <div className={cn('ml-auto h-1.5 w-1.5 rounded-full', accent ? accent.text.replace('text-', 'bg-').split(' ')[0] : 'bg-emerald-500')} />
+                      <div className={cn('ml-auto h-1.5 w-1.5 rounded-full', accent ? accent.text.replace('text-', 'bg-').split(' ')[0] : 'bg-blue-700')} />
                     )}
                   </Link>
                 );
@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
 
             <div className={cn('mt-2 flex items-center gap-3 rounded-lg px-3 py-2', collapsed && 'justify-center px-2')}>
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 text-xs font-bold text-white shadow-sm">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-xs font-bold text-white shadow-sm">
                 {initials}
               </div>
               {!collapsed && (
@@ -265,7 +265,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className={cn(
                       'rounded-md px-2 py-1 text-[11px] font-medium transition-all',
                       language === lang.code
-                        ? 'bg-emerald-500 text-white shadow-sm'
+                        ? 'bg-blue-700 text-white shadow-sm'
                         : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200',
                     )}
                   >
@@ -282,7 +282,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               {/* User avatar — mobile only */}
               <Link href="/dashboard/profile" className="lg:hidden">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 text-xs font-bold text-white shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-800 text-xs font-bold text-white shadow-sm">
                   {initials}
                 </div>
               </Link>

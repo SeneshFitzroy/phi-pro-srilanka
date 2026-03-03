@@ -232,9 +232,9 @@ export default function PublishedReportsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1">
-              <Shield className="h-3.5 w-3.5 text-green-600" />
-              <span className="text-xs font-medium text-green-700 dark:text-green-400">Official Data</span>
+            <div className="flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1">
+              <Shield className="h-3.5 w-3.5 text-blue-700" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Official Data</span>
             </div>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function PublishedReportsPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
             { label: 'Reports Published', value: '24', icon: FileText, color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/30' },
-            { label: 'Areas Covered', value: '12', icon: MapPin, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' },
+            { label: 'Areas Covered', value: '12', icon: MapPin, color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/30' },
             { label: 'Inspections YTD', value: '2,847', icon: TrendingUp, color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/30' },
             { label: 'Last Updated', value: 'Feb 2025', icon: Calendar, color: 'text-violet-600 bg-violet-50 dark:bg-violet-950/30' },
           ].map((stat) => (

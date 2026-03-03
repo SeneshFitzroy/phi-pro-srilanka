@@ -25,8 +25,8 @@ const statsCards = [
     change: '+12%',
     trend: 'up' as const,
     icon: CheckCircle,
-    iconBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-    iconColor: 'text-emerald-500',
+    iconBg: 'bg-blue-50 dark:bg-blue-950/50',
+    iconColor: 'text-blue-600',
   },
   {
     titleKey: 'dashboard.pendingReports',
@@ -213,7 +213,7 @@ export default function DashboardPage() {
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t('dashboard.recentActivity') || 'Recent Activity'}
             </h3>
-            <button className="text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">
+            <button className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
               View all
             </button>
           </div>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Upcoming Tasks</h3>
-            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
               {upcomingTasks.length}
             </span>
           </div>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
             ))}
           </div>
           <div className="border-t border-slate-100 px-5 py-3 dark:border-slate-800">
-            <button className="text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">
+            <button className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
               View all tasks →
             </button>
           </div>

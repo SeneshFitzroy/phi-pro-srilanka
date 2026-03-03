@@ -24,13 +24,13 @@ export default function ForgotPasswordPage() {
         {/* Card */}
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
           {/* Top gradient bar */}
-          <div className="h-1 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500" />
+          <div className="h-1 bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900" />
 
           <div className="p-8">
             {sent ? (
               <div className="text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/50">
-                  <CheckCircle className="h-8 w-8 text-emerald-500" />
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/50">
+                  <CheckCircle className="h-8 w-8 text-blue-600" />
                 </div>
                 <h1 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">Check Your Email</h1>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
                   </button>
                   <Link
                     href="/login"
-                    className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:shadow-xl hover:brightness-110"
+                    className="rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-blue-900/25 transition-all hover:shadow-xl hover:brightness-110"
                   >
                     Back to Login
                   </Link>
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
             ) : (
               <>
                 <div className="text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-green-500/25">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 shadow-lg shadow-blue-900/25">
                     <Lock className="h-7 w-7 text-white" />
                   </div>
                   <h1 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
                         id="email"
                         type="email"
                         placeholder="phi@health.gov.lk"
-                        className="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
+                        className="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-400"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-900/25 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? (
                       <>
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
                 <div className="mt-6 text-center">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-500 dark:text-emerald-400"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 transition-colors hover:text-blue-600 dark:text-blue-400"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     Back to Login

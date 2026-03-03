@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left Panel — Branding */}
-      <div className="relative hidden w-1/2 overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 lg:flex lg:flex-col lg:justify-between">
+      <div className="relative hidden w-1/2 overflow-hidden bg-gradient-to-br from-blue-800 via-blue-900 to-indigo-900 lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djZoLTZWMzRoNnptMC0xMHY2aC02VjI0aDZ6bTEwIDEwdjZoLTZ2LTZoNnptLTIwIDB2NmgtNnYtNmg2em0xMC0xMHY2aC02VjI0aDZ6bS0yMCAwdjZoLTZ2LTZoNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
         
         {/* Top */}
@@ -74,7 +74,7 @@ export default function LoginPage() {
             <Shield className="h-10 w-10 text-white" />
           </div>
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white">PHI-PRO</h1>
-          <p className="mt-2 text-center text-lg font-medium text-emerald-100">
+          <p className="mt-2 text-center text-lg font-medium text-blue-100">
             Digital Health Enforcement &<br />Integrated Intelligence System
           </p>
 
@@ -104,7 +104,7 @@ export default function LoginPage() {
         {/* Top Bar */}
         <div className="flex items-center justify-between p-4 sm:p-6">
           <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-900">
               <Shield className="h-4 w-4 text-white" />
             </div>
             <span className="text-lg font-bold text-slate-900 dark:text-white">PHI-PRO</span>
@@ -119,7 +119,7 @@ export default function LoginPage() {
                 onClick={() => setLanguage(lang.code)}
                 className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
                   language === lang.code
-                    ? 'bg-emerald-500 text-white shadow-sm'
+                    ? 'bg-blue-700 text-white shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
@@ -155,7 +155,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
+                  className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-400"
                 />
               </div>
 
@@ -165,7 +165,7 @@ export default function LoginPage() {
                   <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {t('auth.password') || 'Password'}
                   </label>
-                  <Link href="/forgot-password" className="text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">
+                  <Link href="/forgot-password" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
                     {t('auth.forgotPassword') || 'Forgot password?'}
                   </Link>
                 </div>
@@ -177,7 +177,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-11 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
+                    className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-11 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-400"
                   />
                   <button
                     type="button"
@@ -201,7 +201,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:shadow-xl hover:shadow-green-500/30 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-lg disabled:hover:brightness-100"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-900/25 transition-all hover:shadow-xl hover:shadow-blue-900/30 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-lg disabled:hover:brightness-100"
               >
                 {isLoading ? (
                   <>
@@ -228,7 +228,7 @@ export default function LoginPage() {
               </div>
               <Link
                 href="/public"
-                className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-500 dark:text-emerald-400"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-700 transition-colors hover:text-blue-600 dark:text-blue-400"
               >
                 {t('public.title') || 'Access Public Portal'} &rarr;
               </Link>
