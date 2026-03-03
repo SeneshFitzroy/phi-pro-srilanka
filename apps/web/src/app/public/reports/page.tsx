@@ -234,7 +234,7 @@ export default function PublishedReportsPage() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1">
-              <Image src="/phi-emblem.png" alt="" width={16} height={16} className="opacity-80" />
+              <Image src="/phi-emblem.png" alt="" width={16} height={16} />
               <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Official Data</span>
             </div>
           </div>

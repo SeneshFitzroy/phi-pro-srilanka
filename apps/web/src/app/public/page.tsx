@@ -17,7 +17,7 @@ export default function PublicPortalPage() {
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg" />
+            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} />
             <span className="text-xl font-bold text-primary">PHI-PRO</span>
           </Link>
           <Link

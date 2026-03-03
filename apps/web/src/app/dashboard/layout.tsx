@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className={cn('flex h-16 items-center border-b border-slate-100 dark:border-slate-800', collapsed ? 'justify-center px-2' : 'justify-between px-4')}>
             {!collapsed && (
               <Link href="/dashboard" className="flex items-center gap-2.5">
-                <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg shadow-sm" />
+                <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">PHI-PRO</span>
                   <span className="text-[10px] font-medium leading-none text-slate-400">Health Enforcement</span>
@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             )}
             {collapsed && (
-              <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg shadow-sm" />
+              <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} />
             )}
             <button
               onClick={() => setCollapsed(!collapsed)}

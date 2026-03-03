@@ -70,9 +70,7 @@ export default function LoginPage() {
 
         {/* Center Content */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-12">
-          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/10 shadow-xl backdrop-blur-sm p-3">
-            <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={72} height={72} className="drop-shadow-lg" />
-          </div>
+          <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={96} height={96} className="drop-shadow-lg" />
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white">PHI-PRO</h1>
           <p className="mt-2 text-center text-lg font-medium text-blue-100">
             Digital Health Enforcement &<br />Integrated Intelligence System
@@ -105,7 +103,7 @@ export default function LoginPage() {
         {/* Top Bar */}
         <div className="flex items-center justify-between p-4 sm:p-6">
           <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} className="rounded-lg" />
+            <Image src="/phi-emblem.png" alt="PHI" width={32} height={32} />
             <span className="text-lg font-bold text-slate-900 dark:text-white">PHI-PRO</span>
           </Link>
 

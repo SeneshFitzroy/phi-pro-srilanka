@@ -112,7 +112,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={36} height={36} className="rounded-lg shadow-md" />
+            <Image src="/phi-emblem.png" alt="PHI Union Emblem" width={36} height={36} />
             <div className="flex flex-col">
               <span className="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">PHI-PRO</span>
               <span className="hidden text-[10px] font-medium leading-tight text-slate-500 dark:text-slate-400 sm:block">Sri Lanka Health Enforcement</span>
@@ -332,7 +332,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-3">
-              <Image src="/phi-emblem.png" alt="PHI Emblem" width={32} height={32} className="rounded-lg" />
+              <Image src="/phi-emblem.png" alt="PHI Emblem" width={32} height={32} />
               <div>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">PHI-PRO</span>
                 <span className="ml-2 text-xs text-slate-400">Est. 1913</span>

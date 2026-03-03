@@ -46,8 +46,8 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950">
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/phi-emblem.png" alt="PHI-PRO" width={56} height={56} className="rounded-2xl shadow-lg shadow-blue-900/15" />
-          <div className="absolute -inset-2 animate-spin rounded-2xl border-2 border-transparent border-t-blue-700 border-r-blue-400/30" />
+          <img src="/phi-emblem.png" alt="PHI-PRO" width={64} height={64} className="drop-shadow-lg" />
+          <div className="absolute -inset-2 animate-spin rounded-full border-2 border-transparent border-t-blue-700 border-r-blue-400/30" />
         </div>
         <p className="mt-1 text-sm font-semibold text-slate-500">PHI-PRO</p>
         <p className="text-xs text-slate-400">Loading system...</p>

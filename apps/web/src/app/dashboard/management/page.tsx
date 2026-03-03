@@ -29,7 +29,7 @@ export default function ManagementPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Image src="/phi-emblem.png" alt="PHI" width={28} height={28} className="rounded" />Management Console</h1>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Image src="/phi-emblem.png" alt="PHI" width={28} height={28} />Management Console</h1>
         <p className="text-sm text-muted-foreground">SPHI / MOH Admin — oversight, approvals, and analytics</p>
       </div>
 
