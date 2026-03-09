@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mark & close stale issues/PRs
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           # ── Issue Configuration ──────────────────────────────────────────
           stale-issue-message: >
