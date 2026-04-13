@@ -224,7 +224,7 @@ jobs:
             type=raw,value=latest,enable=${{ needs.prepare.outputs.is-prerelease == 'false' }}
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
