@@ -24,3 +24,7 @@ export * from './constants';
 
 // --- Utilities ---
 export * from './utils';
+
+// --- Algorithms ---
+export * from './algorithms/h800-grading';
+export * from './algorithms/sir-model';

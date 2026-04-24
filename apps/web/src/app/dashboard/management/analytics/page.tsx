@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, BarChart3, TrendingUp, TrendingDown, Users, FileText, AlertTriangle, Activity } from 'lucide-react';
+import { ArrowLeft, BarChart3, TrendingUp, TrendingDown, Users, FileText, AlertTriangle, Activity, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { exportFoodInspectionToFHIR, downloadFhirBundle } from '@/lib/fhir-export';
+import { toast } from 'sonner';
 
 export default function AnalyticsPage() {
   const barData = [
@@ -27,12 +29,34 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6 text-purple-500" />Area Analytics</h1>
-          <p className="text-sm text-muted-foreground">MOH area performance overview & trends</p>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6 text-purple-500" />Area Analytics</h1>
+            <p className="text-sm text-muted-foreground">MOH area performance overview & trends</p>
+          </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 border-purple-300 text-purple-700 hover:bg-purple-50"
+          onClick={() => {
+            const bundle = exportFoodInspectionToFHIR({
+              id: 'sample-export',
+              premisesName: 'Area Report Export',
+              totalScore: 0,
+              grade: 'B',
+              inspectionDate: new Date().toISOString().split('T')[0],
+              inspectorId: 'analytics-export',
+            });
+            downloadFhirBundle(bundle, `phi-pro-fhir-export-${new Date().toISOString().split('T')[0]}.json`);
+            toast.success('FHIR R4 bundle exported — ready for DHIS2 import');
+          }}
+        >
+          <Download className="h-4 w-4" />
+          Export FHIR (DHIS2)
+        </Button>
       </div>
 
       {/* KPI Summary */}
