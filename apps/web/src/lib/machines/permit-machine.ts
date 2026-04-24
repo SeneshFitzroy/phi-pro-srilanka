@@ -5,7 +5,7 @@
 //         → ISSUED | REJECTED | REVOKED | EXPIRED
 // ============================================================================
 
-import { setup, assign, fromPromise } from 'xstate';
+import { setup, assign } from 'xstate';
 import { PermitStatus } from '@phi-pro/shared';
 
 // ---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 // Uses react-map-gl v7 with Mapbox GL JS v3.12
 // ============================================================================
 
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import Map, {
   Marker,
   Popup,
@@ -16,9 +16,9 @@ import Map, {
   NavigationControl,
   ScaleControl,
 } from 'react-map-gl';
-import type { CircleLayer, GeoJSONSource } from 'mapbox-gl';
+import type { CircleLayer } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MAP_DEFAULTS, DENGUE_CLUSTER_RADIUS_METRES } from '@phi-pro/shared';
+import { MAP_DEFAULTS } from '@phi-pro/shared';
 
 // ---------------------------------------------------------------------------
 // Types (duplicated locally to avoid circular import with page.tsx)
@@ -48,13 +48,6 @@ interface Props {
   clusters: Cluster[];
   diseaseColor: (disease: string) => string;
   onClusterSelect: (cluster: Cluster) => void;
-}
-
-// ---------------------------------------------------------------------------
-// Metres → approximate degrees latitude (for circle radius on map)
-// ---------------------------------------------------------------------------
-function metresToDegLat(metres: number): number {
-  return metres / 111_320;
 }
 
 // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts';
-import { runSIRModel, runSIRForDisease, DISEASE_PRESETS } from '@phi-pro/shared';
+import { runSIRForDisease, DISEASE_PRESETS } from '@phi-pro/shared';
 import { Activity, TrendingUp, AlertTriangle, Users, Zap, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
