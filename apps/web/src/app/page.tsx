@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   UtensilsCrossed,
   School,
@@ -18,7 +19,11 @@ import {
   Users,
   Calendar,
 } from 'lucide-react';
-import { GoogleTranslateWidget } from '@/components/google-translate';
+
+const GoogleTranslateWidget = dynamic(
+  () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
+  { ssr: false },
+);
 
 const domains = [
   {
