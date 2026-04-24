@@ -6,7 +6,7 @@
 // Shows 3D columns whose HEIGHT = case count → instant severity reading
 // ============================================================================
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import {
   ScatterplotLayer,

@@ -6,8 +6,8 @@
 // Alert thresholds: WHO cold chain (2–8°C vaccines), food safety (<5°C cold, >60°C hot)
 // ============================================================================
 
-import { useState, useEffect, useCallback } from 'react';
-import { Thermometer, Droplets, AlertTriangle, CheckCircle2, RefreshCw, Wifi } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Thermometer, Droplets, AlertTriangle, CheckCircle2, Wifi } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { cn } from '@/lib/utils';
 
@@ -148,7 +148,6 @@ export default function IoTPage() {
         {sensors.map((sensor) => {
           const last = sensor.readings[sensor.readings.length - 1];
           const isSelected = sensor.id === selected;
-          const ok = last && last.temp >= sensor.minTemp && last.temp <= sensor.maxTemp;
           return (
             <button
               key={sensor.id}

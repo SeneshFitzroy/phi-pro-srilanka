@@ -147,7 +147,7 @@ export default function StatusPage() {
     setRunning(false);
   }, [running]);
 
-  useEffect(() => { runChecks(); }, []);
+  useEffect(() => { runChecks(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const overall: HealthStatus = checks.some((c) => c.status === 'down')
     ? 'down'

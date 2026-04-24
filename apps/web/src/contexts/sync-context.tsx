@@ -14,13 +14,11 @@ import {
   useRef,
   ReactNode,
 } from 'react';
-import { SyncStatus } from '@phi-pro/shared';
 import {
   getPendingForms,
   getFailedForms,
   markFormSynced,
   markFormFailed,
-  getSyncQueueCount,
 } from '@/lib/offline-db';
 import { createDocument } from '@/lib/firestore';
 
