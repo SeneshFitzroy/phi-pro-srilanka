@@ -2,12 +2,22 @@
 
 import Link from 'next/link';
 import { ArrowLeft, BarChart3, TrendingUp, TrendingDown, Users, FileText, AlertTriangle, Activity, Download } from 'lucide-react';
+import { AuthGuard } from '@/components/auth-guard';
+import { UserRole } from '@phi-pro/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { exportFoodInspectionToFHIR, downloadFhirBundle } from '@/lib/fhir-export';
 import { toast } from 'sonner';
 
 export default function AnalyticsPage() {
+  return (
+    <AuthGuard allowedRoles={[UserRole.SPHI, UserRole.MOH_ADMIN]}>
+      <AnalyticsContent />
+    </AuthGuard>
+  );
+}
+
+function AnalyticsContent() {
   const barData = [
     { month: 'Sep', food: 45, school: 12, epi: 8, occ: 6, admin: 20 },
     { month: 'Oct', food: 52, school: 15, epi: 12, occ: 8, admin: 22 },

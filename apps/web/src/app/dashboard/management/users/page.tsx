@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Users, UserPlus, Edit, Trash2, Search, Mail, Phone } from 'lucide-react';
+import { AuthGuard } from '@/components/auth-guard';
+import { UserRole } from '@phi-pro/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,14 @@ const roleColor = (r: string) => r === 'MOH' ? 'bg-purple-100 text-purple-700' :
 const statusColor = (s: string) => s === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
 
 export default function UserManagementPage() {
+  return (
+    <AuthGuard allowedRoles={[UserRole.MOH_ADMIN]}>
+      <UserManagementContent />
+    </AuthGuard>
+  );
+}
+
+function UserManagementContent() {
   const [showForm, setShowForm] = useState(false);
   const [searchQ, setSearchQ] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');

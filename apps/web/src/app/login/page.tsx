@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Eye,
   EyeOff,
-  Globe,
   UtensilsCrossed,
   School,
   Activity,
@@ -18,13 +17,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
-import { useLanguage } from '@/contexts/i18n-context';
-
-const languages = [
-  { code: 'en', label: 'EN', name: 'English' },
-  { code: 'si', label: 'සිං', name: 'Sinhala' },
-  { code: 'ta', label: 'தமி', name: 'Tamil' },
-];
 
 const domainIcons = [
   { icon: UtensilsCrossed, color: 'text-emerald-400', label: 'Food Safety' },
@@ -38,7 +30,6 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { signIn, isLoading, error } = useAuth();
-  const { language, setLanguage } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -107,23 +98,6 @@ export default function LoginPage() {
             <span className="text-lg font-bold text-slate-900 dark:text-white">PHI-PRO</span>
           </Link>
 
-          {/* Language Switcher */}
-          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
-            <Globe className="ml-1.5 h-3.5 w-3.5 text-slate-400" />
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => setLanguage(lang.code)}
-                className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
-                  language === lang.code
-                    ? 'bg-blue-700 text-white shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-                }`}
-              >
-                {lang.label}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Form */}

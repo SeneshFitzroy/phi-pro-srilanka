@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+
+const GoogleTranslateWidget = dynamic(
+  () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
+  { ssr: false },
+);
+
 import {
   UtensilsCrossed,
   School,
@@ -19,11 +25,6 @@ import {
   Users,
   Calendar,
 } from 'lucide-react';
-
-const GoogleTranslateWidget = dynamic(
-  () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
-  { ssr: false },
-);
 
 const domains = [
   {
@@ -125,7 +126,6 @@ export default function HomePage() {
             </div>
           </div>
           <nav className="flex items-center gap-2 sm:gap-3">
-            {/* Google Translate — trilingual EN/SI/TA on landing page */}
             <GoogleTranslateWidget />
             <Link
               href="/public"

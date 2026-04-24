@@ -119,10 +119,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               UserRole.PUBLIC,
             );
           }
+          // Block PUBLIC role — dashboard is staff-only
+          if (profile.role === UserRole.PUBLIC) {
+            await firebaseSignOut(auth);
+            setCachedProfile(null);
+            setState({ user: null, isLoading: false, isAuthenticated: false, error: 'Staff login only. Public users — visit the Public Portal.' });
+            return;
+          }
           if (profile.status === AccountStatus.SUSPENDED) {
             await firebaseSignOut(auth);
             setCachedProfile(null);
             setState({ user: null, isLoading: false, isAuthenticated: false, error: 'Your account has been suspended. Contact your MOH Administrator.' });
+            return;
+          }
+          if (profile.status === AccountStatus.PENDING_APPROVAL) {
+            await firebaseSignOut(auth);
+            setCachedProfile(null);
+            setState({ user: null, isLoading: false, isAuthenticated: false, error: 'Your account is pending MOH Administrator approval.' });
             return;
           }
           setCachedProfile(profile);

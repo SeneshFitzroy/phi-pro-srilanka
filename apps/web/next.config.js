@@ -10,7 +10,12 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts'],
   },
-  webpack: (config) => {
+  webpack: (config, { isServer, dev }) => {
+    // Stabilize module IDs in dev — prevents HMR-induced options.factory undefined errors
+    if (dev && !isServer) {
+      config.optimization.moduleIds = 'named';
+    }
+
     config.resolve.plugins = config.resolve.plugins || [];
     config.resolve.plugins.push({
       apply(resolver) {
@@ -32,6 +37,11 @@ module.exports = withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
+  // Disable Sentry webpack instrumentation in dev — prevents module factory corruption
+  disableClientWebpackPlugin: process.env.NODE_ENV !== 'production',
+  disableServerWebpackPlugin: process.env.NODE_ENV !== 'production',
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+    automaticVercelMonitors: true,
+  },
 });

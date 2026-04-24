@@ -19,7 +19,6 @@ import {
   LogOut,
   ChevronLeft,
   Bell,
-  Globe,
   Menu,
   Search,
   X,
@@ -30,10 +29,11 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
-import { useLanguage } from '@/contexts/i18n-context';
 import { AuthGuard } from '@/components/auth-guard';
 import { SyncStatusBadge } from '@/components/sync-status-badge';
-import { GoogleTranslateWidget } from '@/components/google-translate';
+import { UserRole } from '@phi-pro/shared';
+
+// ── Navigation definitions ────────────────────────────────────────────────────
 
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard', exact: true },
@@ -44,10 +44,24 @@ const mainNavItems = [
   { href: '/dashboard/administration', icon: ClipboardList, labelKey: 'nav.administration', accent: 'violet' },
 ];
 
-const secondaryNavItems = [
-  { href: '/dashboard/management/complaints', icon: MessageSquare, labelKey: 'nav.complaints' },
-  { href: '/dashboard/management/permits', icon: FileText, labelKey: 'nav.permits' },
-  { href: '/dashboard/management/analytics', icon: BarChart3, labelKey: 'nav.analytics' },
+// PHI gets complaints; SPHI/Admin get full management suite
+const phiManagementItems = [
+  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+];
+
+const sphiManagementItems = [
+  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+  { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
+  { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
+  { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
+];
+
+const adminManagementItems = [
+  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+  { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
+  { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
+  { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
+  { href: '/dashboard/management/users', icon: MessageSquare, label: 'User Management' },
 ];
 
 const aiNavItems = [
@@ -57,11 +71,12 @@ const aiNavItems = [
   { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' },
 ];
 
-const languages = [
-  { code: 'en', label: 'EN' },
-  { code: 'si', label: 'සිං' },
-  { code: 'ta', label: 'தமி' },
-];
+const ROLE_LABELS: Record<UserRole, string> = {
+  [UserRole.PHI]: 'Public Health Inspector',
+  [UserRole.SPHI]: 'Senior PHI',
+  [UserRole.MOH_ADMIN]: 'MOH Administrator',
+  [UserRole.PUBLIC]: 'Public',
+};
 
 const accentMap: Record<string, { bg: string; text: string; activeBg: string }> = {
   emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/15' },
@@ -75,9 +90,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { t } = useTranslation();
   const pathname = usePathname();
   const { user, signOut } = useAuth();
-  const { language, setLanguage } = useLanguage();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const role = user?.role ?? UserRole.PHI;
+
+  const managementItems =
+    role === UserRole.MOH_ADMIN ? adminManagementItems
+    : role === UserRole.SPHI    ? sphiManagementItems
+    : phiManagementItems;
+
+  const managementLabel =
+    role === UserRole.MOH_ADMIN ? 'Management'
+    : role === UserRole.SPHI    ? 'Supervision'
+    : 'Complaints';
 
   const initials = user?.displayName
     ? user.displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -162,11 +188,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {!collapsed && (
               <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Management
+                {managementLabel}
               </div>
             )}
             <div className="space-y-0.5">
-              {secondaryNavItems.map((item) => {
+              {managementItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
@@ -179,11 +205,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
                       collapsed && 'justify-center px-2',
                     )}
-                    title={collapsed ? t(item.labelKey) : undefined}
+                    title={collapsed ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
                   >
                     <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
-                    {!collapsed && <span>{t(item.labelKey)}</span>}
+                    {!collapsed && <span>{item.label}</span>}
                   </Link>
                 );
               })}
@@ -243,8 +269,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span className="truncate text-[13px] font-semibold text-slate-900 dark:text-white">
                     {user?.displayName || 'PHI Officer'}
                   </span>
-                  <span className="truncate text-[11px] text-slate-400">
-                    {user?.email || ''}
+                  <span className="truncate text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    {ROLE_LABELS[role]}
                   </span>
                 </div>
               )}
@@ -295,28 +321,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="flex items-center gap-2">
-              {/* i18next quick-switch */}
-              <div className="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-800">
-                <Globe className="ml-1.5 h-3 w-3 text-slate-400" />
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code as 'en' | 'si' | 'ta')}
-                    className={cn(
-                      'rounded-md px-2 py-1 text-[11px] font-medium transition-all',
-                      language === lang.code
-                        ? 'bg-[#0066cc] text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200',
-                    )}
-                  >
-                    {lang.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Google Translate official widget */}
-              <GoogleTranslateWidget />
-
               {/* Sync status indicator */}
               <SyncStatusBadge />
 

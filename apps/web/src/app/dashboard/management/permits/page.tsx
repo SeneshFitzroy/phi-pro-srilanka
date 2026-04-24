@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ClipboardList, Plus, FileCheck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { AuthGuard } from '@/components/auth-guard';
+import { UserRole } from '@phi-pro/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +26,14 @@ const statusBadge = (s: string) => {
 };
 
 export default function PermitsPage() {
+  return (
+    <AuthGuard allowedRoles={[UserRole.SPHI, UserRole.MOH_ADMIN]}>
+      <PermitsContent />
+    </AuthGuard>
+  );
+}
+
+function PermitsContent() {
   const [filter, setFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('All');
   const [showIssue, setShowIssue] = useState(false);
