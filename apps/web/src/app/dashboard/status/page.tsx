@@ -111,7 +111,7 @@ export default function StatusPage() {
   const [isOnline, setIsOnline] = useState(true);
   const [lastRun, setLastRun] = useState<Date | null>(null);
   const [running, setRunning] = useState(false);
-  const { status: syncStatus, pendingCount } = useSync();
+  const { syncStatus, pendingCount } = useSync();
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
