@@ -71,63 +71,68 @@ async function createUserProfile(
   return profile;
 }
 
+const PROFILE_CACHE_KEY = 'phi-pro-user-profile';
+
+function getCachedProfile(): UserProfile | null {
+  try {
+    const raw = sessionStorage.getItem(PROFILE_CACHE_KEY);
+    return raw ? (JSON.parse(raw) as UserProfile) : null;
+  } catch { return null; }
+}
+
+function setCachedProfile(profile: UserProfile | null) {
+  try {
+    if (profile) sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile));
+    else sessionStorage.removeItem(PROFILE_CACHE_KEY);
+  } catch { /* ignore */ }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Pre-populate from sessionStorage so loading is instant on subsequent renders
+  const cached = typeof window !== 'undefined' ? getCachedProfile() : null;
   const [state, setState] = useState<AuthState>({
-    user: null,
+    user: cached,
     isLoading: true,
-    isAuthenticated: false,
+    isAuthenticated: !!cached,
     error: null,
   });
 
   useEffect(() => {
+    // Hard timeout: never show loading spinner for more than 3s
+    const timeout = setTimeout(() => {
+      setState((prev) => prev.isLoading ? { ...prev, isLoading: false } : prev);
+    }, 3000);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      clearTimeout(timeout);
       if (firebaseUser) {
         try {
           let profile = await fetchUserProfile(firebaseUser);
           if (!profile) {
-            // Default to PUBLIC role for safety — admins promote users via Firestore
             profile = await createUserProfile(
               firebaseUser,
               firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
               UserRole.PUBLIC,
             );
           }
-          // Check if account is suspended
           if (profile.status === AccountStatus.SUSPENDED) {
             await firebaseSignOut(auth);
-            setState({
-              user: null,
-              isLoading: false,
-              isAuthenticated: false,
-              error: 'Your account has been suspended. Contact your MOH Administrator.',
-            });
+            setCachedProfile(null);
+            setState({ user: null, isLoading: false, isAuthenticated: false, error: 'Your account has been suspended. Contact your MOH Administrator.' });
             return;
           }
-          setState({
-            user: profile,
-            isLoading: false,
-            isAuthenticated: true,
-            error: null,
-          });
+          setCachedProfile(profile);
+          setState({ user: profile, isLoading: false, isAuthenticated: true, error: null });
         } catch (err) {
           console.error('Auth state error:', err);
-          setState({
-            user: null,
-            isLoading: false,
-            isAuthenticated: false,
-            error: 'Failed to load user profile. Please try again.',
-          });
+          setState({ user: null, isLoading: false, isAuthenticated: false, error: 'Failed to load user profile. Please try again.' });
         }
       } else {
-        setState({
-          user: null,
-          isLoading: false,
-          isAuthenticated: false,
-          error: null,
-        });
+        setCachedProfile(null);
+        setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
       }
     });
-    return () => unsubscribe();
+    return () => { unsubscribe(); clearTimeout(timeout); };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
