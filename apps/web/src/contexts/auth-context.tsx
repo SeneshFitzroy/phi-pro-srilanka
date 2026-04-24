@@ -88,16 +88,20 @@ function setCachedProfile(profile: UserProfile | null) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Pre-populate from sessionStorage so loading is instant on subsequent renders
-  const cached = typeof window !== 'undefined' ? getCachedProfile() : null;
   const [state, setState] = useState<AuthState>({
-    user: cached,
+    user: null,
     isLoading: true,
-    isAuthenticated: !!cached,
+    isAuthenticated: false,
     error: null,
   });
 
   useEffect(() => {
+    // Restore from sessionStorage cache instantly (synchronous, <1ms)
+    const cached = getCachedProfile();
+    if (cached) {
+      setState((prev) => ({ ...prev, user: cached, isAuthenticated: true }));
+    }
+
     // Hard timeout: never show loading spinner for more than 3s
     const timeout = setTimeout(() => {
       setState((prev) => prev.isLoading ? { ...prev, isLoading: false } : prev);
