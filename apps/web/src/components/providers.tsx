@@ -3,9 +3,14 @@
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/auth-context';
 import { I18nProvider } from '@/contexts/i18n-context';
+import { SyncProvider } from '@/contexts/sync-context';
 import { Toaster } from 'sonner';
+import { useEffect } from 'react';
+import { initPostHog } from '@/lib/monitoring';
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => { initPostHog(); }, []);
+
   return (
     <ThemeProvider
       attribute="class"
@@ -15,8 +20,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <I18nProvider>
         <AuthProvider>
-          {children}
-          <Toaster position="top-right" richColors closeButton />
+          <SyncProvider>
+            {children}
+            <Toaster position="top-right" richColors closeButton />
+          </SyncProvider>
         </AuthProvider>
       </I18nProvider>
     </ThemeProvider>

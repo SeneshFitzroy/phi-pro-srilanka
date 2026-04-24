@@ -2,13 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings as SettingsIcon, Globe, Moon, Sun, Bell, Database, Save } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Globe, Moon, Sun, Bell, Database, Save, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PasskeySetup } from '@/components/passkey-setup';
+import { SyncStatusBadge } from '@/components/sync-status-badge';
+import { useSync } from '@/contexts/sync-context';
+import { useLanguage } from '@/contexts/i18n-context';
 
 export default function SettingsPage() {
   const [lang, setLang] = useState('en');
   const [theme, setTheme] = useState('system');
+  const { isOnline, pendingCount, failedCount, triggerSync } = useSync();
+  const { setLanguage } = useLanguage();
   const [notifications, setNotifications] = useState({ email: true, push: true, sms: false });
 
   return (
@@ -99,8 +105,41 @@ export default function SettingsPage() {
         </Card>
       </div>
 
+      {/* Security — Passkeys */}
+      <div>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <Shield className="h-4 w-4" /> Security — Passkeys / Biometrics
+        </h2>
+        <PasskeySetup />
+      </div>
+
+      {/* Sync status detail */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Database className="h-4 w-4" /> Sync Status
+            <SyncStatusBadge className="ml-auto" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm">
+            {isOnline ? 'Connected' : 'Offline'} · {pendingCount} pending · {failedCount} failed
+          </p>
+          {isOnline && (pendingCount > 0 || failedCount > 0) && (
+            <Button variant="outline" size="sm" onClick={() => triggerSync()}>
+              Sync Now
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="flex justify-end">
-        <Button className="bg-primary"><Save className="mr-2 h-4 w-4" />Save Settings</Button>
+        <Button
+          className="bg-[#0066cc] hover:bg-[#0055aa] text-white"
+          onClick={() => { setLanguage(lang); }}
+        >
+          <Save className="mr-2 h-4 w-4" />Save Settings
+        </Button>
       </div>
     </div>
   );

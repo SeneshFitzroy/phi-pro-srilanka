@@ -1,3 +1,5 @@
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,8 +11,6 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'recharts'],
   },
   webpack: (config) => {
-    // Fix Windows drive letter case-sensitivity issue (C: vs c:)
-    // This prevents duplicate module instances that cause ActionQueueContext errors
     config.resolve.plugins = config.resolve.plugins || [];
     config.resolve.plugins.push({
       apply(resolver) {
@@ -26,4 +26,12 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withSentryConfig(nextConfig, {
+  org: 'university-of-plymouth-lo',
+  project: 'javascript-nextjs',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+});

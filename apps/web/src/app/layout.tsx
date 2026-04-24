@@ -39,18 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Unregister any stale service workers from old next-pwa */}
+        {/* Zero-flicker language init: runs before React hydration */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  registrations.forEach(function(registration) {
-                    registration.unregister();
-                  });
-                });
-              }
-            `,
+            __html: `(function(){try{var l=localStorage.getItem('i18nextLng');if(l&&['en','si','ta'].includes(l)){document.documentElement.setAttribute('lang',l==='si'?'si':l==='ta'?'ta':'en');}}catch(e){}})();`,
           }}
         />
       </head>
