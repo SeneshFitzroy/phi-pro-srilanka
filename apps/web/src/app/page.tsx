@@ -18,6 +18,7 @@ import {
   Users,
   Calendar,
 } from 'lucide-react';
+import { GoogleTranslateWidget } from '@/components/google-translate';
 
 const domains = [
   {
@@ -119,9 +120,11 @@ export default function HomePage() {
             </div>
           </div>
           <nav className="flex items-center gap-2 sm:gap-3">
+            {/* Google Translate — trilingual EN/SI/TA on landing page */}
+            <GoogleTranslateWidget />
             <Link
               href="/public"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:block"
             >
               Public Portal
             </Link>
