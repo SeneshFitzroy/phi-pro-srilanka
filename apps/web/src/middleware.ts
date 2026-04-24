@@ -10,7 +10,6 @@ export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|icons|sw.js|manifest.json).*)',
   ],
-  runtime: 'edge',
 };
 
 const SUPPORTED_LANGS = ['en', 'si', 'ta'] as const;

@@ -410,7 +410,7 @@ export default function NewFoodInspectionPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="rounded-md bg-white p-3 font-mono text-xs leading-relaxed text-gray-800 shadow-sm">
-              <p className="font-bold text-blue-700">// STEP 1: Section scoring</p>
+              <p className="font-bold text-blue-700">{'// STEP 1: Section scoring'}</p>
               {grading.sectionResults.map((r) => (
                 <p key={r.sectionId}>
                   {r.sectionId.padEnd(14)} = {String(r.scored).padStart(2)} / {r.maxScore}{' '}
@@ -423,10 +423,10 @@ export default function NewFoodInspectionPage() {
                 </p>
               ))}
               <p className="mt-1 font-bold text-blue-700">
-                // STEP 2: Sum → totalScore = {grading.totalScore} / 100
+                {'// STEP 2: Sum → totalScore = '}{grading.totalScore}{' / 100'}
               </p>
               <p className="font-bold text-blue-700">
-                // STEP 3: Grade threshold check
+                {'// STEP 3: Grade threshold check'}
               </p>
               <p>
                 {'  '}if score {'≥'} 90 → Grade A{' '}
@@ -439,17 +439,17 @@ export default function NewFoodInspectionPage() {
               <p>{'  '}else        → Grade C</p>
               {grading.gradeCapped && (
                 <p className="font-bold text-red-700">
-                  // STEP 4: Critical violation → grade capped to C
+                  {'// STEP 4: Critical violation → grade capped to C'}
                   <br />
-                  {'//'} {grading.gradeCappedReason}
+                  {'// '}{grading.gradeCappedReason}
                 </p>
               )}
               <p className="mt-1 font-bold text-green-700">
-                // RESULT: Grade {grading.grade} · {grading.totalScore}/100 ·{' '}
+                {'// RESULT: Grade '}{grading.grade}{' · '}{grading.totalScore}{'/100 · '}
                 {grading.gradeLabel}
               </p>
               <p className="font-bold text-amber-700">
-                // ENFORCEMENT: {grading.autoRecommendedNotice}
+                {'// ENFORCEMENT: '}{grading.autoRecommendedNotice}
                 {grading.followUpDays > 0 && ` (follow up in ${grading.followUpDays} days)`}
               </p>
             </div>
