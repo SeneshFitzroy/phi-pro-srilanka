@@ -97,7 +97,7 @@ export default function CopilotPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-            ● Live
+            Live
           </div>
           <div className="hidden rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800 sm:block">
             Claude Haiku 4.5 · PHI Context

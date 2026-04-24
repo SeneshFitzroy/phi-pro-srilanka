@@ -203,7 +203,7 @@ Herd immunity threshold = 1 - 1/R₀ = ${result.herdImmunityThreshold}%`}
 
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
         <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
-          ⚠ Academic model — calibrated with Sri Lanka MOH/WRDO surveillance data 2019–2024.
+          Academic model — calibrated with Sri Lanka MOH/WRDO surveillance data 2019–2024.
           Not a substitute for epidemiological expert assessment. Parameters sourced from published literature.
         </p>
       </div>

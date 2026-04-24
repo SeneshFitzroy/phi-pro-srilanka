@@ -101,7 +101,7 @@ export default function MapboxDiseaseMap({ cases, clusters, diseaseColor, onClus
             <p className="font-bold">{c.disease}</p>
             <p className="text-xs text-gray-500">{c.gn}</p>
             <p className="text-xs">{c.date}</p>
-            <p className="text-xs">{c.confirmed ? '✓ Confirmed' : '⚠ Suspected'}</p>
+            <p className="text-xs">{c.confirmed ? 'Confirmed' : 'Suspected'}</p>
           </div>
         ),
       });

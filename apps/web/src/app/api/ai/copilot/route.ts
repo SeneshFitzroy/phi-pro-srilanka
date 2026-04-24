@@ -1,21 +1,21 @@
 // ============================================================================
 // PHI-PRO Compliance Copilot API — Agentic RAG for Sri Lankan Health Law
-// Uses Claude claude-haiku-4-5-20251001 with augmented regulatory context
-// Answers questions about: Food Act No.26/1980, Factories Ordinance, H800 SOP
+// Primary: Claude Haiku 4.5 | Fallback: GPT-4o-mini
+// Covers: Food Act No.26/1980, Factories Ordinance, H800 SOP, PDPA 2022
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const { ANTHROPIC_API_KEY } = process.env;
+const { ANTHROPIC_API_KEY, OPENAI_API_KEY } = process.env;
 
 const SYSTEM_PROMPT = `You are the PHI-PRO Compliance Copilot — an expert assistant for Sri Lanka Public Health Inspectors (PHIs) operating under the Ministry of Health.
 
 You have authoritative knowledge of:
 - Food Act No. 26 of 1980 (Sri Lanka) and its regulations
 - H800 Food Premises Inspection Form (100-point grading system)
-  - Grade A: ≥90 points | Grade B: 75-89 | Grade C: <75 (or critical violation)
+  - Grade A: 90+ points | Grade B: 75-89 | Grade C: under 75 (or critical violation)
   - Critical violations (auto-cap to Grade C): pest proofing=0, cold storage=0, cross-contamination=0, hot holding=0
-  - Enforcement: Grade A→None, Grade B→Warning Notice, Grade C→Improvement Notice, Critical→Court Summons, Closure Notice
+  - Enforcement: Grade A: None, Grade B: Warning Notice, Grade C: Improvement Notice, Critical: Court Summons or Closure
 - H1046 Student Health form (AES-256 encrypted under PDPA Sri Lanka 2022)
 - Factories Ordinance (No. 45 of 1942) — occupational health
 - National Environmental Act No. 47 of 1980 — sanitation
@@ -31,7 +31,7 @@ Answer questions concisely and accurately. For enforcement questions, always cit
 2. Relevant legal authority (Act/Section)
 3. Recommended action for the PHI
 
-Respond in the same language the user asks in (English/Sinhala/Tamil). If Sinhala or Tamil, respond fully in that language.`;
+Respond in the same language the user asks in (English/Sinhala/Tamil).`;
 
 interface Message {
   role: 'user' | 'assistant';
@@ -39,59 +39,55 @@ interface Message {
 }
 
 export async function POST(req: NextRequest) {
-  if (!ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: 'Copilot unavailable — API key not configured' }, { status: 503 });
+  if (!ANTHROPIC_API_KEY && !OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: 'Copilot unavailable — add ANTHROPIC_API_KEY or OPENAI_API_KEY to .env.local' },
+      { status: 503 },
+    );
   }
 
   try {
     const { messages, language = 'en' } = await req.json() as { messages: Message[]; language?: string };
 
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    if (!messages?.length) {
       return NextResponse.json({ error: 'Messages array required' }, { status: 400 });
     }
 
-    const lastMessage = messages[messages.length - 1];
-    if (!lastMessage || lastMessage.role !== 'user') {
-      return NextResponse.json({ error: 'Last message must be from user' }, { status: 400 });
+    const langInstruction = language === 'si' ? ' [Respond in Sinhala]' : language === 'ta' ? ' [Respond in Tamil]' : '';
+    const system = SYSTEM_PROMPT + langInstruction;
+    const recentMessages = messages.slice(-10);
+
+    // Primary: Anthropic Claude Haiku
+    if (ANTHROPIC_API_KEY) {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1024, system, messages: recentMessages }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { content: Array<{ text: string }>; usage: { input_tokens: number; output_tokens: number } };
+        return NextResponse.json({ answer: data.content[0]?.text ?? 'No response.', model: 'claude-haiku-4-5', timestamp: new Date().toISOString() });
+      }
     }
 
-    const langInstruction = language === 'si'
-      ? ' [Respond in Sinhala (සිංහල)]'
-      : language === 'ta'
-      ? ' [Respond in Tamil (தமிழ்)]'
-      : '';
-
-    const systemWithLang = SYSTEM_PROMPT + langInstruction;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: systemWithLang,
-        messages: messages.slice(-10), // keep last 10 turns for context
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Anthropic error ${response.status}: ${err}`);
+    // Fallback: OpenAI GPT-4o-mini
+    if (OPENAI_API_KEY) {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_tokens: 1024,
+          messages: [{ role: 'system', content: system }, ...recentMessages],
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { choices: Array<{ message: { content: string } }> };
+        return NextResponse.json({ answer: data.choices[0]?.message.content ?? 'No response.', model: 'gpt-4o-mini', timestamp: new Date().toISOString() });
+      }
     }
 
-    const data = await response.json() as { content: Array<{ text: string }>; usage: { input_tokens: number; output_tokens: number } };
-    const answer = data.content[0]?.text ?? 'No response generated.';
-
-    return NextResponse.json({
-      answer,
-      tokens: data.usage,
-      model: 'claude-haiku-4-5',
-      timestamp: new Date().toISOString(),
-    });
+    throw new Error('All AI providers failed');
   } catch (err) {
     console.error('Copilot error:', err);
     return NextResponse.json(

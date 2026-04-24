@@ -114,7 +114,7 @@ export default function SchoolHealthPage() {
                     <td className="py-3 pr-4 text-muted-foreground">{s.lastVisit}</td>
                     {[s.grade1Done, s.grade4Done, s.grade7Done, s.grade10Done].map((done, i) => (
                       <td key={i} className="py-3 pr-2 text-center">
-                        <span className={`inline-block h-5 w-5 rounded-full text-xs leading-5 font-bold ${done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>{done ? '✓' : '—'}</span>
+                        <span className={`inline-block h-5 w-5 rounded-full text-xs leading-5 font-bold ${done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>{done ? 'Y' : 'N'}</span>
                       </td>
                     ))}
                   </tr>

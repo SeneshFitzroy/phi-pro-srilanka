@@ -319,7 +319,7 @@ if dist <= ${DENGUE_CLUSTER_RADIUS_METRES} → grouped into same cluster
                 <p className="text-sm font-semibold mb-1">Individual Cases:</p>
                 {selectedCluster.cases.map((c) => (
                   <p key={c.id} className="text-xs text-muted-foreground">
-                    • {c.gn} — {c.date} {c.confirmed ? '✓' : '(suspected)'}
+                    • {c.gn} — {c.date} {c.confirmed ? '[confirmed]' : '[suspected]'}
                   </p>
                 ))}
               </div>

@@ -53,7 +53,7 @@ const SCORING_SECTIONS = [
       { id: 'ceiling', label: 'Ceiling Condition', labelSi: 'සිවිලිම් තත්ත්වය', max: 5 },
       { id: 'ventilation', label: 'Ventilation', labelSi: 'වාතාශ්‍රය', max: 5 },
       { id: 'lighting', label: 'Lighting (min 220 lux)', labelSi: 'ආලෝකය', max: 5 },
-      { id: 'pestProofing', label: 'Pest Proofing ⚠ CRITICAL', labelSi: 'කෘමි ආරක්ෂාව', max: 5 },
+      { id: 'pestProofing', label: 'Pest Proofing (Critical)', labelSi: 'කෘමි ආරක්ෂාව', max: 5 },
     ],
   },
   {
@@ -65,7 +65,7 @@ const SCORING_SECTIONS = [
     items: [
       { id: 'uniforms', label: 'Staff Uniforms / Attire', labelSi: 'ඇඳුම', max: 5 },
       { id: 'handwashing', label: 'Hand Washing Practices', labelSi: 'අත් සෝදා ගැනීම', max: 5 },
-      { id: 'healthCertificates', label: 'Health Certificates ⚠ CRITICAL', labelSi: 'සෞඛ්‍ය සහතිකය', max: 5 },
+      { id: 'healthCertificates', label: 'Health Certificates (Critical)', labelSi: 'සෞඛ්‍ය සහතිකය', max: 5 },
       { id: 'cleanliness', label: 'Personal Cleanliness', labelSi: 'පුද්ගලික සනීපාරක්ෂාව', max: 5 },
     ],
   },
@@ -76,9 +76,9 @@ const SCORING_SECTIONS = [
     maxScore: 25,
     color: 'text-orange-600',
     items: [
-      { id: 'coldStorage', label: 'Cold Storage (<5°C) ⚠ CRITICAL', labelSi: 'සීතල ගබඩා', max: 5 },
-      { id: 'hotHolding', label: 'Hot Holding (>60°C) ⚠ CRITICAL', labelSi: 'රත් ගබඩා', max: 5 },
-      { id: 'crossContamination', label: 'Cross-Contamination Prevention ⚠ CRITICAL', labelSi: 'හරස් දූෂණ', max: 5 },
+      { id: 'coldStorage', label: 'Cold Storage (<5°C) (Critical)', labelSi: 'සීතල ගබඩා', max: 5 },
+      { id: 'hotHolding', label: 'Hot Holding (>60°C) (Critical)', labelSi: 'රත් ගබඩා', max: 5 },
+      { id: 'crossContamination', label: 'Cross-Contamination Prevention (Critical)', labelSi: 'හරස් දූෂණ', max: 5 },
       { id: 'rawCookedSeparation', label: 'Raw / Cooked Separation', labelSi: 'අමු/පිසූ වෙන් කිරීම', max: 5 },
       { id: 'dateLabeling', label: 'Date Labeling & FIFO', labelSi: 'දිනය ලේබල් කිරීම', max: 5 },
     ],
@@ -104,7 +104,7 @@ const SCORING_SECTIONS = [
     color: 'text-rose-600',
     items: [
       { id: 'disposal', label: 'Waste Disposal System', labelSi: 'අපද්‍රව්‍ය ඉවත් කිරීම', max: 3 },
-      { id: 'drainage', label: 'Drainage System ⚠ CRITICAL', labelSi: 'ජල පහසුකම', max: 2 },
+      { id: 'drainage', label: 'Drainage System (Critical)', labelSi: 'ජල පහසුකම', max: 2 },
       { id: 'toilets', label: 'Toilet Access & Cleanliness', labelSi: 'වැසිකිළි', max: 3 },
       { id: 'bins', label: 'Bin Condition (covered)', labelSi: 'බඳුන් තත්ත්වය', max: 2 },
     ],
@@ -324,7 +324,7 @@ export default function NewFoodInspectionPage() {
                 <p className="text-sm font-semibold">{grading.gradeLabel}</p>
                 {grading.gradeCapped && (
                   <p className="mt-1 rounded bg-red-100 px-2 py-0.5 text-xs text-red-700">
-                    ⚠ Grade capped: {grading.gradeCappedReason}
+                    Grade capped: {grading.gradeCappedReason}
                   </p>
                 )}
               </div>
@@ -630,7 +630,7 @@ export default function NewFoodInspectionPage() {
               <div className="space-y-3">
                 {section.items.map((item) => {
                   const val = scores[section.id][item.id] ?? 0;
-                  const isCritical = item.label.includes('⚠');
+                  const isCritical = item.label.includes('(Critical)');
                   const isCriticalFail = isCritical && val === 0;
 
                   return (

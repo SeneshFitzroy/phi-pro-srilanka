@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { UserRole } from '@phi-pro/shared';
@@ -17,6 +17,11 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
   const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -41,7 +46,7 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
     }
   }, [isLoading, isAuthenticated, pathname, router, requireAuth, allowedRoles, user]);
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-gradient-to-br from-[#0a1f5c] via-[#0d2878] to-[#0f3080]">
         {/* Radial glow */}
