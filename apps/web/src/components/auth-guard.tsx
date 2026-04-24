@@ -40,6 +40,12 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
       return;
     }
 
+    // Block PUBLIC role from any dashboard route
+    if (isAuthenticated && user?.role === UserRole.PUBLIC && pathname.startsWith('/dashboard')) {
+      router.push('/public');
+      return;
+    }
+
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {
       router.push('/dashboard');
       return;

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, FileCheck, Check, X, Eye } from 'lucide-react';
+import { AuthGuard } from '@/components/auth-guard';
+import { UserRole } from '@phi-pro/shared';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +23,14 @@ const SUBMISSIONS = [
 const statusColor = (s: string) => s === 'approved' ? 'bg-green-100 text-green-700' : s === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
 
 export default function ApprovalsPage() {
+  return (
+    <AuthGuard allowedRoles={[UserRole.SPHI, UserRole.MOH_ADMIN]}>
+      <ApprovalsContent />
+    </AuthGuard>
+  );
+}
+
+function ApprovalsContent() {
   const [filter, setFilter] = useState('all');
   const [searchQ, setSearchQ] = useState('');
 
