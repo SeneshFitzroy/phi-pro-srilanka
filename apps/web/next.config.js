@@ -16,6 +16,22 @@ const nextConfig = {
       config.optimization.moduleIds = 'named';
     }
 
+    // Browser-only packages: stub Node.js built-ins mqtt uses
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+        fs: false,
+        dns: false,
+        readline: false,
+        child_process: false,
+      };
+    }
+
+    // Enable async WASM for @xenova/transformers (onnxruntime-web)
+    config.experiments = { ...config.experiments, asyncWebAssembly: true, layers: true };
+
     config.resolve.plugins = config.resolve.plugins || [];
     config.resolve.plugins.push({
       apply(resolver) {
