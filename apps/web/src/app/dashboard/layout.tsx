@@ -26,6 +26,10 @@ import {
   Thermometer,
   TrendingUp,
   HeartPulse,
+  Cpu,
+  Lock,
+  Network,
+  GitMerge,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -67,7 +71,11 @@ const adminManagementItems = [
 const aiNavItems = [
   { href: '/dashboard/copilot', icon: Sparkles, label: 'Compliance Copilot' },
   { href: '/dashboard/epidemiology/sir-model', icon: TrendingUp, label: 'SIR Epidemic Model' },
+  { href: '/dashboard/epidemiology/contact-tracing', icon: Network, label: 'Contact Tracing Graph' },
   { href: '/dashboard/iot', icon: Thermometer, label: 'IoT Cold Chain' },
+  { href: '/dashboard/ai/edge', icon: Cpu, label: 'Edge AI Classifier' },
+  { href: '/dashboard/ai/zkp', icon: Lock, label: 'ZKP Grade Proof' },
+  { href: '/dashboard/administration/h399-collab', icon: GitMerge, label: 'H399 Collaborative' },
   { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' },
 ];
 
