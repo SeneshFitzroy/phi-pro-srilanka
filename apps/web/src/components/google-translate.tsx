@@ -90,27 +90,34 @@ export function GoogleTranslateWidget() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden" style={{ maxWidth: 150 }}>
       {/* Google Translate mounts here — widget auto-renders the dropdown */}
       <div id="google_translate_element" ref={divRef} />
 
       <style>{`
-        /* Hide GT's injected top banner — but NOT the widget itself */
+        /* Hide GT's injected top banner */
         .goog-te-banner-frame { display: none !important; }
-        /* Prevent body shift that causes cursor misalignment */
         body { top: 0 !important; position: static !important; }
-        /* Hide "Powered by Google" text inside gadget */
-        .goog-te-gadget > span { display: none !important; }
-        .goog-logo-link { display: none !important; }
+
+        /* Nuclear: hide ALL Google branding / "Powered by" attribution */
+        .goog-te-gadget { font-size: 0 !important; line-height: 0 !important; white-space: nowrap; }
+        .goog-te-gadget > span,
+        .goog-te-gadget > a,
+        .goog-logo-link,
+        .goog-te-gadget a[href*="google"],
+        .goog-te-gadget img { display: none !important; }
+
+        /* Re-enable font-size inside the actual dropdown element only */
+        .goog-te-gadget .goog-te-gadget-simple { font-size: 12px !important; line-height: normal !important; }
+
         /* Style the dropdown */
         .goog-te-gadget-simple {
           background: transparent !important;
           border: 1px solid #e2e8f0 !important;
           border-radius: 6px !important;
           padding: 3px 8px !important;
-          font-size: 12px !important;
-          font-weight: 600 !important;
           cursor: pointer !important;
+          white-space: nowrap !important;
         }
         .goog-te-menu-value span:first-child {
           color: #475569 !important;
@@ -118,6 +125,8 @@ export function GoogleTranslateWidget() {
           font-weight: 600 !important;
         }
         .goog-te-menu-value span { color: #94a3b8 !important; }
+
+        /* Fallback select style (non-gadget-simple mode) */
         #google_translate_element select {
           background: transparent;
           border: 1px solid #e2e8f0;
