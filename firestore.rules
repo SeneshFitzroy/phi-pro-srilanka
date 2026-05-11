@@ -199,6 +199,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Inventory / Stock (MOH-area consumables) ─────────────────────────────
+
+    match /inventory_items/{docId} {
+      allow read: if isFieldOfficer();
+      allow create, update: if isFieldOfficer()
+                    && hasRequiredFields(['name', 'category', 'unit', 'quantity', 'reorderLevel', 'sku']);
+      allow delete: if isAdmin();
+    }
+
     // ── Tamper-evident Audit Chain (append-only, publicly verifiable) ─────────
     // Public read so anyone can re-walk and re-hash the chain to confirm integrity.
     // No update / no delete — altering any past entry would break every later hash.
