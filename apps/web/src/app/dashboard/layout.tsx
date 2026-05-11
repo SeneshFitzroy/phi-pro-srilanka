@@ -36,6 +36,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { AuthGuard } from '@/components/auth-guard';
 import { SyncStatusBadge } from '@/components/sync-status-badge';
 import { AiAssistantFab } from '@/components/ai-assistant-fab';
+import { VoiceCommands } from '@/components/voice-commands';
 import { UserRole } from '@phi-pro/shared';
 
 // ── Navigation definitions ────────────────────────────────────────────────────
@@ -353,8 +354,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      {/* Floating PHI Assistant — available on every dashboard page */}
+      {/* Floating PHI Assistant + voice command navigation — every dashboard page */}
       <AiAssistantFab />
+      <VoiceCommands />
     </AuthGuard>
   );
 }
