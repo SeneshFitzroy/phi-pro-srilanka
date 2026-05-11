@@ -60,7 +60,11 @@ sw.js
 workbox-*.js
 sw.js.map
 
+# Claude Code (local agent settings)
+.claude/
+
 # Misc
 *.tgz
 .cache/
-"temp_response.txt"  
+package-lock.json
+"temp_response.txt"
