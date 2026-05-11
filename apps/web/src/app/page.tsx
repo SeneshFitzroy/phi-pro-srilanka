@@ -42,6 +42,7 @@ const publicServices = [
     iconGradient: 'from-emerald-500 to-green-600',
     badge: 'Live',
     badgeCls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
+    features: ['Grade A / B / C ratings', 'Search by name or area', 'Last inspection date'],
   },
   {
     icon: AlertTriangle,
@@ -51,6 +52,7 @@ const publicServices = [
     iconGradient: 'from-red-500 to-rose-600',
     badge: 'Real-time',
     badgeCls: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300',
+    features: ['Critical / Warning / Info levels', 'Province & district alerts', 'Instant refresh'],
   },
   {
     icon: MessageSquare,
@@ -60,6 +62,7 @@ const publicServices = [
     iconGradient: 'from-blue-500 to-indigo-600',
     badge: 'Anonymous',
     badgeCls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+    features: ['Fully anonymous option', '12 complaint categories', 'Track with reference ID'],
   },
   {
     icon: CheckCircle,
@@ -69,6 +72,7 @@ const publicServices = [
     iconGradient: 'from-teal-500 to-cyan-600',
     badge: 'Instant',
     badgeCls: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300',
+    features: ['Food premises, factory & trade', 'Complaint tracking IDs', 'Live database lookup'],
   },
   {
     icon: CreditCard,
@@ -78,6 +82,7 @@ const publicServices = [
     iconGradient: 'from-amber-500 to-orange-500',
     badge: 'GovPay',
     badgeCls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+    features: ['Full fee schedule', 'Online payment submission', 'MOH office locations'],
   },
   {
     icon: FileText,
@@ -87,6 +92,7 @@ const publicServices = [
     iconGradient: 'from-violet-500 to-purple-600',
     badge: 'Open Data',
     badgeCls: 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300',
+    features: ['Food, epi & environmental', 'Downloadable reports', 'MOH area data'],
   },
 ];
 
@@ -134,7 +140,10 @@ export default function HomePage() {
           </div>
 
           <nav className="flex items-center gap-1.5 sm:gap-2">
-            <GoogleTranslateWidget />
+            {/* Overflow-hidden wrapper prevents "Powered by" text from spilling outside the widget */}
+            <div className="flex-shrink-0 overflow-hidden">
+              <GoogleTranslateWidget />
+            </div>
             <a
               href="#services"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:block"
@@ -143,9 +152,10 @@ export default function HomePage() {
             </a>
             <Link
               href="/login"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-700 to-blue-900 px-4 text-sm font-semibold text-white shadow-sm shadow-blue-900/30 transition-all hover:brightness-110 hover:shadow-md hover:shadow-blue-900/30"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-700 to-blue-900 px-3 sm:px-4 text-sm font-semibold text-white shadow-sm shadow-blue-900/30 transition-all hover:brightness-110 hover:shadow-md hover:shadow-blue-900/30 whitespace-nowrap"
             >
-              PHI Login
+              <span className="sm:hidden">Login</span>
+              <span className="hidden sm:inline">PHI Login</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </nav>
@@ -321,7 +331,7 @@ export default function HomePage() {
                 {/* Top accent bar */}
                 <div className={`h-1 w-full bg-gradient-to-r ${s.iconGradient}`} />
 
-                <div className="flex flex-1 flex-col p-6">
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
                   {/* Icon + badge row */}
                   <div className="flex items-start justify-between">
                     <div className={`inline-flex rounded-2xl bg-gradient-to-br ${s.iconGradient} p-3 shadow-sm`}>
@@ -333,11 +343,21 @@ export default function HomePage() {
                   </div>
 
                   <h3 className="mt-4 text-[15px] font-bold text-slate-900 dark:text-white">{s.title}</h3>
-                  <p className="mt-1.5 flex-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{s.desc}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{s.desc}</p>
 
-                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-blue-700 opacity-0 transition-all group-hover:opacity-100 dark:text-blue-400">
-                    Open
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  {/* Feature bullets */}
+                  <ul className="mt-3 flex-1 space-y-1">
+                    {s.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                        <div className={`h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br ${s.iconGradient}`} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-blue-700 dark:text-blue-400">
+                    Open portal
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5" />
                   </div>
                 </div>
               </Link>
