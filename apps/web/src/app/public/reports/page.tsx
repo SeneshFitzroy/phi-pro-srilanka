@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ArrowLeft, FileText, Download, Calendar, MapPin, BarChart3,
   TrendingUp, User, Activity, UtensilsCrossed, Bug, Droplets,
   Search, Filter, Eye, ChevronDown, ChevronUp, Loader2,
+  Printer, Mail, Send,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -141,7 +141,7 @@ const FALLBACK: Report[] = [
     ],
   },
   {
-    id: 'RPT-2025-006',
+    id: 'RPT-2024-006',
     title: 'School Health Programme Annual Summary — 2024',
     category: 'monthly',
     type: 'Annual Report',
@@ -165,13 +165,13 @@ const FALLBACK: Report[] = [
   },
 ];
 
-const CATEGORIES: { value: Category; label: string; icon: React.ElementType }[] = [
-  { value: 'all', label: 'All Reports', icon: FileText },
-  { value: 'food', label: 'Food Safety', icon: UtensilsCrossed },
-  { value: 'epidemiology', label: 'Epidemiology', icon: Bug },
-  { value: 'environment', label: 'Environment', icon: Droplets },
-  { value: 'occupational', label: 'Occupational Health', icon: Activity },
-  { value: 'monthly', label: 'Periodic Summaries', icon: BarChart3 },
+const CATEGORIES: { value: Category; label: string; icon: React.ElementType; color: string }[] = [
+  { value: 'all', label: 'All Reports', icon: FileText, color: 'bg-indigo-600' },
+  { value: 'food', label: 'Food Safety', icon: UtensilsCrossed, color: 'bg-emerald-600' },
+  { value: 'epidemiology', label: 'Epidemiology', icon: Bug, color: 'bg-red-600' },
+  { value: 'environment', label: 'Environment', icon: Droplets, color: 'bg-blue-600' },
+  { value: 'occupational', label: 'Occupational Health', icon: Activity, color: 'bg-amber-600' },
+  { value: 'monthly', label: 'Periodic Summaries', icon: BarChart3, color: 'bg-violet-600' },
 ];
 
 const CAT_COLOR: Record<string, string> = {
@@ -182,14 +182,59 @@ const CAT_COLOR: Record<string, string> = {
   monthly: 'bg-violet-100 text-violet-800 dark:bg-violet-950/30 dark:text-violet-400',
 };
 
+const BAR_COLORS = [
+  'bg-indigo-500', 'bg-emerald-500', 'bg-blue-500', 'bg-amber-500',
+  'bg-violet-500', 'bg-red-500', 'bg-teal-500', 'bg-pink-500',
+];
+
+type YearFilter = 'all' | '2024' | '2025';
+
+/** Parse a numeric value from stat strings like "1,247", "89%", "94%" */
+function parseStatNum(val: string): number {
+  const n = parseFloat(val.replace(/[,%]/g, '').replace(/,/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+
+function MiniBarChart({ stats }: { stats: { label: string; value: string }[] }) {
+  const nums = stats.map(s => parseStatNum(s.value));
+  const max = Math.max(...nums, 1);
+  return (
+    <div className="mt-4 space-y-2">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Visual Overview</p>
+      <div className="space-y-2">
+        {stats.map((s, i) => {
+          const pct = Math.max(4, Math.round((parseStatNum(s.value) / max) * 100));
+          return (
+            <div key={s.label} className="flex items-center gap-3">
+              <span className="w-28 shrink-0 text-right text-[11px] text-muted-foreground">{s.label}</span>
+              <div className="flex-1 h-5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                <div
+                  className={`h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]} transition-all duration-700 flex items-center justify-end pr-2`}
+                  style={{ width: `${pct}%` }}
+                >
+                  <span className="text-[10px] font-bold text-white truncate">{s.value}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQ, setSearchQ] = useState('');
   const [category, setCategory] = useState<Category>('all');
+  const [yearFilter, setYearFilter] = useState<YearFilter>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [subEmail, setSubEmail] = useState('');
+  const [subSent, setSubSent] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     (async () => {
       try {
         const constraints = category !== 'all'
@@ -211,9 +256,10 @@ export default function ReportsPage() {
 
   const filtered = reports.filter(r => {
     const matchCat = category === 'all' || r.category === category;
+    const matchYear = yearFilter === 'all' || r.publishedDate.startsWith(yearFilter);
     const q = searchQ.toLowerCase();
     const matchQ = !q || r.title.toLowerCase().includes(q) || r.mohArea.toLowerCase().includes(q) || r.summary.toLowerCase().includes(q);
-    return matchCat && matchQ;
+    return matchCat && matchYear && matchQ;
   });
 
   return (
@@ -223,7 +269,7 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link href="/#services">
+            <Link href="/">
               <Button variant="ghost" size="icon" className="mt-0.5"><ArrowLeft className="h-5 w-5" /></Button>
             </Link>
             <div>
@@ -235,8 +281,7 @@ export default function ReportsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 dark:bg-blue-950/30">
-            <Image src="/phi-emblem.png" alt="" width={14} height={14} />
+          <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 dark:bg-blue-950/30 dark:border-blue-800">
             <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Official Data</span>
           </div>
         </div>
@@ -275,28 +320,39 @@ export default function ReportsPage() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <select
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   value={category}
                   onChange={e => { setCategory(e.target.value as Category); setLoading(true); }}
                 >
                   {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
+                <select
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={yearFilter}
+                  onChange={e => setYearFilter(e.target.value as YearFilter)}
+                >
+                  <option value="all">All Years</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
               </div>
             </div>
+
+            {/* Category pills — prominent */}
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(c => (
                 <button
                   key={c.value}
                   onClick={() => { setCategory(c.value); setLoading(true); }}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all shadow-sm ${
                     category === c.value
-                      ? 'bg-indigo-600 text-white shadow-sm'
+                      ? `${c.color} text-white shadow-md`
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <c.icon className="h-3 w-3" />{c.label}
+                  <c.icon className="h-3.5 w-3.5" />{c.label}
                 </button>
               ))}
             </div>
@@ -305,18 +361,19 @@ export default function ReportsPage() {
 
         {/* Report list */}
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+            <p className="text-sm text-muted-foreground">Loading reports…</p>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {filtered.length} report{filtered.length !== 1 ? 's' : ''} found
+              <span className="font-semibold text-foreground">{filtered.length}</span> report{filtered.length !== 1 ? 's' : ''} found
             </p>
 
             {filtered.length === 0 ? (
               <Card className="shadow-sm">
-                <CardContent className="py-12 text-center">
+                <CardContent className="py-16 text-center">
                   <FileText className="mx-auto h-12 w-12 text-muted-foreground/20" />
                   <p className="mt-3 font-medium text-muted-foreground">No reports found</p>
                   <p className="text-sm text-muted-foreground/70">Try adjusting your search or filter</p>
@@ -356,7 +413,12 @@ export default function ReportsPage() {
                       )}
 
                       <div className="flex items-center gap-2 pt-1">
-                        <Button variant="ghost" size="sm" className="text-xs" onClick={() => setExpanded(isOpen ? null : report.id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => setExpanded(isOpen ? null : report.id)}
+                        >
                           <Eye className="mr-1 h-3 w-3" />
                           {isOpen ? 'Hide Details' : 'View Key Findings'}
                           {isOpen ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
@@ -364,21 +426,36 @@ export default function ReportsPage() {
                         <Button variant="ghost" size="sm" className="text-xs">
                           <Download className="mr-1 h-3 w-3" />Download PDF
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => window.print()}
+                        >
+                          <Printer className="mr-1 h-3 w-3" />Print
+                        </Button>
                       </div>
                     </div>
 
+                    {/* Expandable details with animation */}
                     {isOpen && (
-                      <div className="border-t bg-slate-50/60 p-5 space-y-3 dark:bg-slate-900/50">
+                      <div className="border-t bg-slate-50/60 p-5 space-y-4 dark:bg-slate-900/50">
                         <h4 className="text-sm font-semibold">Key Findings</h4>
                         <ul className="space-y-2">
                           {report.highlights.map((h, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm">
-                              <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                            <li key={i} className="flex items-start gap-2.5 text-sm">
+                              <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
                               {h}
                             </li>
                           ))}
                         </ul>
-                        <p className="text-xs text-muted-foreground pt-2">
+
+                        {/* Mini bar chart (CSS-only) */}
+                        {report.stats && report.stats.length > 0 && (
+                          <MiniBarChart stats={report.stats} />
+                        )}
+
+                        <p className="text-xs text-muted-foreground pt-2 border-t">
                           Generated by PHI-PRO Digital Health Enforcement System and published by an
                           authorised officer of the Ministry of Health, Sri Lanka. Data subject to periodic updates.
                         </p>
@@ -391,8 +468,49 @@ export default function ReportsPage() {
           </div>
         )}
 
+        {/* Subscribe banner */}
+        <Card className="overflow-hidden shadow-sm border-indigo-200 dark:border-indigo-900">
+          <div className="h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-violet-500" />
+          <CardContent className="p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-950/40">
+                  <Mail className="h-5 w-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="font-semibold">Get reports in your inbox</p>
+                  <p className="text-xs text-muted-foreground">Subscribe to receive new reports when they are published</p>
+                </div>
+              </div>
+              {subSent ? (
+                <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 dark:bg-green-950/30 dark:text-green-400">
+                  <span>Subscribed! (Demo)</span>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={subEmail}
+                    onChange={e => setSubEmail(e.target.value)}
+                    className="max-w-[200px]"
+                  />
+                  <Button
+                    size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-700 shrink-0"
+                    onClick={() => { if (subEmail) setSubSent(true); }}
+                    disabled={!subEmail}
+                  >
+                    <Send className="h-3.5 w-3.5 mr-1.5" />Subscribe
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Disclaimer */}
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 bg-slate-50 shadow-sm dark:bg-slate-900/50">
           <CardContent className="flex items-start gap-3 p-4">
             <FileText className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
             <p className="text-xs text-muted-foreground">
