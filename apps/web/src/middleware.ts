@@ -46,7 +46,7 @@ export default function middleware(req: NextRequest) {
       "default-src 'self'",
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://translate.googleapis.com https://translate.google.com https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://translate-pa.googleapis.com https://apis.google.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com https://www.gstatic.com",
-      "font-src 'self' https://fonts.gstatic.com https://www.gstatic.com",
+      "font-src 'self' data: https://fonts.gstatic.com https://www.gstatic.com https://cdn.jsdelivr.net",
       "img-src 'self' data: blob: https://*.mapbox.com https://*.googleapis.com https://translate.google.com https://www.gstatic.com https://fonts.gstatic.com",
       "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://apis.google.com https://api.anthropic.com https://api.openai.com https://api.open-meteo.com wss://*.firebaseio.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.sentry.io https://*.mapbox.com https://translate-pa.googleapis.com https://*.firebaseapp.com https://www.google.com",
       "worker-src 'self' blob:",

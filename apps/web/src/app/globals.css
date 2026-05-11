@@ -122,3 +122,48 @@ body { top: 0 !important; }
     padding: 0 !important;
   }
 }
+/* ── Accessibility pack (toggled via the Accessibility menu) ───────────────── */
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+html.a11y-dyslexic, html.a11y-dyslexic body { font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important; }
+html.a11y-dyslexic * { letter-spacing: 0.03em; word-spacing: 0.08em; line-height: 1.7; }
+
+html.a11y-large-text { font-size: 118%; }
+html.a11y-xlarge-text { font-size: 135%; }
+
+html.a11y-underline-links a { text-decoration: underline !important; text-underline-offset: 2px; }
+
+html.a11y-reduce-motion *, html.a11y-reduce-motion *::before, html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High-contrast: force strong fg/bg, heavier borders, visible focus. */
+html.a11y-contrast,
+html.a11y-contrast body { background: #000 !important; color: #fff !important; }
+html.a11y-contrast a { color: #ffd400 !important; }
+html.a11y-contrast button:not([disabled]),
+html.a11y-contrast [role="button"] { outline: 2px solid #fff; }
+html.a11y-contrast :is(p, span, h1, h2, h3, h4, h5, h6, li, td, th, label, dt, dd, strong, em, small) { color: #fff !important; }
+html.a11y-contrast :is(.text-muted-foreground, [class*="text-slate-"], [class*="text-gray-"]) { color: #e5e5e5 !important; }
+html.a11y-contrast :is(.bg-white, .bg-card, [class*="bg-slate-"], [class*="bg-gray-"], [class*="bg-blue-"], [class*="bg-amber-"], [class*="bg-violet-"], [class*="bg-red-"], [class*="bg-emerald-"], [class*="bg-green-"]) { background: #111 !important; }
+html.a11y-contrast :is(.border, [class*="border-"]) { border-color: #fff !important; }
+html.a11y-contrast input, html.a11y-contrast textarea, html.a11y-contrast select { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; }
+html.a11y-contrast *:focus-visible { outline: 3px solid #ffd400 !important; outline-offset: 2px; }
+
+/* Always-visible focus ring (helps everyone, on by default in the menu) */
+html.a11y-focus *:focus-visible { outline: 3px solid #2563eb !important; outline-offset: 2px; border-radius: 2px; }
