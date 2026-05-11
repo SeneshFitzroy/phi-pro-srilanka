@@ -1,4 +1,5 @@
 const { withSentryConfig } = require('@sentry/nextjs');
+const webpack = require('webpack');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,13 +10,9 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts'],
+    serverComponentsExternalPackages: ['onnxruntime-node', 'sharp'],
   },
-  webpack: (config, { isServer, dev }) => {
-    // Stabilize module IDs in dev — prevents HMR-induced options.factory undefined errors
-    if (dev && !isServer) {
-      config.optimization.moduleIds = 'named';
-    }
-
+  webpack: (config, { isServer }) => {
     // Browser-only packages: stub Node.js built-ins mqtt uses
     if (!isServer) {
       config.resolve.fallback = {
@@ -27,7 +24,23 @@ const nextConfig = {
         readline: false,
         child_process: false,
       };
+      // Exclude native Node.js modules that @xenova/transformers pulls in server-side
+      // Browser builds use onnxruntime-web (WASM) — onnxruntime-node is server-only
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'sharp$': false,
+        'onnxruntime-node$': false,
+      };
     }
+
+    // Prevent webpack from trying to parse native .node binary files
+    // (onnxruntime-node ships darwin/linux/win binaries; browser uses WASM instead)
+    config.plugins.push(
+      new webpack.IgnorePlugin({ resourceRegExp: /onnxruntime_binding\.node$/ })
+    );
+
+    // Give lazy-compiled chunks 5 min to appear on first dev load (avoids false timeout)
+    config.output = { ...config.output, chunkLoadTimeout: 300000 };
 
     // Enable async WASM for @xenova/transformers (onnxruntime-web)
     config.experiments = { ...config.experiments, asyncWebAssembly: true, layers: true };
