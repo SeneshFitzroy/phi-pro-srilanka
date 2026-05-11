@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
+import { SignaturePad } from '@/components/signature-pad';
 
 const healthSections = [
   {
@@ -57,6 +58,7 @@ const healthSections = [
 export default function FactoryHealthPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+  const [signature, setSignature] = useState<string | null>(null);
 
   return (
     <div className="space-y-6">
@@ -123,6 +125,14 @@ export default function FactoryHealthPage() {
           <div className="space-y-2"><Label>Violations / Issues Found</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="List health violations..." /></div>
           <div className="space-y-2"><Label>Recommendations</Label><textarea className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Improvement actions..." /></div>
           <div className="space-y-2"><Label>Follow-up Date</Label><Input type="date" /></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Inspecting Officer&apos;s Signature</CardTitle></CardHeader>
+        <CardContent>
+          <SignaturePad onChange={setSignature} className="max-w-md" />
+          <p className="mt-2 text-xs text-muted-foreground">{signature ? '✓ Signature captured.' : 'Sign before submitting the H1203 report.'}</p>
         </CardContent>
       </Card>
     </div>

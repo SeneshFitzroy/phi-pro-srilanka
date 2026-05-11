@@ -331,6 +331,7 @@ export default function VerifyPage() {
                       ...(result.grade ? [{ label: 'Hygiene Grade', value: `Grade ${result.grade}` }] : []),
                       ...(result.area ? [{ label: 'MOH Area', value: result.area }] : []),
                       ...(result.issuedBy ? [{ label: 'Issued By', value: result.issuedBy }] : []),
+                      ...(result.valid ? [{ label: 'Authorising Signature', value: 'On file ✓' }] : []),
                       { label: 'Status', value: result.status ?? 'Active', isStatus: true },
                     ].map(row => (
                       <div key={row.label} className="flex justify-between gap-2 px-5 py-3 text-sm">
