@@ -104,6 +104,25 @@ export default function ComplaintsPage() {
     setSubmitting(true);
     setError('');
 
+    // ── Toxicity / spam screening (Perspective API, or heuristic fallback) ──
+    let moderation: { source: string; scores: Record<string, number>; flagged: string[] } | null = null;
+    try {
+      const res = await fetch('/api/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: `${form.type} ${form.location} ${form.description}` }),
+      });
+      const v = (await res.json()) as { allowed: boolean; reason: string | null; source: string; scores: Record<string, number>; flagged: string[] };
+      if (!v.allowed) {
+        setError(v.reason ?? 'Your report contains language we can’t accept — please rephrase it factually.');
+        setSubmitting(false);
+        return;
+      }
+      moderation = { source: v.source, scores: v.scores, flagged: v.flagged };
+    } catch {
+      // moderation unavailable → fail open (don't block a real complaint)
+    }
+
     try {
       const trackingId = 'CMP-' + Date.now().toString().slice(-8);
       await addDoc(collection(db, 'public_complaints'), {
@@ -117,6 +136,7 @@ export default function ComplaintsPage() {
         contactInfo: form.contactInfo || null,
         status: 'pending',
         assignedTo: null,
+        moderation,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
