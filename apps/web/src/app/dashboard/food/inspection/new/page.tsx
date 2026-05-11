@@ -37,6 +37,7 @@ import { SyncStatus, InspectionStatus, PHIDomain } from '@phi-pro/shared';
 import { FormScanner } from '@/components/form-scanner';
 import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
 import { VoiceInput } from '@/components/voice-input';
+import { SignaturePad } from '@/components/signature-pad';
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -172,6 +173,7 @@ export default function NewFoodInspectionPage() {
   const [enforceNotice, setEnforceNotice] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [criticalViolationsText, setCriticalViolationsText] = useState('');
+  const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
 
   // ── The H800 grading algorithm runs live on every keystroke ──────────────
   const grading: H800GradingResult = useMemo(
@@ -239,6 +241,7 @@ export default function NewFoodInspectionPage() {
             criticalViolations: grading.criticalViolations,
             enforceNotice: enforceNotice || grading.autoRecommendedNotice,
             algorithmVersion: grading.algorithmVersion,
+            signatureCaptured: !!inspectorSignature,
           },
           summary: `H800 ${premisesInfo.premisesName || 'premises'} — Grade ${grading.grade} (${grading.totalScore}/100)`,
         });
@@ -280,6 +283,7 @@ export default function NewFoodInspectionPage() {
       followUpDate,
       criticalViolationsText,
       notes,
+      inspectorSignature,
     };
   }
 
@@ -796,6 +800,21 @@ export default function NewFoodInspectionPage() {
               />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ── INSPECTOR SIGNATURE ───────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <FileText className="h-5 w-5 text-[#0066cc]" /> Inspector&apos;s Signature
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SignaturePad onChange={setInspectorSignature} label={`Sign — ${user?.email ?? 'PHI officer'}`} className="max-w-md" />
+          <p className="mt-2 text-xs text-muted-foreground">
+            {inspectorSignature ? '✓ Signature captured — will be stored with this inspection.' : 'Optional but recommended before submitting. Stored with the record and shown on issued certificates.'}
+          </p>
         </CardContent>
       </Card>
 
