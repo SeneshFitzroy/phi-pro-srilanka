@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Briefcase, FileText, MapPin, BarChart3, Calendar, Map, Search, ClipboardList, TrendingUp, Users } from 'lucide-react';
+import { Briefcase, FileText, MapPin, BarChart3, Calendar, Map, Search, ClipboardList, TrendingUp, Users, Boxes } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
@@ -12,6 +12,7 @@ const quickActions = [
   { title: 'Monthly Report', subtitle: 'PHI-1', icon: FileText, href: '/dashboard/administration/monthly-report', color: 'bg-indigo-50 text-indigo-600 border-indigo-200' },
   { title: 'Area Survey', subtitle: 'H1200', icon: Map, href: '/dashboard/administration/area-survey', color: 'bg-violet-50 text-violet-600 border-violet-200' },
   { title: 'Spot Map', subtitle: 'A3 Color', icon: Map, href: '/dashboard/administration/spot-map', color: 'bg-fuchsia-50 text-fuchsia-600 border-fuchsia-200' },
+  { title: 'Inventory & Stock', subtitle: 'Consumables', icon: Boxes, href: '/dashboard/administration/inventory', color: 'bg-blue-50 text-blue-600 border-blue-200' },
 ];
 
 const gnDivisions = [
