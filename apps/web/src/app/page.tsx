@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import {
   UtensilsCrossed,
   School,
@@ -24,12 +23,9 @@ import {
   ChevronDown,
   Star,
   Phone,
+  Newspaper,
 } from 'lucide-react';
-
-const GoogleTranslateWidget = dynamic(
-  () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
-  { ssr: false },
-);
+import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
 /* ─────────────────────────────── data ─────────────────────────────── */
 
@@ -125,42 +121,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen scroll-smooth bg-white dark:bg-slate-950">
 
-      {/* ═══════════════════ NAVIGATION ═══════════════════ */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/90">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-
-          <div className="flex items-center gap-2.5">
-            <Image src="/phi-emblem.png" alt="PHI Emblem" width={36} height={36} className="drop-shadow-sm" />
-            <div className="leading-none">
-              <p className="text-[17px] font-extrabold tracking-tight text-slate-900 dark:text-white">PHI-PRO</p>
-              <p className="hidden text-[10px] font-medium text-slate-500 dark:text-slate-400 sm:block">
-                Sri Lanka Health Enforcement
-              </p>
-            </div>
-          </div>
-
-          <nav className="flex items-center gap-1.5 sm:gap-2">
-            {/* Overflow-hidden wrapper prevents "Powered by" text from spilling outside the widget */}
-            <div className="flex-shrink-0 overflow-hidden">
-              <GoogleTranslateWidget />
-            </div>
-            <a
-              href="#services"
-              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:block"
-            >
-              Public Services
-            </a>
-            <Link
-              href="/login"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-700 to-blue-900 px-3 sm:px-4 text-sm font-semibold text-white shadow-sm shadow-blue-900/30 transition-all hover:brightness-110 hover:shadow-md hover:shadow-blue-900/30 whitespace-nowrap"
-            >
-              <span className="sm:hidden">Login</span>
-              <span className="hidden sm:inline">PHI Login</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* ═══════════════════ HERO ═══════════════════ */}
       <section className="relative overflow-hidden">
@@ -273,6 +234,54 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* ═══════════════════ WELCOME / ABOUT / OFFICE BEARERS ═══════════════════ */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Welcome</p>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                The Public Health Inspector&apos;s Union of Sri Lanka
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                &ldquo;Prevention is better than cure.&rdquo; Of all we hear about health, prevention is the most
+                effective and essential principle — and the hardest to practise. In Sri Lanka that task is led by
+                the Public Health Inspector. The service began in 1913 under a curriculum based on that of the
+                British Royal Health Institution.
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                Over more than a century, PHIs have driven the eradication of smallpox (Wasuriya), the control of
+                communicable diseases, a safe and healthy food culture, the wellbeing of school children, lower
+                occupational health hazards, stronger health education and law enforcement, and wider vaccination
+                coverage. Today <strong className="text-slate-800 dark:text-slate-200">1,793 Public Health Inspectors</strong> and
+                Administrative Public Health Inspectors form the front line of prevention island-wide.
+              </p>
+              <Link href="/public/about" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">
+                Read more about us <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <div>
+              <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400"><Users className="h-3.5 w-3.5" />Office Bearers</p>
+              <div className="space-y-3">
+                {[
+                  { role: 'Hon. President', name: 'K.A.P. Boralessa' },
+                  { role: 'Hon. Secretary', name: 'M.A.A.D.S. Muthukuda' },
+                  { role: 'Hon. Treasurer', name: 'M.A.C. Prasad' },
+                ].map((o) => (
+                  <div key={o.role} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <Image src="/phi-emblem.png" alt="" width={36} height={36} className="h-9 w-9" />
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-700 dark:text-blue-400">{o.role}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{o.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
       <section className="bg-slate-50/70 py-20 dark:bg-slate-900/40">
@@ -479,6 +488,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══════════════════ RECENT NEWS & EVENTS ═══════════════════ */}
+      <section className="border-t border-slate-200 bg-slate-50/60 py-20 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400"><Newspaper className="h-3.5 w-3.5" />From the Union</p>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Recent News &amp; Events</h2>
+            </div>
+            <Link href="/public/news" className="hidden items-center gap-1.5 text-sm font-semibold text-blue-700 hover:underline sm:inline-flex dark:text-blue-400">
+              View all <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              { tag: 'Meeting', date: 'August 4, 2025', title: 'Key Discussions Held Between Health Ministry and Public Health Inspectors’ Union of Sri Lanka', excerpt: 'A significant meeting on service matters, cadre and the modernisation of field public health work.' },
+              { tag: 'AGM', date: 'July 28, 2018', title: 'Annual General Meeting 2018', excerpt: 'Election of office bearers and review of the year’s work by the membership.' },
+              { tag: 'AGM', date: 'November 30, 2016', title: 'Annual General Meeting 2016', excerpt: 'Resolutions on service conditions and training adopted at the 2016 AGM.' },
+            ].map((n) => (
+              <Link key={n.title} href="/public/news" className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center justify-between text-[10px] font-bold">
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">{n.tag}</span>
+                  <span className="flex items-center gap-1 text-slate-400"><Calendar className="h-3 w-3" />{n.date}</span>
+                </div>
+                <h3 className="mt-3 text-sm font-bold leading-snug text-slate-900 group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-400">{n.title}</h3>
+                <p className="mt-2 flex-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{n.excerpt}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 dark:text-blue-400">Read more <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" /></span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════ CTA BANNER ═══════════════════ */}
       <section className="relative overflow-hidden border-t border-blue-900/20 bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900">
         <div
@@ -517,41 +558,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ FOOTER ═══════════════════ */}
-      <footer className="border-t border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-5">
-            <div className="flex items-center gap-3">
-              <Image src="/phi-emblem.png" alt="PHI Emblem" width={30} height={30} />
-              <div className="leading-none">
-                <span className="text-sm font-extrabold text-slate-900 dark:text-white">PHI-PRO</span>
-                <span className="ml-2 text-xs text-slate-400">Est. 1913</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500 dark:text-slate-500">
-              <a href="https://health.gov.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700 dark:hover:text-blue-400">
-                Ministry of Health
-              </a>
-              <span className="hidden text-slate-300 dark:text-slate-700 sm:inline">&bull;</span>
-              <a href="https://epid.gov.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700 dark:hover:text-blue-400">
-                Epidemiology Unit
-              </a>
-              <span className="hidden text-slate-300 dark:text-slate-700 sm:inline">&bull;</span>
-              <a href="https://phi.lk" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-blue-700 dark:hover:text-blue-400">
-                PHI Union of Sri Lanka
-              </a>
-            </div>
-
-            <p className="text-center text-[11px] leading-relaxed text-slate-400 dark:text-slate-600">
-              &copy; {new Date().getFullYear()} PHI-PRO — Digital Health Enforcement &amp; Integrated Intelligence System
-              <span className="hidden sm:inline"> &bull; </span>
-              <br className="sm:hidden" />
-              673 Maradana Road, Colombo 01000, Sri Lanka
-            </p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
 
     </div>
   );
