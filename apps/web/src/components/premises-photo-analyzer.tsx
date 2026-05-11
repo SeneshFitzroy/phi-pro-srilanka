@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Camera, Upload, Loader2, ScanSearch, AlertTriangle, CheckCircle2, X, Sparkles, WifiOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { CameraCapture } from '@/components/camera-capture';
 import { toast } from 'sonner';
 
 /** A hazard description fed to CLIP, plus the H800 checklist item it maps to. */
@@ -67,9 +68,9 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
   const [preview, setPreview] = useState<string | null>(null);
   const [findings, setFindings] = useState<Finding[] | null>(null);
   const [online, setOnline] = useState(true);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const classifierRef = useRef<((img: string, labels: string[], opts: Record<string, unknown>) => Promise<{ labels: string[]; scores: number[] }>) | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const cameraRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setOnline(navigator.onLine);
@@ -138,18 +139,16 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
     }
   }, [loadModel]);
 
+  const acceptImage = useCallback((url: string) => { setPreview(url); void analyse(url); }, [analyse]);
+
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const url = ev.target?.result as string;
-      setPreview(url);
-      void analyse(url);
-    };
+    reader.onload = (ev) => acceptImage(ev.target?.result as string);
     reader.readAsDataURL(file);
     e.target.value = '';
-  }, [analyse]);
+  }, [acceptImage]);
 
   const reset = () => { setPreview(null); setFindings(null); };
 
@@ -170,7 +169,7 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button type="button" variant="outline" size="sm" disabled={analysing} onClick={() => cameraRef.current?.click()} className="gap-2 border-violet-400 text-violet-700 hover:bg-violet-100 dark:text-violet-300">
+              <Button type="button" variant="outline" size="sm" disabled={analysing} onClick={() => setCameraOpen(true)} className="gap-2 border-violet-400 text-violet-700 hover:bg-violet-100 dark:text-violet-300">
                 {analysing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />} Take Photo
               </Button>
               <Button type="button" variant="outline" size="sm" disabled={analysing} onClick={() => fileRef.current?.click()} className="gap-2">
@@ -178,8 +177,8 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
               </Button>
               {!online && <span className="flex items-center gap-1 text-[10px] font-medium text-amber-600"><WifiOff className="h-3 w-3" /> offline — needs model cached</span>}
             </div>
-            <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} />
+            <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={acceptImage} />
 
             {/* Model download progress */}
             {modelState === 'loading' && (
