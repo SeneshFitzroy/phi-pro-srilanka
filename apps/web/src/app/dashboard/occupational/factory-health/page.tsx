@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
 
 const healthSections = [
   {
@@ -90,6 +91,8 @@ export default function FactoryHealthPage() {
           <div className="space-y-2"><Label>Contact Person</Label><Input placeholder="Manager name" /></div>
         </CardContent>
       </Card>
+
+      <PremisesPhotoAnalyzer variant="generic" />
 
       {healthSections.map((section) => (
         <Card key={section.title}>

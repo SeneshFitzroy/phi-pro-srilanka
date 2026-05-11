@@ -34,6 +34,7 @@ import {
 import { createDocument } from '@/lib/firestore';
 import { SyncStatus, InspectionStatus, PHIDomain } from '@phi-pro/shared';
 import { FormScanner } from '@/components/form-scanner';
+import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -584,6 +585,15 @@ export default function NewFoodInspectionPage() {
 
       {/* ── AI FORM SCANNER ──────────────────────────────────────────── */}
       <FormScanner onScanned={handleScanResult} />
+
+      {/* ── AI PHOTO HAZARD CHECK (on-device CLIP) ───────────────────── */}
+      <PremisesPhotoAnalyzer
+        onApplyDeficiency={(sectionId, itemId) => {
+          const max =
+            SCORING_SECTIONS.find((s) => s.id === sectionId)?.items.find((i) => i.id === itemId)?.max ?? 5;
+          handleScoreChange(sectionId as SectionId, itemId, 0, max);
+        }}
+      />
 
       {/* ── SCORING SECTIONS ─────────────────────────────────────────── */}
       {SCORING_SECTIONS.map((section) => {
