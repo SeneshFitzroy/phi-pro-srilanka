@@ -18,30 +18,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Mic } from 'lucide-react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { toast } from 'sonner';
-
-interface SpeechRecognitionAlt { transcript: string }
-interface SpeechRecognitionResultLike { 0: SpeechRecognitionAlt; isFinal: boolean }
-interface SpeechRecognitionEventLike { results: ArrayLike<SpeechRecognitionResultLike> }
-interface SpeechRecognitionErrorEventLike { error: string }
-interface SpeechRecognitionLike {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  maxAlternatives: number;
-  onresult: ((e: SpeechRecognitionEventLike) => void) | null;
-  onerror: ((e: SpeechRecognitionErrorEventLike) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-}
-type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionCtor;
-    webkitSpeechRecognition?: SpeechRecognitionCtor;
-  }
-}
+import type { SpeechRecognitionInstance } from '@/types/speech';
 
 interface Props {
   /** Called with the recognised text (already trimmed). Caller decides append vs. replace. */
@@ -56,7 +33,7 @@ export function VoiceInput({ onTranscript, lang, className, title }: Props) {
   const { language } = useLanguage();
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
-  const recRef = useRef<SpeechRecognitionLike | null>(null);
+  const recRef = useRef<SpeechRecognitionInstance | null>(null);
 
   useEffect(() => {
     setSupported(!!(typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)));
