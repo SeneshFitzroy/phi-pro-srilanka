@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 // secp256k1.Point is the WeierstrassPointCons — constructor + static methods
 const Point = secp256k1.Point;
 const G     = Point.BASE;
-const { n: ORDER } = G.CURVE();
+const ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141n;
 
 // H = "nothing-up-my-sleeve" second generator
 // Derived as a deterministic scalar from a domain-separation string, so no one
