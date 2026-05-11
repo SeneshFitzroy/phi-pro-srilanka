@@ -48,7 +48,7 @@ export default function middleware(req: NextRequest) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com https://www.gstatic.com",
       "font-src 'self' https://fonts.gstatic.com https://www.gstatic.com",
       "img-src 'self' data: blob: https://*.mapbox.com https://*.googleapis.com https://translate.google.com https://www.gstatic.com https://fonts.gstatic.com",
-      "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://apis.google.com https://api.anthropic.com https://api.openai.com wss://*.firebaseio.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.sentry.io https://*.mapbox.com https://translate-pa.googleapis.com https://*.firebaseapp.com https://www.google.com",
+      "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://apis.google.com https://api.anthropic.com https://api.openai.com https://api.open-meteo.com wss://*.firebaseio.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.sentry.io https://*.mapbox.com https://translate-pa.googleapis.com https://*.firebaseapp.com https://www.google.com",
       "worker-src 'self' blob:",
       "frame-src 'self' https://translate.google.com https://www.google.com https://*.firebaseapp.com https://accounts.google.com",
       "frame-ancestors 'none'",
@@ -58,8 +58,10 @@ export default function middleware(req: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set(
+    // camera/microphone allowed for the app's own origin only — needed for
+    // photo hazard checks, voice dictation and (planned) live object detection.
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(self), payment=()',
+    'camera=(self), microphone=(self), geolocation=(self), payment=(self)',
   );
   response.headers.set(
     'Strict-Transport-Security',
