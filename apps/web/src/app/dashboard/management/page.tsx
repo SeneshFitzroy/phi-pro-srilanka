@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp } from 'lucide-react';
+import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +12,7 @@ const QUICK_ACTIONS = [
   { title: 'Complaints', desc: 'Review public complaints', icon: AlertTriangle, href: '/dashboard/management/complaints', count: 8, color: 'text-red-500' },
   { title: 'Permits & Licenses', desc: 'Issue & track permits', icon: ClipboardList, href: '/dashboard/management/permits', count: 15, color: 'text-green-500' },
   { title: 'Area Analytics', desc: 'Performance & trends', icon: BarChart3, href: '/dashboard/management/analytics', count: null, color: 'text-purple-500' },
+  { title: 'Audit Chain Ledger', desc: 'Tamper-evident record of actions', icon: ShieldCheck, href: '/dashboard/management/audit', count: null, color: 'text-emerald-600' },
   { title: 'System Settings', desc: 'Configure system preferences', icon: Settings, href: '/dashboard/settings', count: null, color: 'text-gray-500' },
 ];
 
