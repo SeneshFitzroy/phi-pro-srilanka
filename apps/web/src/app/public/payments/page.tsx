@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, CreditCard, FileText, Clock, Building2,
   Info, Send, CheckCircle, Loader2, ChevronDown, ChevronUp,
-  Calculator, HelpCircle, Layers,
+  Calculator, HelpCircle, Layers, Download, Wallet, ShieldCheck, X,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { downloadPaymentReceipt, type ReceiptData } from '@/components/payment-receipt';
+import { isGatewayConfigured, PAYHERE_CHECKOUT_URL, payHereFormFields } from '@/lib/payments';
 
 const FEES: {
   category: string;
@@ -117,6 +119,49 @@ export default function PaymentsPage() {
   const [expandedCat, setExpandedCat] = useState<string | null>('Food Premises Registration');
   const [estimatorType, setEstimatorType] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [order, setOrder] = useState<ReceiptData | null>(null);
+  const [sandboxOpen, setSandboxOpen] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [paid, setPaid] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const gatewayLive = isGatewayConfigured();
+
+  const redirectToPayHere = async (rec: ReceiptData) => {
+    try {
+      const res = await fetch('/api/payments/payhere-hash', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: rec.paymentRef, amount: rec.amount, currency: rec.currency }),
+      });
+      if (!res.ok) throw new Error('hash');
+      const { hash } = (await res.json()) as { hash: string };
+      const fields = {
+        ...payHereFormFields(
+          { orderId: rec.paymentRef, amount: rec.amount, currency: rec.currency, itemName: rec.serviceType, firstName: rec.payerName.split(' ')[0] || rec.payerName, lastName: rec.payerName.split(' ').slice(1).join(' '), email: rec.email ?? '', phone: rec.phone },
+          window.location.origin,
+        ),
+        hash,
+      };
+      const f = document.createElement('form');
+      f.method = 'POST'; f.action = PAYHERE_CHECKOUT_URL;
+      Object.entries(fields).forEach(([k, v]) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = String(v); f.appendChild(i); });
+      document.body.appendChild(f); f.submit();
+    } catch {
+      setSandboxOpen(true); // gateway hash unavailable → fall back to sandbox sim
+    }
+  };
+
+  const runSandbox = () => {
+    setProcessing(true);
+    setTimeout(() => { setProcessing(false); setPaid(true); setSandboxOpen(false); }, 1600);
+  };
+
+  const getReceipt = async () => {
+    if (!order) return;
+    setDownloading(true);
+    try {
+      await downloadPaymentReceipt({ ...order, status: paid ? 'completed' : order.status, channel: paid ? 'payhere_sandbox' : order.channel });
+    } finally { setDownloading(false); }
+  };
 
   const set = (field: keyof PayForm) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -143,7 +188,15 @@ export default function PaymentsPage() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+      const rec: ReceiptData = {
+        paymentRef: ref, serviceType: form.serviceType, referenceId: form.referenceId || null,
+        payerName: form.payerName, phone: form.phone, email: form.email || null,
+        amount: parseFloat(form.amount) || 0, currency: 'LKR', channel: 'online_portal',
+        status: 'pending_verification', dateISO: new Date().toISOString(),
+      };
+      setOrder(rec);
       setPayRef(ref);
+      if (gatewayLive) { void redirectToPayHere(rec); }
     } catch (err) {
       console.error('Payment submit error:', err);
       setError('Could not record payment. Please try again or visit the MOH office.');
@@ -159,26 +212,43 @@ export default function PaymentsPage() {
         <Card className="w-full max-w-md shadow-xl">
           <CardContent className="space-y-5 p-8 text-center">
             <div className="flex justify-center">
-              <div className="flex h-22 w-22 items-center justify-center rounded-full bg-amber-100 ring-8 ring-amber-50 dark:bg-amber-950/40 dark:ring-amber-950">
-                <CheckCircle className="h-12 w-12 text-amber-600" />
+              <div className={`flex h-20 w-20 items-center justify-center rounded-full ring-8 ${paid ? 'bg-green-100 ring-green-50 dark:bg-green-950/40 dark:ring-green-950' : 'bg-amber-100 ring-amber-50 dark:bg-amber-950/40 dark:ring-amber-950'}`}>
+                <CheckCircle className={`h-12 w-12 ${paid ? 'text-green-600' : 'text-amber-600'}`} />
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-bold">Payment Recorded</h2>
+              <h2 className="text-xl font-bold">{paid ? 'Payment Successful' : 'Payment Recorded'}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your payment request has been submitted to the MOH office for verification.
+                {paid ? 'Your fee has been paid (PayHere sandbox). Download your receipt below.' : 'Your payment request has been submitted to the MOH office for verification.'}
               </p>
             </div>
             <div className="rounded-xl bg-slate-50 p-5 dark:bg-slate-800">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment Reference</p>
               <p className="mt-1 font-mono text-3xl font-black text-slate-900 dark:text-white">{payRef}</p>
-              <p className="mt-2 text-xs text-muted-foreground">Present this reference at the MOH office to confirm payment</p>
+              {order && <p className="mt-1 text-sm font-semibold">LKR {order.amount.toLocaleString('en-LK', { minimumFractionDigits: 2 })} · {order.serviceType}</p>}
+              <p className="mt-2 text-xs text-muted-foreground">Keep this reference — it confirms your payment.</p>
             </div>
+
+            {/* Gateway / receipt actions */}
+            {!paid && !gatewayLive && (
+              <Button onClick={() => setSandboxOpen(true)} className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <Wallet className="h-4 w-4" /> Pay {order ? `LKR ${order.amount.toLocaleString('en-LK')}` : ''} with PayHere (Sandbox)
+              </Button>
+            )}
+            {!paid && gatewayLive && order && (
+              <Button onClick={() => void redirectToPayHere(order)} className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <Wallet className="h-4 w-4" /> Proceed to PayHere
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => void getReceipt()} disabled={downloading} className="w-full gap-2">
+              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Download Receipt (PDF)
+            </Button>
+
             <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300">
-              <strong>Next steps:</strong> A PHI officer will contact you within 2 working days to confirm receipt and issue your certificate.
+              <strong>Next steps:</strong> {paid ? 'A PHI officer will proceed with your inspection / certificate using this reference.' : 'A PHI officer will contact you within 2 working days to confirm receipt and issue your certificate.'}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => { setPayRef(''); setForm(EMPTY_FORM); setShowForm(false); }}>
+              <Button variant="outline" className="flex-1" onClick={() => { setPayRef(''); setForm(EMPTY_FORM); setShowForm(false); setPaid(false); setOrder(null); }}>
                 New Payment
               </Button>
               <Link href="/" className="flex-1">
@@ -187,6 +257,31 @@ export default function PaymentsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* PayHere sandbox modal */}
+        {sandboxOpen && order && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 font-bold"><span className="rounded bg-emerald-600 px-1.5 py-0.5 text-xs text-white">PayHere</span> <span className="text-xs text-muted-foreground">Sandbox</span></span>
+                <button onClick={() => setSandboxOpen(false)} disabled={processing}><X className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">Order <span className="font-mono">{order.paymentRef}</span></p>
+              <p className="text-2xl font-extrabold">LKR {order.amount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</p>
+              <div className="mt-4 space-y-2">
+                <div className="rounded-md border border-input bg-slate-50 px-3 py-2 text-sm text-muted-foreground dark:bg-slate-800">Card 4242 4242 4242 4242 · 12/29 · 123 (test)</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-md border border-input bg-slate-50 px-3 py-2 text-xs text-muted-foreground dark:bg-slate-800">Exp 12/29</div>
+                  <div className="rounded-md border border-input bg-slate-50 px-3 py-2 text-xs text-muted-foreground dark:bg-slate-800">CVC •••</div>
+                </div>
+              </div>
+              <Button onClick={runSandbox} disabled={processing} className="mt-4 w-full gap-2 bg-emerald-600 hover:bg-emerald-700">
+                {processing ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : <><ShieldCheck className="h-4 w-4" /> Pay LKR {order.amount.toLocaleString('en-LK')}</>}
+              </Button>
+              <p className="mt-2 text-center text-[10px] text-muted-foreground">Sandbox simulation — no real card is charged. Set NEXT_PUBLIC_PAYHERE_MERCHANT_ID for live checkout.</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
