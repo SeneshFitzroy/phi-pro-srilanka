@@ -32,6 +32,7 @@ import {
   FoodHygieneGrade,
 } from '@phi-pro/shared';
 import { createDocument } from '@/lib/firestore';
+import { appendAuditEntry } from '@/lib/audit-chain';
 import { SyncStatus, InspectionStatus, PHIDomain } from '@phi-pro/shared';
 import { FormScanner } from '@/components/form-scanner';
 import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
@@ -216,10 +217,34 @@ export default function NewFoodInspectionPage() {
     setIsSaving(true);
     try {
       const payload = buildFormPayload('SUBMITTED');
-      await createDocument('food_inspections', payload);
+      const docId = await createDocument('food_inspections', payload);
       toast.success(
         `Inspection submitted — Grade ${grading.grade} (${grading.totalScore}/100)`,
       );
+      // Record a tamper-evident entry on the audit chain (best-effort — never blocks submission).
+      try {
+        await appendAuditEntry({
+          action: 'H800_INSPECTION_SUBMITTED',
+          refCollection: 'food_inspections',
+          refDocId: docId,
+          actorUid: user?.uid ?? 'anonymous',
+          payload: {
+            formCode: 'H800',
+            premisesName: premisesInfo.premisesName,
+            ownerName: premisesInfo.ownerName,
+            registrationNo: premisesInfo.registrationNo,
+            totalScore: grading.totalScore,
+            grade: grading.grade,
+            criticalViolations: grading.criticalViolations,
+            enforceNotice: enforceNotice || grading.autoRecommendedNotice,
+            algorithmVersion: grading.algorithmVersion,
+          },
+          summary: `H800 ${premisesInfo.premisesName || 'premises'} — Grade ${grading.grade} (${grading.totalScore}/100)`,
+        });
+        toast.message('Recorded on the tamper-evident audit chain.');
+      } catch {
+        // Offline or rules not yet deployed — submission still succeeded.
+      }
       router.push('/dashboard/food');
     } catch {
       toast.error('Submission failed — saved locally');

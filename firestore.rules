@@ -199,6 +199,18 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Tamper-evident Audit Chain (append-only, publicly verifiable) ─────────
+    // Public read so anyone can re-walk and re-hash the chain to confirm integrity.
+    // No update / no delete — altering any past entry would break every later hash.
+
+    match /audit_chain/{docId} {
+      allow read: if true;
+      allow create: if isAuthenticated()
+                    && hasRequiredFields(['index', 'prevHash', 'payloadHash', 'entryHash', 'action', 'refCollection', 'refDocId', 'actorUid', 'ts', 'summary']);
+      allow update: if false;
+      allow delete: if false;
+    }
+
     // ── Deny all else ─────────────────────────────────────────────────────────
 
     match /{document=**} {
