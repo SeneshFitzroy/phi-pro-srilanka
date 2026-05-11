@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { VoiceInput } from '@/components/voice-input';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -309,6 +310,12 @@ export default function ComplaintsPage() {
                 <div className="flex items-center justify-between">
                   <Label>Description <span className="text-red-500">*</span></Label>
                   <div className="flex items-center gap-2">
+                    <VoiceInput
+                      title="Dictate your complaint"
+                      onTranscript={(t) =>
+                        setForm((prev) => ({ ...prev, description: `${prev.description ? prev.description + ' ' : ''}${t}`.slice(0, MAX_DESC) }))
+                      }
+                    />
                     <FieldCheck valid={descLen >= MIN_DESC} />
                     <span className={`text-xs font-medium ${descLen > MAX_DESC ? 'text-red-500' : descLen >= MIN_DESC ? 'text-green-600' : 'text-muted-foreground'}`}>
                       {descLen}/{MAX_DESC}

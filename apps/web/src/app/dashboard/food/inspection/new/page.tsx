@@ -36,6 +36,7 @@ import { appendAuditEntry } from '@/lib/audit-chain';
 import { SyncStatus, InspectionStatus, PHIDomain } from '@phi-pro/shared';
 import { FormScanner } from '@/components/form-scanner';
 import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
+import { VoiceInput } from '@/components/voice-input';
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -722,12 +723,20 @@ export default function NewFoodInspectionPage() {
                 })}
               </div>
               <div className="mt-3">
-                <Label className="text-xs text-muted-foreground">Section Observations</Label>
+                <div className="mb-1 flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Section Observations</Label>
+                  <VoiceInput
+                    title="Dictate observations"
+                    onTranscript={(t) =>
+                      setNotes((prev) => ({ ...prev, [section.id]: `${prev[section.id] ? prev[section.id] + ' ' : ''}${t}` }))
+                    }
+                  />
+                </div>
                 <textarea
                   value={notes[section.id] || ''}
                   onChange={(e) => setNotes((prev) => ({ ...prev, [section.id]: e.target.value }))}
                   placeholder="Record observations for this section..."
-                  className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[56px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[56px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
               </div>
             </CardContent>
@@ -772,7 +781,13 @@ export default function NewFoodInspectionPage() {
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>Critical Violations / Improvement Items</Label>
+              <div className="flex items-center justify-between">
+                <Label>Critical Violations / Improvement Items</Label>
+                <VoiceInput
+                  title="Dictate violations"
+                  onTranscript={(t) => setCriticalViolationsText((prev) => `${prev ? prev + ' ' : ''}${t}`)}
+                />
+              </div>
               <textarea
                 value={criticalViolationsText}
                 onChange={(e) => setCriticalViolationsText(e.target.value)}
