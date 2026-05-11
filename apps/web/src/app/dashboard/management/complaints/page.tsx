@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, AlertTriangle, Search, Clock, MapPin, Eye } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Search, Clock, MapPin, Eye, Sparkles, ArrowUpDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { analyseComplaint, priorityRank, type TriagePriority } from '@/lib/sentiment';
 
 const COMPLAINTS = [
   { id: 'CMP-10234521', type: 'Food Safety Concern', desc: 'Cockroaches observed in kitchen area of restaurant. Unhygienic food handling practices.', location: '45 Main St, Colombo 07', area: 'Colombo North', reporter: 'Anonymous', date: '2025-02-10', status: 'new', priority: 'high', assigned: '-' },
@@ -28,15 +29,35 @@ const priorityColors: Record<string, string> = {
   low: 'bg-gray-100 text-gray-600',
 };
 
+const triageBadge: Record<TriagePriority, string> = {
+  high: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+  low: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+};
+
 export default function ComplaintsManagementPage() {
   const [filter, setFilter] = useState('all');
   const [searchQ, setSearchQ] = useState('');
+  const [sortBy, setSortBy] = useState<'triage' | 'date' | 'status'>('triage');
 
-  const filtered = COMPLAINTS.filter(c => {
-    const matchStatus = filter === 'all' || c.status === filter;
-    const matchSearch = !searchQ || c.desc.toLowerCase().includes(searchQ.toLowerCase()) || c.id.toLowerCase().includes(searchQ.toLowerCase());
-    return matchStatus && matchSearch;
-  });
+  // AI triage: negativity + urgency of the wording → suggested queue priority.
+  const withTriage = useMemo(
+    () => COMPLAINTS.map(c => ({ ...c, triage: analyseComplaint(`${c.type}. ${c.desc}`) })),
+    [],
+  );
+
+  const filtered = useMemo(() => {
+    const rows = withTriage.filter(c => {
+      const matchStatus = filter === 'all' || c.status === filter;
+      const matchSearch = !searchQ || c.desc.toLowerCase().includes(searchQ.toLowerCase()) || c.id.toLowerCase().includes(searchQ.toLowerCase());
+      return matchStatus && matchSearch;
+    });
+    if (sortBy === 'triage') return [...rows].sort((a, b) => priorityRank[a.triage.priority] - priorityRank[b.triage.priority] || a.triage.score - b.triage.score);
+    if (sortBy === 'date') return [...rows].sort((a, b) => b.date.localeCompare(a.date));
+    return [...rows].sort((a, b) => a.status.localeCompare(b.status));
+  }, [withTriage, filter, searchQ, sortBy]);
+
+  const aiHigh = withTriage.filter(c => c.triage.priority === 'high').length;
 
   return (
     <div className="space-y-6">
@@ -45,7 +66,7 @@ export default function ComplaintsManagementPage() {
           <Link href="/dashboard/management"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2"><AlertTriangle className="h-6 w-6 text-orange-500" />Complaints Management</h1>
-            <p className="text-sm text-muted-foreground">{COMPLAINTS.length} total complaints</p>
+            <p className="text-sm text-muted-foreground flex items-center gap-1.5">{COMPLAINTS.length} total · <Sparkles className="h-3 w-3 text-violet-500" /><span className="text-violet-600 dark:text-violet-400 font-medium">{aiHigh} flagged high-priority by AI triage</span></p>
           </div>
         </div>
       </div>
@@ -73,19 +94,33 @@ export default function ComplaintsManagementPage() {
         </div>
       </div>
 
+      {/* Sort */}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <ArrowUpDown className="h-3.5 w-3.5" /> Sort by:
+        {([['triage', 'AI priority'], ['date', 'Newest'], ['status', 'Status']] as const).map(([k, lbl]) => (
+          <button key={k} onClick={() => setSortBy(k)} className={`rounded-full px-2.5 py-0.5 font-semibold ${sortBy === k ? 'bg-violet-600 text-white' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800'}`}>{lbl}</button>
+        ))}
+      </div>
+
       <div className="space-y-3">
         {filtered.map(complaint => (
-          <Card key={complaint.id}>
+          <Card key={complaint.id} className={complaint.triage.priority === 'high' ? 'border-l-4 border-l-red-500' : complaint.triage.priority === 'medium' ? 'border-l-4 border-l-amber-400' : ''}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs text-muted-foreground">{complaint.id}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[complaint.status]}`}>{complaint.status}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColors[complaint.priority]}`}>{complaint.priority}</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${triageBadge[complaint.triage.priority]}`} title={`Negativity ${complaint.triage.score} · urgency ${complaint.triage.urgency}`}>
+                      <Sparkles className="h-3 w-3" /> AI: {complaint.triage.priority}
+                    </span>
                   </div>
                   <p className="font-medium text-sm">{complaint.type}</p>
                   <p className="text-sm text-muted-foreground">{complaint.desc}</p>
+                  {complaint.triage.terms.length > 0 && (
+                    <p className="text-[11px] text-muted-foreground">triage cues: {complaint.triage.terms.map(t => <span key={t} className="mr-1 rounded bg-slate-100 px-1.5 py-0.5 dark:bg-slate-800">{t}</span>)}</p>
+                  )}
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
                     <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{complaint.location}</span>
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{complaint.date}</span>
