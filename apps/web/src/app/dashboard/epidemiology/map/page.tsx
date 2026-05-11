@@ -7,6 +7,7 @@ import { ArrowLeft, MapPin, Layers, AlertTriangle, Box, Map } from 'lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { haversineDistance, DENGUE_CLUSTER_RADIUS_METRES } from '@phi-pro/shared';
+import { DengueRiskPanel } from '@/components/epidemiology/dengue-risk-panel';
 
 const DeckGLClusterMap = dynamic(
   () => import('@/components/epidemiology/deckgl-cluster-map').then((m) => ({ default: m.DeckGLClusterMap })),
@@ -241,6 +242,9 @@ if dist <= ${DENGUE_CLUSTER_RADIUS_METRES} → grouped into same cluster
           </p>
         </CardContent>
       </Card>
+
+      {/* Rainfall-driven dengue risk heat-map */}
+      <DengueRiskPanel />
 
       {/* Map mode toggle */}
       <div className="flex items-center gap-2">
