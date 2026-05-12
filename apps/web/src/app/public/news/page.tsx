@@ -67,6 +67,12 @@ export default function NewsPage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <a href="/public/health-news" className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm transition-colors hover:bg-blue-100 dark:border-blue-900/40 dark:bg-blue-950/20">
+          <span className="font-semibold text-blue-800 dark:text-blue-300">Looking for Sri Lanka health news? See the verified Health News feed &amp; claim checker →</span>
+        </a>
+      </section>
+
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-2">
           {items.map((it) => {
