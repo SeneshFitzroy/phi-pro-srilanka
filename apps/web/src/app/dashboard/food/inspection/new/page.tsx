@@ -38,6 +38,7 @@ import { FormScanner } from '@/components/form-scanner';
 import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
 import { VoiceInput } from '@/components/voice-input';
 import { SignaturePad } from '@/components/signature-pad';
+import { LiveObjectDetector } from '@/components/live-object-detector';
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -174,6 +175,7 @@ export default function NewFoodInspectionPage() {
   const [followUpDate, setFollowUpDate] = useState('');
   const [criticalViolationsText, setCriticalViolationsText] = useState('');
   const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
+  const [detectorOpen, setDetectorOpen] = useState(false);
 
   // ── The H800 grading algorithm runs live on every keystroke ──────────────
   const grading: H800GradingResult = useMemo(
@@ -624,6 +626,12 @@ export default function NewFoodInspectionPage() {
           handleScoreChange(sectionId as SectionId, itemId, 0, max);
         }}
       />
+      <div className="flex">
+        <Button type="button" variant="outline" size="sm" onClick={() => setDetectorOpen(true)} className="gap-2 border-violet-300 text-violet-700 hover:bg-violet-50 dark:text-violet-300">
+          <Camera className="h-4 w-4" /> Live object detection (experimental)
+        </Button>
+      </div>
+      <LiveObjectDetector open={detectorOpen} onClose={() => setDetectorOpen(false)} title="Food premises — live detection" />
 
       {/* ── SCORING SECTIONS ─────────────────────────────────────────── */}
       {SCORING_SECTIONS.map((section) => {

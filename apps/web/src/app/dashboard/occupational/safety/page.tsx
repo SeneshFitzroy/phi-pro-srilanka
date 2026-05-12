@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, ClipboardCheck, Printer } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Printer, ScanEye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LiveObjectDetector } from '@/components/live-object-detector';
 
 const safetySections = [
   {
@@ -62,6 +63,7 @@ const safetySections = [
 export default function SafetyInspectionPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+  const [detectorOpen, setDetectorOpen] = useState(false);
 
   // Calculate compliance score
   const total = safetySections.reduce((s, sec) => s + sec.items.length, 0);
@@ -79,10 +81,12 @@ export default function SafetyInspectionPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setDetectorOpen(true)}><ScanEye className="mr-2 h-4 w-4" />Live Detection</Button>
           <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
           <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
+      <LiveObjectDetector open={detectorOpen} onClose={() => setDetectorOpen(false)} title="Workplace safety — live detection" />
 
       {/* Compliance Score */}
       <Card>
