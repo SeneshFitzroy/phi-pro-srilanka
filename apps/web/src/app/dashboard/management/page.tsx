@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp, ShieldCheck, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { TeamWellbeingHeatmap } from '@/components/team-wellbeing-heatmap';
 
 const QUICK_ACTIONS = [
   { title: 'Pending Approvals', desc: 'Review & approve PHI submissions', icon: FileCheck, href: '/dashboard/management/approvals', count: 12, color: 'text-orange-500' },
@@ -96,6 +97,9 @@ export default function ManagementPage() {
           </table>
         </CardContent>
       </Card>
+
+      {/* Team wellbeing (anonymised) */}
+      <TeamWellbeingHeatmap />
     </div>
   );
 }
