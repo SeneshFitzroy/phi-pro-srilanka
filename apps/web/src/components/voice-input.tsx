@@ -31,7 +31,7 @@ interface Props {
 
 export function VoiceInput({ onTranscript, lang, className, title }: Props) {
   const { language } = useLanguage();
-  const [supported, setSupported] = useState(true);
+  const [supported, setSupported] = useState(false); // resolved after mount → no SSR/hydration mismatch
   const [listening, setListening] = useState(false);
   const recRef = useRef<SpeechRecognitionInstance | null>(null);
 

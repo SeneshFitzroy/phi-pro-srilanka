@@ -21,7 +21,7 @@ interface Cmd { phrases: string[]; label: string; run: () => void }
 export function VoiceCommands() {
   const router = useRouter();
   const { setLanguage } = useLanguage();
-  const [supported, setSupported] = useState(true);
+  const [supported, setSupported] = useState(false); // resolved after mount → no SSR/hydration mismatch
   const [listening, setListening] = useState(false);
   const [lastHeard, setLastHeard] = useState('');
   const recRef = useRef<SpeechRecognitionInstance | null>(null);

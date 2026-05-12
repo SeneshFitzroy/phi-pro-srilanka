@@ -38,13 +38,15 @@ function apply(s: A11ySettings) {
 
 export function AccessibilityMenu() {
   const { language } = useLanguage();
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [s, setS] = useState<A11ySettings>(DEFAULTS);
   const [speaking, setSpeaking] = useState(false);
   const ttsLang = language === 'si' ? 'si-LK' : language === 'ta' ? 'ta-LK' : 'en-US';
-  const hasTTS = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const hasTTS = mounted && typeof window !== 'undefined' && 'speechSynthesis' in window;
 
   useEffect(() => {
+    setMounted(true);
     try {
       const raw = localStorage.getItem(KEY);
       const loaded = raw ? { ...DEFAULTS, ...JSON.parse(raw) } as A11ySettings : DEFAULTS;
@@ -93,6 +95,8 @@ export function AccessibilityMenu() {
       <span className={`h-4 w-7 rounded-full transition-colors ${on ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}><span className={`block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-3.5' : 'translate-x-0.5'} mt-[1px]`} /></span>
     </button>
   );
+
+  if (!mounted) return null; // client-only overlay — avoids SSR/hydration mismatch
 
   return (
     <div className="print:hidden">

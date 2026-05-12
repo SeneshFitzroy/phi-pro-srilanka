@@ -99,6 +99,7 @@ function offlineAnswer(question: string, cache: Record<string, string>): string 
 
 export function AiAssistantFab() {
   const { language } = useLanguage();
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -107,6 +108,7 @@ export function AiAssistantFab() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
     setOnline(navigator.onLine);
     const on = () => setOnline(true);
     const off = () => setOnline(false);
@@ -158,6 +160,8 @@ export function AiAssistantFab() {
       setLoading(false);
     }
   }
+
+  if (!mounted) return null; // client-only overlay
 
   return (
     <div className="print:hidden">
