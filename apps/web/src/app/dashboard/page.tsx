@@ -16,6 +16,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { MentalHealthCheckin } from '@/components/mental-health-checkin';
 
 const statsCards = [
   {
@@ -145,6 +146,9 @@ export default function DashboardPage() {
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
       </div>
+
+      {/* Daily wellbeing check-in */}
+      <MentalHealthCheckin />
 
       {/* KPI Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
