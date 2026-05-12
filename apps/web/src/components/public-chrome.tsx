@@ -62,23 +62,30 @@ export function PublicHeader() {
 
       {/* Logo + language */}
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" aria-label="The Public Health Inspector's Union of Sri Lanka — home">
+          {/* Official wordmark (emblem + trilingual name) — the main logo */}
+          <span className="hidden sm:inline-flex dark:rounded-md dark:bg-white/95 dark:px-2 dark:py-1">
+            <Image
+              src="/phi-logo.png"
+              alt="The Public Health Inspector's Union of Sri Lanka"
+              width={718}
+              height={142}
+              className="h-11 w-auto drop-shadow-sm"
+              priority
+            />
+          </span>
+          {/* Compact emblem on small screens */}
           <Image
             src="/phi-emblem.png"
             alt="PHI Union of Sri Lanka emblem"
             width={48}
             height={48}
-            className="h-11 w-11 shrink-0 drop-shadow-sm sm:h-12 sm:w-12"
+            className="h-11 w-11 shrink-0 drop-shadow-sm sm:hidden"
             priority
           />
-          <div className="leading-tight">
-            <p className="text-[13px] font-extrabold uppercase tracking-tight text-slate-900 sm:text-[15px] dark:text-white">
-              The Public Health Inspector&apos;s Union of Sri Lanka
-            </p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              ශ්‍රී ලංකා මහජන සෞඛ්‍ය පරීක්ෂකවරුන්ගේ සංගමය · இலங்கை பொதுச் சுகாதார பரிசோதகர்கள் சங்கம்
-            </p>
-          </div>
+          <span className="text-[13px] font-extrabold uppercase leading-tight tracking-tight text-slate-900 sm:hidden dark:text-white">
+            The Public Health Inspector&apos;s Union of Sri Lanka
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           <div className="hidden overflow-hidden sm:block">
