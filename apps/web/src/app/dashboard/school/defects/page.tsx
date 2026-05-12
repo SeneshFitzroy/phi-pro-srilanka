@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { IcdAutocomplete } from '@/components/icd-autocomplete';
 
 interface StudentRecord {
   id: number;
@@ -17,16 +18,15 @@ interface StudentRecord {
   defects: string;
   action: string;
   referred: boolean;
+  icd: string;
 }
 
-export default function SchoolDefectsPage() {
-  const [records, setRecords] = useState<StudentRecord[]>([
-    { id: 1, name: '', grade: '1', age: '', gender: 'M', defects: '', action: '', referred: false },
-  ]);
+const blankRecord = (id: number): StudentRecord => ({ id, name: '', grade: '1', age: '', gender: 'M', defects: '', action: '', referred: false, icd: '' });
 
-  const addRecord = () => {
-    setRecords(prev => [...prev, { id: prev.length + 1, name: '', grade: '1', age: '', gender: 'M', defects: '', action: '', referred: false }]);
-  };
+export default function SchoolDefectsPage() {
+  const [records, setRecords] = useState<StudentRecord[]>([blankRecord(1)]);
+
+  const addRecord = () => { setRecords(prev => [...prev, blankRecord(prev.length + 1)]); };
 
   const removeRecord = (id: number) => { setRecords(prev => prev.filter(r => r.id !== id)); };
 
@@ -110,6 +110,12 @@ export default function SchoolDefectsPage() {
                 <div className="mt-2">
                   <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="rounded" checked={r.referred} onChange={(e) => updateRecord(r.id, 'referred', e.target.checked)} /> Referred to specialist</label>
                 </div>
+                {r.referred && (
+                  <div className="mt-2 space-y-1">
+                    <Label className="text-xs">Referral diagnosis — ICD-11 code (WHO)</Label>
+                    <IcdAutocomplete onSelect={(sel) => updateRecord(r.id, 'icd', sel ? `${sel.code} · ${sel.title}` : '')} placeholder="Type the condition…" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

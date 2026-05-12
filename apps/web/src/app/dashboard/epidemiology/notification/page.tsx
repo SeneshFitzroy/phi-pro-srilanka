@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { IcdAutocomplete } from '@/components/icd-autocomplete';
 
 const notifiableDiseases = [
   'Dengue Fever', 'Dengue Haemorrhagic Fever', 'Typhoid', 'Paratyphoid',
@@ -22,6 +23,7 @@ const notifiableDiseases = [
 
 export default function DiseaseNotificationPage() {
   const [disease, setDisease] = useState('');
+  const [icd, setIcd] = useState<{ code: string; title: string } | null>(null);
 
   return (
     <div className="space-y-6">
@@ -74,6 +76,11 @@ export default function DiseaseNotificationPage() {
                 <option value="">Select disease...</option>
                 {notifiableDiseases.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>ICD-11 Code (WHO)</Label>
+              <IcdAutocomplete onSelect={setIcd} initialQuery={disease} />
+              {icd && <input type="hidden" name="icd11" value={`${icd.code}|${icd.title}`} readOnly />}
             </div>
             <div className="space-y-2"><Label>Date of Onset *</Label><Input type="date" /></div>
             <div className="space-y-2"><Label>Date Notified</Label><Input type="date" /></div>
