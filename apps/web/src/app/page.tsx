@@ -1,17 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  UtensilsCrossed,
-  School,
-  Activity,
-  HardHat,
-  ClipboardList,
   ArrowRight,
   Shield,
   Globe,
-  Wifi,
-  MapPin,
-  Lock,
   Users,
   Calendar,
   Search,
@@ -19,94 +11,123 @@ import {
   AlertTriangle,
   CreditCard,
   CheckCircle,
-  FileText,
   ChevronDown,
-  Star,
   Phone,
   Newspaper,
+  Briefcase,
+  UserCheck,
+  Store,
+  MapPin,
+  ShieldCheck,
+  FileSearch,
+  Building2,
 } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
 /* ─────────────────────────────── data ─────────────────────────────── */
 
-const publicServices = [
-  {
-    icon: Search,
-    title: 'Food Hygiene Grades',
-    desc: 'Look up any restaurant, bakery, or food stall by name or area to check their official hygiene certification grade.',
-    href: '/public/food-grades',
-    iconGradient: 'from-emerald-500 to-green-600',
-    badge: 'Live',
-    badgeCls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
-    features: ['Grade A / B / C ratings', 'Search by name or area', 'Last inspection date'],
-  },
-  {
-    icon: AlertTriangle,
-    title: 'Disease Outbreak Alerts',
-    desc: 'View active dengue, cholera, and typhoid advisories in your area. Reported directly from field PHI officers.',
-    href: '/public/alerts',
-    iconGradient: 'from-red-500 to-rose-600',
-    badge: 'Real-time',
-    badgeCls: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300',
-    features: ['Critical / Warning / Info levels', 'Province & district alerts', 'Instant refresh'],
-  },
+// Top row — quick action buttons (3 prominent)
+const quickActions = [
   {
     icon: MessageSquare,
     title: 'Submit a Complaint',
-    desc: 'Report food safety violations, unhygienic premises, or disease concerns anonymously and securely.',
+    desc: 'Report food safety, hygiene, or outbreak concerns.',
     href: '/public/complaints',
-    iconGradient: 'from-blue-500 to-indigo-600',
     badge: 'Anonymous',
-    badgeCls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
-    features: ['Fully anonymous option', '12 complaint categories', 'Track with reference ID'],
+    accent: 'from-[#7a1a1a] to-[#5e1212]',
   },
   {
     icon: CheckCircle,
     title: 'Verify a Certificate',
-    desc: 'Instantly verify the authenticity of any PHI-issued health permit or compliance certificate by QR scan or ID.',
+    desc: 'Confirm a PHI-issued permit by QR scan or reference ID.',
     href: '/public/verify',
-    iconGradient: 'from-teal-500 to-cyan-600',
     badge: 'Instant',
-    badgeCls: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300',
-    features: ['Food premises, factory & trade', 'Complaint tracking IDs', 'Live database lookup'],
+    accent: 'from-[#8a2a2a] to-[#6e1818]',
   },
   {
     icon: CreditCard,
     title: 'Pay Fine or Fee',
-    desc: 'Settle permit renewal fees or compliance fines securely online through the Government GovPay gateway.',
+    desc: 'Settle permits and compliance fines via PayHere.',
     href: '/public/payments',
-    iconGradient: 'from-amber-500 to-orange-500',
     badge: 'GovPay',
-    badgeCls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
-    features: ['Full fee schedule', 'Online payment submission', 'MOH office locations'],
+    accent: 'from-[#9a3a3a] to-[#7a1a1a]',
+  },
+];
+
+// Bottom row — map-driven services (2 only)
+const mapServices = [
+  {
+    icon: Search,
+    title: 'Food Hygiene Grades',
+    desc: 'Interactive map of every PHIPRO-verified food premises in your district — Grade A, B and C with last inspection date.',
+    href: '/public/food-grades',
+    badge: 'Live Map',
+    accent: 'from-emerald-600 to-emerald-800',
+    features: ['Grade A / B / C ratings', 'Verified by PHIPRO', 'Search by name or area'],
   },
   {
-    icon: FileText,
-    title: 'Published Health Reports',
-    desc: 'Access official inspection summaries, surveillance bulletins, and public health statistics by district.',
-    href: '/public/reports',
-    iconGradient: 'from-violet-500 to-purple-600',
-    badge: 'Open Data',
-    badgeCls: 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300',
-    features: ['Food, epi & environmental', 'Downloadable reports', 'MOH area data'],
+    icon: AlertTriangle,
+    title: 'Disease Outbreak Map',
+    desc: 'Real-time dengue, cholera and typhoid hotspots reported by field PHI officers across Sri Lanka.',
+    href: '/public/alerts',
+    badge: 'Real-time',
+    accent: 'from-red-600 to-rose-800',
+    features: ['Critical / Warning / Info', 'GN-division precision', 'Rainfall-risk overlay'],
   },
 ];
 
-const domains = [
-  { icon: UtensilsCrossed, label: 'Food Safety', color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/40', desc: 'H800 inspections & grading' },
-  { icon: Activity, label: 'Epidemiology', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/40', desc: 'Disease surveillance' },
-  { icon: School, label: 'School Health', color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950/40', desc: 'Vaccinations & WASH' },
-  { icon: HardHat, label: 'Occupational', color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/40', desc: 'Factory inspections' },
-  { icon: ClipboardList, label: 'Administration', color: 'text-violet-600', bg: 'bg-violet-50 dark:bg-violet-950/40', desc: 'Reports & analytics' },
-];
-
-const trustPoints = [
-  { icon: Wifi, label: 'Offline-first', sub: 'Works without internet' },
-  { icon: Globe, label: 'Trilingual', sub: 'Sinhala · Tamil · English' },
-  { icon: Lock, label: 'Secure RBAC', sub: '4-tier access control' },
-  { icon: MapPin, label: 'GIS-enabled', sub: 'Real-time disease maps' },
-  { icon: Shield, label: 'WCAG 2.1 AA', sub: 'Fully accessible' },
-  { icon: Star, label: 'FHIR R4', sub: 'DHIS2 interoperability' },
+const personas = [
+  {
+    icon: UserCheck,
+    title: 'PHI · SPHI · MOH Officers',
+    tag: 'Field & Supervisory',
+    desc: 'Conduct inspections, file H-series statutory forms, run epidemiological surveillance, approve permits, and analyse compliance trends across MOH areas.',
+    features: [
+      'H800 / H1046 / H1203 / H399 digital forms',
+      'Offline-first field inspection on tablet',
+      'GIS disease maps + outbreak triage',
+      'Tamper-evident audit chain (SHA-256)',
+      'AI compliance copilot (Sinhala/Tamil)',
+      'Role-based dashboards (PHI < SPHI < MOH)',
+    ],
+    accent: 'from-[#7a1a1a] to-[#5e1212]',
+    cta: 'PHI Officer Login',
+    href: '/login',
+  },
+  {
+    icon: Store,
+    title: 'Business Owners',
+    tag: 'Food premises · Factories · Trades',
+    desc: 'Track your inspection grade, pay permit renewals online, download certificates, and respond to improvement notices — all in one portal.',
+    features: [
+      'View your current Grade A/B/C status',
+      'Renew Food / Trade / Factory permits',
+      'Download signed permits as PDF + QR',
+      'Pay fines via PayHere (sandbox-ready)',
+      'Receive improvement-notice alerts',
+      'Single source of truth — no paperwork',
+    ],
+    accent: 'from-amber-600 to-orange-700',
+    cta: 'Pay or Renew',
+    href: '/public/payments',
+  },
+  {
+    icon: Users,
+    title: 'General Public',
+    tag: 'Citizens of Sri Lanka',
+    desc: 'Check where it is safe to eat, see what disease outbreaks are active near you, and report unsafe premises anonymously to your local PHI office.',
+    features: [
+      'Restaurant hygiene grade lookup',
+      'Active outbreak alerts in your district',
+      'Anonymous complaint submission',
+      'Verify any certificate via QR',
+      'Public health hotline & PHI directory',
+      'Trilingual: English · සිංහල · தமிழ்',
+    ],
+    accent: 'from-blue-700 to-indigo-800',
+    cta: 'Public Portal',
+    href: '#services',
+  },
 ];
 
 const steps = [
@@ -315,11 +336,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ PUBLIC SERVICES ═══════════════════ */}
+      {/* ═══════════════════ PUBLIC SERVICES (3 actions + 2 maps) ═══════════════════ */}
       <section id="services" className="scroll-mt-16 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#7a1a1a] dark:text-rose-300">
               Public Health Portal
             </p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
@@ -330,42 +351,62 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {publicServices.map((s) => (
+          {/* Top row — 3 prominent action buttons */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {quickActions.map((s) => (
               <Link
                 key={s.title}
                 href={s.href}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                className={`group relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br ${s.accent} p-5 text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl sm:p-6`}
               >
-                {/* Top accent bar */}
-                <div className={`h-1 w-full bg-gradient-to-r ${s.iconGradient}`} />
-
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  {/* Icon + badge row */}
-                  <div className="flex items-start justify-between">
-                    <div className={`inline-flex rounded-2xl bg-gradient-to-br ${s.iconGradient} p-3 shadow-sm`}>
-                      <s.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide ${s.badgeCls}`}>
+                <div className="inline-flex shrink-0 rounded-xl bg-white/15 p-3 backdrop-blur-sm ring-1 ring-white/20">
+                  <s.icon className="h-6 w-6 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[15px] font-bold sm:text-base">{s.title}</h3>
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
                       {s.badge}
                     </span>
                   </div>
+                  <p className="mt-1 text-xs leading-relaxed text-white/85 sm:text-[13px]">{s.desc}</p>
+                </div>
+                <ArrowRight className="h-5 w-5 shrink-0 text-white/80 transition-transform group-hover:translate-x-1" />
+              </Link>
+            ))}
+          </div>
 
-                  <h3 className="mt-4 text-[15px] font-bold text-slate-900 dark:text-white">{s.title}</h3>
+          {/* Map row — 2 wider cards */}
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            {mapServices.map((s) => (
+              <Link
+                key={s.title}
+                href={s.href}
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div className={`h-1 w-full bg-gradient-to-r ${s.accent}`} />
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex items-start justify-between">
+                    <div className={`inline-flex rounded-2xl bg-gradient-to-br ${s.accent} p-3 shadow-sm`}>
+                      <s.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      <MapPin className="-mt-0.5 mr-1 inline h-2.5 w-2.5" />
+                      {s.badge}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{s.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{s.desc}</p>
-
-                  {/* Feature bullets */}
-                  <ul className="mt-3 flex-1 space-y-1">
+                  <ul className="mt-4 flex-1 space-y-1.5">
                     {s.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
-                        <div className={`h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br ${s.iconGradient}`} />
+                      <li key={f} className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <div className={`h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br ${s.accent}`} />
                         {f}
                       </li>
                     ))}
                   </ul>
-
-                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-blue-700 dark:text-blue-400">
-                    Open portal
+                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-[#7a1a1a] dark:text-rose-300">
+                    Open interactive map
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5" />
                   </div>
                 </div>
@@ -395,65 +436,92 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ 5 DOMAINS ═══════════════════ */}
+      {/* ═══════════════════ THREE USER PERSONAS ═══════════════════ */}
       <section className="border-t border-slate-200 bg-slate-50/60 py-20 dark:border-slate-800 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
-              Our Scope
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#7a1a1a] dark:text-rose-300">
+              Who PHI-PRO is for
             </p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Five Statutory PHI Domains
+              Three Audiences. One Platform.
             </h2>
             <p className="mt-3 text-base text-slate-500 dark:text-slate-400">
-              Every area of public health enforcement, now fully digitised
+              From the field officer to the business owner to the citizen — every stakeholder served on one secure platform.
             </p>
           </div>
 
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-            {domains.map((d) => (
+          <div className="grid gap-6 md:grid-cols-3">
+            {personas.map((p) => (
               <div
-                key={d.label}
-                className={`flex flex-col items-center gap-3 rounded-2xl border border-slate-200/80 ${d.bg} px-4 py-6 text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800`}
+                key={p.title}
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
               >
-                <div className={`inline-flex rounded-xl bg-white/80 p-3 shadow-sm dark:bg-slate-800/80`}>
-                  <d.icon className={`h-6 w-6 ${d.color}`} />
+                {/* Header band */}
+                <div className={`relative bg-gradient-to-br ${p.accent} p-6 text-white`}>
+                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+                  <div className="relative">
+                    <div className="inline-flex rounded-xl bg-white/15 p-2.5 ring-1 ring-white/25 backdrop-blur-sm">
+                      <p.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-white/80">{p.tag}</p>
+                    <h3 className="mt-1 text-xl font-extrabold">{p.title}</h3>
+                  </div>
                 </div>
-                <div>
-                  <p className={`text-sm font-bold ${d.color}`}>{d.label}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{d.desc}</p>
+
+                {/* Body */}
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">{p.desc}</p>
+                  <ul className="mt-4 flex-1 space-y-2">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-[13px] text-slate-700 dark:text-slate-300">
+                        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={p.href}
+                    className={`mt-5 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r ${p.accent} px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-110`}
+                  >
+                    {p.cta}
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ═══════════════════ PLATFORM TRUST ═══════════════════ */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
-              Platform Standards
-            </p>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Built on Trust &amp; Reliability
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {trustPoints.map((t) => (
-              <div
-                key={t.label}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/50">
-                  <t.icon className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-                </div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">{t.label}</p>
-                <p className="text-[10px] leading-tight text-slate-500 dark:text-slate-500">{t.sub}</p>
+          {/* Flow connector — visual diagram */}
+          <div className="mt-12 grid items-center gap-4 sm:grid-cols-5">
+            <div className="flex items-center justify-center sm:col-span-1">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#7a1a1a] text-white shadow-md">
+                <Briefcase className="h-6 w-6" />
               </div>
-            ))}
+            </div>
+            <div className="hidden text-center text-[#7a1a1a] sm:block">
+              <ArrowRight className="mx-auto h-5 w-5" />
+            </div>
+            <div className="flex items-center justify-center sm:col-span-1">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-900 text-white shadow-md">
+                <Building2 className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="hidden text-center text-[#7a1a1a] sm:block">
+              <ArrowRight className="mx-auto h-5 w-5" />
+            </div>
+            <div className="flex items-center justify-center sm:col-span-1">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md">
+                <FileSearch className="h-6 w-6" />
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 grid gap-1 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:grid-cols-5">
+            <span>PHI files report</span>
+            <span className="hidden sm:block" />
+            <span>MOH validates</span>
+            <span className="hidden sm:block" />
+            <span>Public sees outcome</span>
           </div>
         </div>
       </section>
