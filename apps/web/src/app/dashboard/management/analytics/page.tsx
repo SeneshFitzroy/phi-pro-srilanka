@@ -158,8 +158,8 @@ function AnalyticsContent() {
       {/* PHI Performance Table */}
       <Card>
         <CardHeader><CardTitle className="text-base">PHI Officer Performance</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-sm">
+        <CardContent className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b text-left text-muted-foreground">
                 <th className="pb-2 font-medium">Officer</th>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
-import { Shield, Globe, History, Users } from 'lucide-react';
+import { Shield, Globe, History, Users, ExternalLink } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'About Us | The Public Health Inspector\'s Union of Sri Lanka',
@@ -13,6 +13,24 @@ const officeBearers = [
   { role: 'Hon. President', name: 'K.A.P. Boralessa' },
   { role: 'Hon. Secretary', name: 'M.A.A.D.S. Muthukuda' },
   { role: 'Hon. Treasurer', name: 'M.A.C. Prasad' },
+];
+
+const worldwidePeers: Array<{ region: string; country: string; name: string; abbr: string; url: string }> = [
+  { region: 'Global',         country: 'International',     name: 'International Federation of Environmental Health',         abbr: 'IFEH',  url: 'https://www.ifeh.org/' },
+  { region: 'Global',         country: 'WHO',               name: 'World Health Organization',                                 abbr: 'WHO',   url: 'https://www.who.int/' },
+  { region: 'Asia',           country: 'Sri Lanka',         name: 'Ministry of Health',                                        abbr: 'MOH',   url: 'https://www.health.gov.lk/' },
+  { region: 'Asia',           country: 'Sri Lanka',         name: 'Epidemiology Unit',                                         abbr: 'Epid',  url: 'https://www.epid.gov.lk/' },
+  { region: 'Asia',           country: 'India',             name: 'National Institute of Health and Family Welfare',          abbr: 'NIHFW', url: 'https://nihfw.org/' },
+  { region: 'Asia',           country: 'Singapore',         name: 'National Environment Agency',                               abbr: 'NEA',   url: 'https://www.nea.gov.sg/' },
+  { region: 'Asia',           country: 'Hong Kong',         name: 'Food and Environmental Hygiene Department',                abbr: 'FEHD',  url: 'https://www.fehd.gov.hk/' },
+  { region: 'Asia',           country: 'Malaysia',          name: 'Ministry of Health Malaysia',                               abbr: 'MOH',   url: 'https://www.moh.gov.my/' },
+  { region: 'Europe',         country: 'United Kingdom',    name: 'Chartered Institute of Environmental Health',              abbr: 'CIEH',  url: 'https://www.cieh.org/' },
+  { region: 'Europe',         country: 'Republic of Ireland', name: 'Environmental Health Officers Association',              abbr: 'EHOA',  url: 'https://www.ehoa.ie/' },
+  { region: 'North America',  country: 'United States',     name: 'National Environmental Health Association',                 abbr: 'NEHA',  url: 'https://www.neha.org/' },
+  { region: 'North America',  country: 'Canada',            name: 'Canadian Institute of Public Health Inspectors',           abbr: 'CIPHI', url: 'https://www.ciphi.ca/' },
+  { region: 'Oceania',        country: 'Australia',         name: 'Environmental Health Australia',                            abbr: 'EHA',   url: 'https://www.eh.org.au/' },
+  { region: 'Oceania',        country: 'New Zealand',       name: 'NZ Institute of Environmental Health',                      abbr: 'NZIEH', url: 'https://nzieh.org.nz/' },
+  { region: 'Africa',         country: 'South Africa',      name: 'SA Institute of Environmental Health',                      abbr: 'SAIEH', url: 'https://www.saieh.org.za/' },
 ];
 
 const milestones = [
@@ -98,6 +116,47 @@ export default function AboutPage() {
               <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{o.name}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Worldwide PHI bodies */}
+      <section className="border-t border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-2 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-blue-700 dark:text-blue-400" />
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Public Health Inspector Bodies Worldwide</h2>
+          </div>
+          <p className="mb-8 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+            PHI / Environmental Health Officer professional associations and public health regulators worldwide.
+            Links open in a new tab.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {worldwidePeers.map((p) => (
+              <a
+                key={p.url}
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700"
+              >
+                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[10px] font-bold tracking-tight text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+                  {p.abbr}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {p.region} &middot; {p.country}
+                  </p>
+                  <p className="mt-0.5 break-words text-sm font-semibold leading-snug text-slate-900 dark:text-white">
+                    {p.name}
+                  </p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-blue-700 group-hover:underline dark:text-blue-400">
+                    Visit site <ExternalLink className="h-3 w-3" />
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
