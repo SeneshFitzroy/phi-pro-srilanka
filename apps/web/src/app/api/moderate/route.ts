@@ -1,29 +1,35 @@
 // ============================================================================
 // /api/moderate — toxicity / spam screening for public submissions (complaints).
-// Primary: Google Perspective API (set PERSPECTIVE_API_KEY — free, generous quota).
-// Fallback (no key): a lightweight heuristic so the feature still works.
+// Primary  : OpenAI Moderation API   (FREE — no extra cost, uses OPENAI_API_KEY)
+// Fallback : lightweight local heuristic so the feature still works offline.
 // Always returns 200 with a verdict; the caller decides whether to soft-block.
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
+const { OPENAI_API_KEY } = process.env;
 
 interface Verdict {
   allowed: boolean;
-  source: 'perspective' | 'heuristic';
+  source: 'openai' | 'heuristic';
   scores: Record<string, number>; // 0..1
   reason: string | null;
   flagged: string[];              // attributes that crossed the threshold
 }
 
-const THRESHOLDS: Record<string, number> = {
-  TOXICITY: 0.85,
-  SEVERE_TOXICITY: 0.7,
-  THREAT: 0.7,
-  INSULT: 0.85,
-  PROFANITY: 0.9,
-  SPAM: 0.9,
+// OpenAI returns 11 category scores; map to PHI-PRO thresholds.
+const OPENAI_THRESHOLDS: Record<string, number> = {
+  harassment: 0.85,
+  'harassment/threatening': 0.7,
+  hate: 0.85,
+  'hate/threatening': 0.7,
+  'self-harm': 0.85,
+  'self-harm/intent': 0.7,
+  'self-harm/instructions': 0.7,
+  sexual: 0.9,
+  'sexual/minors': 0.5,
+  violence: 0.85,
+  'violence/graphic': 0.85,
 };
 
 function heuristic(text: string): Verdict {
@@ -60,35 +66,41 @@ export async function POST(req: NextRequest) {
   try { text = String((await req.json())?.text ?? '').slice(0, 4000); } catch { /* */ }
   if (!text.trim()) return NextResponse.json({ allowed: true, source: 'heuristic', scores: {}, reason: null, flagged: [] } satisfies Verdict);
 
-  if (PERSPECTIVE_API_KEY) {
+  // ── Primary: OpenAI Moderation API (FREE — no separate billing) ─────────
+  if (OPENAI_API_KEY) {
     try {
-      const res = await fetch(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${PERSPECTIVE_API_KEY}`, {
+      const res = await fetch('https://api.openai.com/v1/moderations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          comment: { text },
-          languages: ['en'],
-          doNotStore: true,
-          requestedAttributes: { TOXICITY: {}, SEVERE_TOXICITY: {}, THREAT: {}, INSULT: {}, PROFANITY: {}, SPAM: {} },
-        }),
+        headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'omni-moderation-latest', input: text }),
       });
       if (res.ok) {
-        const data = (await res.json()) as { attributeScores?: Record<string, { summaryScore: { value: number } }> };
-        const scores: Record<string, number> = {};
-        const flagged: string[] = [];
-        for (const [attr, v] of Object.entries(data.attributeScores ?? {})) {
-          const value = v.summaryScore.value;
-          scores[attr] = value;
-          if (value >= (THRESHOLDS[attr] ?? 1)) flagged.push(attr);
+        const data = (await res.json()) as {
+          results?: Array<{
+            flagged: boolean;
+            categories: Record<string, boolean>;
+            category_scores: Record<string, number>;
+          }>;
+        };
+        const r = data.results?.[0];
+        if (r) {
+          const scores: Record<string, number> = {};
+          const flagged: string[] = [];
+          for (const [attr, value] of Object.entries(r.category_scores)) {
+            scores[attr] = value;
+            if (value >= (OPENAI_THRESHOLDS[attr] ?? 1)) flagged.push(attr);
+          }
+          const allowed = flagged.length === 0 && !r.flagged;
+          return NextResponse.json({
+            allowed,
+            source: 'openai',
+            scores,
+            reason: allowed
+              ? null
+              : `Submission flagged (${flagged.length ? flagged.join(', ') : 'policy violation'}). Please rephrase factually and without abusive language.`,
+            flagged,
+          } satisfies Verdict);
         }
-        const allowed = flagged.length === 0;
-        return NextResponse.json({
-          allowed,
-          source: 'perspective',
-          scores,
-          reason: allowed ? null : `Submission flagged (${flagged.map((f) => f.toLowerCase().replace('_', ' ')).join(', ')}). Please rephrase factually and without abusive language.`,
-          flagged,
-        } satisfies Verdict);
       }
     } catch { /* fall through to heuristic */ }
   }

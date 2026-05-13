@@ -135,7 +135,7 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
-            {greeting()}, {user?.displayName?.split(' ')[0] || 'Officer'} 👋
+            {greeting()}, {user?.displayName?.split(' ')[0] || 'Officer'}
           </h1>
           <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
             {t('dashboard.overview') || 'Here\'s what\'s happening in your PHI area today'}
