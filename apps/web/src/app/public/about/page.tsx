@@ -16,21 +16,12 @@ const officeBearers = [
 ];
 
 const worldwidePeers: Array<{ region: string; country: string; name: string; abbr: string; url: string }> = [
-  { region: 'Global',         country: 'International',     name: 'International Federation of Environmental Health',         abbr: 'IFEH',  url: 'https://www.ifeh.org/' },
-  { region: 'Global',         country: 'WHO',               name: 'World Health Organization',                                 abbr: 'WHO',   url: 'https://www.who.int/' },
-  { region: 'Asia',           country: 'Sri Lanka',         name: 'Ministry of Health',                                        abbr: 'MOH',   url: 'https://www.health.gov.lk/' },
-  { region: 'Asia',           country: 'Sri Lanka',         name: 'Epidemiology Unit',                                         abbr: 'Epid',  url: 'https://www.epid.gov.lk/' },
-  { region: 'Asia',           country: 'India',             name: 'National Institute of Health and Family Welfare',          abbr: 'NIHFW', url: 'https://nihfw.org/' },
-  { region: 'Asia',           country: 'Singapore',         name: 'National Environment Agency',                               abbr: 'NEA',   url: 'https://www.nea.gov.sg/' },
-  { region: 'Asia',           country: 'Hong Kong',         name: 'Food and Environmental Hygiene Department',                abbr: 'FEHD',  url: 'https://www.fehd.gov.hk/' },
-  { region: 'Asia',           country: 'Malaysia',          name: 'Ministry of Health Malaysia',                               abbr: 'MOH',   url: 'https://www.moh.gov.my/' },
-  { region: 'Europe',         country: 'United Kingdom',    name: 'Chartered Institute of Environmental Health',              abbr: 'CIEH',  url: 'https://www.cieh.org/' },
-  { region: 'Europe',         country: 'Republic of Ireland', name: 'Environmental Health Officers Association',              abbr: 'EHOA',  url: 'https://www.ehoa.ie/' },
-  { region: 'North America',  country: 'United States',     name: 'National Environmental Health Association',                 abbr: 'NEHA',  url: 'https://www.neha.org/' },
-  { region: 'North America',  country: 'Canada',            name: 'Canadian Institute of Public Health Inspectors',           abbr: 'CIPHI', url: 'https://www.ciphi.ca/' },
-  { region: 'Oceania',        country: 'Australia',         name: 'Environmental Health Australia',                            abbr: 'EHA',   url: 'https://www.eh.org.au/' },
-  { region: 'Oceania',        country: 'New Zealand',       name: 'NZ Institute of Environmental Health',                      abbr: 'NZIEH', url: 'https://nzieh.org.nz/' },
-  { region: 'Africa',         country: 'South Africa',      name: 'SA Institute of Environmental Health',                      abbr: 'SAIEH', url: 'https://www.saieh.org.za/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Ministry of Health',                                                 abbr: 'MOH',    url: 'https://www.health.gov.lk/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Epidemiology Unit',                                                  abbr: 'Epid',   url: 'https://www.epid.gov.lk/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Health Promotion Bureau',                                            abbr: 'HPB',    url: 'https://www.hpb.health.gov.lk/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Family Health Bureau',                                               abbr: 'FHB',    url: 'https://fhb.health.gov.lk/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'National Institute of Health Sciences',                              abbr: 'NIHS',   url: 'https://nihs.health.gov.lk/' },
+  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'College of Community Physicians of Sri Lanka',                       abbr: 'CCPSL',  url: 'https://ccpsl.lk/' },
 ];
 
 const milestones = [
@@ -119,15 +110,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Worldwide PHI bodies */}
+      {/* Sri Lanka public-health bodies */}
       <section className="border-t border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-2 flex items-center gap-2">
             <Globe className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Public Health Inspector Bodies Worldwide</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Sri Lanka Public Health Bodies</h2>
           </div>
           <p className="mb-8 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            PHI / Environmental Health Officer professional associations and public health regulators worldwide.
+            Official Ministry of Health agencies and professional bodies that PHIs work alongside across Sri Lanka.
             Links open in a new tab.
           </p>
 
