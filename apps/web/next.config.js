@@ -7,9 +7,14 @@ const nextConfig = {
   transpilePackages: ['@phi-pro/shared'],
   images: {
     domains: ['firebasestorage.googleapis.com', 'lh3.googleusercontent.com'],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
   },
+  compress: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts'],
+    optimizePackageImports: ['lucide-react', 'recharts', '@radix-ui/react-icons', 'date-fns'],
     serverComponentsExternalPackages: ['onnxruntime-node', 'sharp'],
   },
   webpack: (config, { isServer }) => {
