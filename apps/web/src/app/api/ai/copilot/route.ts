@@ -1,12 +1,15 @@
 // ============================================================================
 // PHI-PRO Compliance Copilot API — Agentic RAG for Sri Lankan Health Law
-// Primary: Claude Haiku 4.5 | Fallback: GPT-4o-mini
+// Primary    : Groq Llama 3.3 70B      (FREE — 14,400 req/day, fastest)
+// Secondary  : Google Gemini 1.5 Flash (FREE — 1500 req/day, native Sinhala/Tamil)
+// Tertiary   : Anthropic Claude Haiku  (when ANTHROPIC_API_KEY set)
+// Quaternary : OpenAI GPT-4o-mini      (when OPENAI_API_KEY set)
 // Covers: Food Act No.26/1980, Factories Ordinance, H800 SOP, PDPA 2022
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const { ANTHROPIC_API_KEY, OPENAI_API_KEY } = process.env;
+const { GROQ_API_KEY, GEMINI_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY } = process.env;
 
 const SYSTEM_PROMPT = `You are the PHI-PRO Compliance Copilot — an expert assistant for Sri Lanka Public Health Inspectors (PHIs) operating under the Ministry of Health.
 
@@ -39,9 +42,9 @@ interface Message {
 }
 
 export async function POST(req: NextRequest) {
-  if (!ANTHROPIC_API_KEY && !OPENAI_API_KEY) {
+  if (!GROQ_API_KEY && !GEMINI_API_KEY && !ANTHROPIC_API_KEY && !OPENAI_API_KEY) {
     return NextResponse.json(
-      { error: 'Copilot unavailable — add ANTHROPIC_API_KEY or OPENAI_API_KEY to .env.local' },
+      { error: 'Copilot unavailable — add GROQ_API_KEY, GEMINI_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY to .env.local' },
       { status: 503 },
     );
   }
@@ -57,7 +60,69 @@ export async function POST(req: NextRequest) {
     const system = SYSTEM_PROMPT + langInstruction;
     const recentMessages = messages.slice(-10);
 
-    // Primary: Anthropic Claude Haiku
+    // ── Primary: Groq Llama 3.3 70B (FREE — 14,400 req/day, fastest inference) ──
+    if (GROQ_API_KEY) {
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            max_tokens: 1024,
+            temperature: 0.4,
+            messages: [{ role: 'system', content: system }, ...recentMessages],
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json() as { choices: Array<{ message: { content: string } }> };
+          const answer = data.choices?.[0]?.message?.content;
+          if (answer) {
+            return NextResponse.json({
+              answer,
+              model: 'llama-3.3-70b (groq)',
+              timestamp: new Date().toISOString(),
+            });
+          }
+        }
+      } catch { /* fall through to next provider */ }
+    }
+
+    // ── Secondary: Google Gemini 1.5 Flash (FREE — 1500 req/day) ───────────
+    if (GEMINI_API_KEY) {
+      try {
+        const geminiContents = recentMessages.map((m) => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        }));
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: system }] },
+              contents: geminiContents,
+              generationConfig: { maxOutputTokens: 1024, temperature: 0.4 },
+            }),
+          },
+        );
+        if (res.ok) {
+          const data = await res.json() as {
+            candidates?: Array<{ content: { parts: Array<{ text: string }> } }>;
+          };
+          const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (answer) {
+            return NextResponse.json({
+              answer,
+              model: 'gemini-1.5-flash',
+              timestamp: new Date().toISOString(),
+            });
+          }
+        }
+      } catch { /* fall through to next provider */ }
+    }
+
+    // ── Tertiary: Anthropic Claude Haiku ───────────────────────────────────
     if (ANTHROPIC_API_KEY) {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -70,7 +135,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Fallback: OpenAI GPT-4o-mini
+    // ── Quaternary: OpenAI GPT-4o-mini ─────────────────────────────────────
     if (OPENAI_API_KEY) {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',

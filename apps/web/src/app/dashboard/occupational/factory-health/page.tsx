@@ -132,7 +132,7 @@ export default function FactoryHealthPage() {
         <CardHeader><CardTitle className="text-base">Inspecting Officer&apos;s Signature</CardTitle></CardHeader>
         <CardContent>
           <SignaturePad onChange={setSignature} className="max-w-md" />
-          <p className="mt-2 text-xs text-muted-foreground">{signature ? '✓ Signature captured.' : 'Sign before submitting the H1203 report.'}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{signature ? 'Signature captured.' : 'Sign before submitting the H1203 report.'}</p>
         </CardContent>
       </Card>
     </div>

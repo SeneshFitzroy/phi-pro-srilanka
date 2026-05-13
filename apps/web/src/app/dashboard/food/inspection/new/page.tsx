@@ -821,7 +821,7 @@ export default function NewFoodInspectionPage() {
         <CardContent>
           <SignaturePad onChange={setInspectorSignature} label={`Sign — ${user?.email ?? 'PHI officer'}`} className="max-w-md" />
           <p className="mt-2 text-xs text-muted-foreground">
-            {inspectorSignature ? '✓ Signature captured — will be stored with this inspection.' : 'Optional but recommended before submitting. Stored with the record and shown on issued certificates.'}
+            {inspectorSignature ? 'Signature captured. Will be stored with this inspection.' : 'Optional but recommended before submitting. Stored with the record and shown on issued certificates.'}
           </p>
         </CardContent>
       </Card>
