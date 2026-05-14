@@ -152,6 +152,27 @@ html.a11y-reduce-motion *, html.a11y-reduce-motion *::before, html.a11y-reduce-m
   scroll-behavior: auto !important;
 }
 
+/* Respect OS-level reduced-motion preference too */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen-reader-only — used by skip-link */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.sr-only-focusable:focus {
+  position: fixed; top: 0.5rem; left: 0.5rem; z-index: 100;
+  padding: 0.5rem 0.75rem; background: #1d4ed8; color: white; border-radius: 0.375rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.875rem; font-weight: 600;
+}
+
 /* High-contrast: force strong fg/bg, heavier borders, visible focus. */
 html.a11y-contrast,
 html.a11y-contrast body { background: #000 !important; color: #fff !important; }
@@ -217,7 +238,7 @@ button:disabled, [aria-disabled="true"], .pointer-events-none[disabled] { cursor
 /* Tighter, classier <kbd> */
 kbd { font-feature-settings: 'tnum'; }
 
-/* Smooth the splash → app handoff and route transitions */
+/* Smooth route transitions */
 main { animation: fadein .22s ease-out; }
 @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 html.a11y-reduce-motion main, html.a11y-reduce-motion .card-interactive, html.a11y-reduce-motion .skeleton { animation: none !important; transition: none !important; }

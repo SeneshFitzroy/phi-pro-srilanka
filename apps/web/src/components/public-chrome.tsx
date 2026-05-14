@@ -60,16 +60,20 @@ export function PublicHeader() {
       </div>
 
       {/* Logo + language */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="The Public Health Inspector's Union of Sri Lanka — home">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-3"
+          aria-label="The Public Health Inspector's Union of Sri Lanka — home"
+        >
           {/* Official wordmark (emblem + trilingual name) — the main logo */}
-          <span className="hidden sm:inline-flex dark:rounded-md dark:bg-white/95 dark:px-2 dark:py-1">
+          <span className="hidden sm:inline-flex dark:rounded-md dark:bg-white/95 dark:p-1.5">
             <Image
               src="/phi-logo.png"
               alt="The Public Health Inspector's Union of Sri Lanka"
               width={718}
               height={142}
-              className="h-14 w-auto drop-shadow-sm sm:h-16"
+              className="h-12 w-auto drop-shadow-sm md:h-14 lg:h-[60px]"
               priority
             />
           </span>
@@ -79,14 +83,14 @@ export function PublicHeader() {
             alt="PHI Union of Sri Lanka emblem"
             width={56}
             height={56}
-            className="h-12 w-12 shrink-0 drop-shadow-sm sm:hidden"
+            className="h-11 w-11 shrink-0 drop-shadow-sm sm:hidden"
             priority
           />
-          <span className="text-[13px] font-extrabold uppercase leading-tight tracking-tight text-slate-900 sm:hidden dark:text-white">
+          <span className="max-w-[14rem] text-[12px] font-extrabold uppercase leading-tight tracking-tight text-slate-900 sm:hidden dark:text-white">
             The Public Health Inspector&apos;s Union of Sri Lanka
           </span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-3">
           <div className="hidden overflow-hidden sm:block">
             <GoogleTranslateWidget />
           </div>
