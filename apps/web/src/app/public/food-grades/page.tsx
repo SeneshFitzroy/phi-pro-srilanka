@@ -182,6 +182,10 @@ export default function FoodGradesPage() {
           </div>
         </div>
 
+        {/* Maps export — open in Google/Apple Maps, KML for My Maps, embed iframe.
+            Lives at the top so visitors can act on the data immediately. */}
+        <MapsExportCard premises={filtered} />
+
         {/* Stats summary bar */}
         {!loading && (
           <div className="grid grid-cols-3 gap-3">
@@ -354,9 +358,6 @@ export default function FoodGradesPage() {
             )}
           </div>
         )}
-
-        {/* Maps export — open in Google/Apple Maps, KML for My Maps, embed iframe */}
-        <MapsExportCard premises={filtered} />
 
         {/* Source note */}
         <Card className="border-0 bg-slate-50 shadow-sm dark:bg-slate-900/50">
