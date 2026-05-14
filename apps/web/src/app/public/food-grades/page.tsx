@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, Search, Star, MapPin, Clock, ShieldCheck,
-  Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check,
+  Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check, ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { MapsExportCard, openInMaps } from '@/components/maps-export-card';
 
 interface Premise {
   id: string;
@@ -20,6 +21,8 @@ interface Premise {
   score: number;
   lastInspection: string;
   type: string;
+  lat?: number;
+  lng?: number;
 }
 
 const FALLBACK: Premise[] = [
@@ -294,8 +297,17 @@ export default function FoodGradesPage() {
                           </div>
                         </div>
                       </div>
-                      {/* Share button */}
-                      <div className="mt-3 flex justify-end">
+                      {/* Action buttons */}
+                      <div className="mt-3 flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-blue-700 dark:hover:text-blue-300"
+                          onClick={() => openInMaps({ lat: r.lat, lng: r.lng, address: r.address, name: r.name })}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Open in Maps
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -316,6 +328,9 @@ export default function FoodGradesPage() {
             )}
           </div>
         )}
+
+        {/* Maps export — open in Google/Apple Maps, KML for My Maps, embed iframe */}
+        <MapsExportCard premises={filtered} />
 
         {/* Source note */}
         <Card className="border-0 bg-slate-50 shadow-sm dark:bg-slate-900/50">

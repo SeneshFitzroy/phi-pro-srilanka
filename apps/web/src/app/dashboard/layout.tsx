@@ -30,6 +30,8 @@ import {
   Lock,
   Network,
   GitMerge,
+  BookOpen,
+  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -79,6 +81,12 @@ const aiNavItems = [
   { href: '/dashboard/ai/zkp', icon: Lock, label: 'ZKP Grade Proof' },
   { href: '/dashboard/administration/h399-collab', icon: GitMerge, label: 'H399 Collaborative' },
   { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' },
+];
+
+// Officer-only reference resources (moved out of the public site nav)
+const officerResourceItems = [
+  { href: '/public/duty', icon: BookOpen, label: 'Duty of PHI' },
+  { href: '/public/downloads', icon: Download, label: 'Downloads' },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -250,6 +258,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     onClick={() => setMobileOpen(false)}
                   >
                     <item.icon className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300')} />
+                    {!collapsed && <span>{item.label}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
+
+            {!collapsed && (
+              <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Officer Resources
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {officerResourceItems.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
+                      isActive
+                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
+                      collapsed && 'justify-center px-2',
+                    )}
+                    title={collapsed ? item.label : undefined}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
                     {!collapsed && <span>{item.label}</span>}
                   </Link>
                 );
