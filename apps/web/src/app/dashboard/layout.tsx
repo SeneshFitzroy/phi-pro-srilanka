@@ -72,7 +72,9 @@ const adminManagementItems = [
   { href: '/dashboard/management/users', icon: MessageSquare, label: 'User Management' },
 ];
 
-const aiNavItems = [
+// AI & monitoring items shown to ALL field/supervisory roles. The "System Status"
+// monitoring item is admin-only — split out so it can be appended for MOH only.
+const baseAiNavItems = [
   { href: '/dashboard/copilot', icon: Sparkles, label: 'Compliance Copilot' },
   { href: '/dashboard/epidemiology/sir-model', icon: TrendingUp, label: 'SIR Epidemic Model' },
   { href: '/dashboard/epidemiology/contact-tracing', icon: Network, label: 'Contact Tracing Graph' },
@@ -80,10 +82,10 @@ const aiNavItems = [
   { href: '/dashboard/ai/edge', icon: Cpu, label: 'Edge AI Classifier' },
   { href: '/dashboard/ai/zkp', icon: Lock, label: 'ZKP Grade Proof' },
   { href: '/dashboard/administration/h399-collab', icon: GitMerge, label: 'H399 Collaborative' },
-  { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' },
 ];
+const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 
-// Officer-only reference resources (moved out of the public site nav)
+// Officer-only reference resources — visible to PHI only (SPHI/MOH supervise; they don't need the field handbook)
 const officerResourceItems = [
   { href: '/public/duty', icon: BookOpen, label: 'Duty of PHI' },
   { href: '/public/downloads', icon: Download, label: 'Downloads' },
@@ -117,6 +119,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     role === UserRole.MOH_ADMIN ? adminManagementItems
     : role === UserRole.SPHI    ? sphiManagementItems
     : phiManagementItems;
+
+  // Field-form domains: hidden for SPHI (supervisory role) — they manage via Approvals/Permits/Analytics
+  // Always-on for PHI (field officer) and MOH_ADMIN (full oversight)
+  const visibleMainNavItems = role === UserRole.SPHI
+    ? mainNavItems.filter((i) => i.href === '/dashboard' || i.href === '/dashboard/administration')
+    : mainNavItems;
+
+  // System Status: MOH_ADMIN only
+  const visibleAiNavItems = role === UserRole.MOH_ADMIN
+    ? [...baseAiNavItems, adminOnlyAiNavItem]
+    : baseAiNavItems;
+
+  // Officer Resources (Duty of PHI + Downloads): PHI only
+  const showOfficerResources = role === UserRole.PHI;
 
   const managementLabel =
     role === UserRole.MOH_ADMIN ? 'Management'
@@ -168,7 +184,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             )}
             <div className="space-y-0.5">
-              {mainNavItems.map((item) => {
+              {visibleMainNavItems.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
                   : pathname === item.href || pathname.startsWith(item.href + '/');
@@ -241,7 +257,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             )}
             <div className="space-y-0.5">
-              {aiNavItems.map((item) => {
+              {visibleAiNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
@@ -264,36 +280,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               })}
             </div>
 
-            <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
-
-            {!collapsed && (
-              <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Officer Resources
-              </div>
+            {showOfficerResources && (
+              <>
+                <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
+                {!collapsed && (
+                  <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Officer Resources
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {officerResourceItems.map((item) => {
+                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
+                          isActive
+                            ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
+                          collapsed && 'justify-center px-2',
+                        )}
+                        title={collapsed ? item.label : undefined}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
+                        {!collapsed && <span>{item.label}</span>}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </>
             )}
-            <div className="space-y-0.5">
-              {officerResourceItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
-                      isActive
-                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
-                      collapsed && 'justify-center px-2',
-                    )}
-                    title={collapsed ? item.label : undefined}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
-                    {!collapsed && <span>{item.label}</span>}
-                  </Link>
-                );
-              })}
-            </div>
           </nav>
 
           {/* Bottom User Section */}
