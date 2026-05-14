@@ -60,7 +60,7 @@ export function PublicHeader() {
       </div>
 
       {/* Logo + language */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3" aria-label="The Public Health Inspector's Union of Sri Lanka — home">
           {/* Official wordmark (emblem + trilingual name) — the main logo */}
           <span className="hidden sm:inline-flex dark:rounded-md dark:bg-white/95 dark:px-2 dark:py-1">
@@ -69,7 +69,7 @@ export function PublicHeader() {
               alt="The Public Health Inspector's Union of Sri Lanka"
               width={718}
               height={142}
-              className="h-11 w-auto drop-shadow-sm"
+              className="h-14 w-auto drop-shadow-sm sm:h-16"
               priority
             />
           </span>
@@ -77,9 +77,9 @@ export function PublicHeader() {
           <Image
             src="/phi-emblem.png"
             alt="PHI Union of Sri Lanka emblem"
-            width={48}
-            height={48}
-            className="h-11 w-11 shrink-0 drop-shadow-sm sm:hidden"
+            width={56}
+            height={56}
+            className="h-12 w-12 shrink-0 drop-shadow-sm sm:hidden"
             priority
           />
           <span className="text-[13px] font-extrabold uppercase leading-tight tracking-tight text-slate-900 sm:hidden dark:text-white">
@@ -102,12 +102,12 @@ export function PublicHeader() {
 
       {/* Main nav bar */}
       <nav className="border-t border-blue-900/30 bg-gradient-to-r from-blue-800 to-blue-950">
-        <div className="mx-auto hidden max-w-7xl items-center gap-2 px-4 sm:px-6 lg:flex lg:px-8">
+        <div className="mx-auto hidden max-w-7xl items-center gap-1 px-4 sm:px-6 lg:flex lg:px-8">
           {PUBLIC_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`whitespace-nowrap rounded-sm px-5 py-3 text-sm font-semibold tracking-wide transition-colors ${
+              className={`whitespace-nowrap rounded-sm px-6 py-3.5 text-sm font-semibold tracking-wide transition-colors ${
                 isActive(item.href)
                   ? 'bg-black/25 text-white'
                   : 'text-blue-100/90 hover:bg-black/15 hover:text-white'
@@ -119,7 +119,7 @@ export function PublicHeader() {
 
           <Link
             href="/login"
-            className="ml-auto my-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-white px-5 py-1.5 text-sm font-bold text-blue-900 transition-all hover:bg-blue-50"
+            className="ml-auto my-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-white px-5 py-2 text-sm font-bold text-blue-900 transition-all hover:bg-blue-50"
           >
             Members Login <ArrowRight className="h-3.5 w-3.5" />
           </Link>
