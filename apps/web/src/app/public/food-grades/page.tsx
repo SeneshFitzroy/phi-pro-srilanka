@@ -26,15 +26,33 @@ interface Premise {
 }
 
 const FALLBACK: Premise[] = [
-  { id: '1', name: 'Golden Dragon Restaurant', address: '45 Main St, Colombo 07', grade: 'A', score: 92, lastInspection: '2025-01-15', type: 'Restaurant' },
-  { id: '2', name: 'Fresh Bakery & Cafe', address: '12 Galle Rd, Dehiwala', grade: 'A', score: 88, lastInspection: '2025-01-10', type: 'Bakery' },
-  { id: '3', name: 'City Food Court', address: '78 Kandy Rd, Kaduwela', grade: 'B', score: 72, lastInspection: '2024-12-20', type: 'Food Court' },
-  { id: '4', name: 'Sunrise Hotel', address: '200 Beach Rd, Mt. Lavinia', grade: 'A', score: 95, lastInspection: '2025-02-01', type: 'Hotel' },
-  { id: '5', name: 'Corner Deli', address: '5 Temple Rd, Nugegoda', grade: 'C', score: 48, lastInspection: '2024-11-25', type: 'Retail' },
-  { id: '6', name: 'Highway Rest Stop', address: 'A1 Highway, Kottawa', grade: 'B', score: 65, lastInspection: '2024-12-15', type: 'Restaurant' },
-  { id: '7', name: 'Lanka Spice Garden', address: '33 Lake Rd, Kiribathgoda', grade: 'A', score: 90, lastInspection: '2025-01-22', type: 'Restaurant' },
-  { id: '8', name: 'Blue Ocean Seafood', address: '17 Harbour View, Negombo', grade: 'B', score: 70, lastInspection: '2025-01-08', type: 'Restaurant' },
+  { id: '1', name: 'Golden Dragon Restaurant', address: '45 Main St, Colombo 07', grade: 'A', score: 92, lastInspection: '2025-01-15', type: 'Restaurant', lat: 6.9100, lng: 79.8612 },
+  { id: '2', name: 'Fresh Bakery & Cafe', address: '12 Galle Rd, Dehiwala', grade: 'A', score: 88, lastInspection: '2025-01-10', type: 'Bakery', lat: 6.8500, lng: 79.8675 },
+  { id: '3', name: 'City Food Court', address: '78 Kandy Rd, Kaduwela', grade: 'B', score: 72, lastInspection: '2024-12-20', type: 'Food Court', lat: 6.9342, lng: 79.9892 },
+  { id: '4', name: 'Sunrise Hotel', address: '200 Beach Rd, Mt. Lavinia', grade: 'A', score: 95, lastInspection: '2025-02-01', type: 'Hotel', lat: 6.8395, lng: 79.8634 },
+  { id: '5', name: 'Corner Deli', address: '5 Temple Rd, Nugegoda', grade: 'C', score: 48, lastInspection: '2024-11-25', type: 'Retail', lat: 6.8723, lng: 79.8895 },
+  { id: '6', name: 'Highway Rest Stop', address: 'A1 Highway, Kottawa', grade: 'B', score: 65, lastInspection: '2024-12-15', type: 'Restaurant', lat: 6.8404, lng: 79.9580 },
+  { id: '7', name: 'Lanka Spice Garden', address: '33 Lake Rd, Kiribathgoda', grade: 'A', score: 90, lastInspection: '2025-01-22', type: 'Restaurant', lat: 6.9764, lng: 79.9311 },
+  { id: '8', name: 'Blue Ocean Seafood', address: '17 Harbour View, Negombo', grade: 'B', score: 70, lastInspection: '2025-01-08', type: 'Restaurant', lat: 7.2086, lng: 79.8358 },
 ];
+
+// Known coordinates for the seeded premises — used to enrich Firestore docs that
+// were seeded before lat/lng was added. Matched by exact `name`. Field officers
+// capturing GPS on the H800 form will overwrite these with real values.
+const KNOWN_COORDS: Record<string, { lat: number; lng: number }> = {
+  'Golden Dragon Restaurant':  { lat: 6.9100, lng: 79.8612 },
+  'Fresh Bakery & Cafe':        { lat: 6.8500, lng: 79.8675 },
+  'City Food Court':            { lat: 6.9342, lng: 79.9892 },
+  'Sunrise Hotel':              { lat: 6.8395, lng: 79.8634 },
+  'Corner Deli':                { lat: 6.8723, lng: 79.8895 },
+  'Highway Rest Stop':          { lat: 6.8404, lng: 79.9580 },
+  'Royal Colombo Cafe':         { lat: 6.9077, lng: 79.8512 },
+  'Mango Tree Eatery':          { lat: 6.8500, lng: 79.9237 },
+  'Blue Ocean Seafood':         { lat: 7.2086, lng: 79.8358 },
+  'Lanka Spice Garden':         { lat: 6.9764, lng: 79.9311 },
+  'Star Buns Bakery':           { lat: 6.9170, lng: 79.8758 },
+  'Perera & Sons Supermarket':  { lat: 6.9893, lng: 79.8918 },
+};
 
 const gradeCfg = {
   A: {
@@ -96,7 +114,15 @@ export default function FoodGradesPage() {
           query(collection(db, 'food_grades'), orderBy('name'))
         );
         if (!snap.empty) {
-          setData(snap.docs.map(d => ({ id: d.id, ...d.data() } as Premise)));
+          // Enrich each doc with known coords if Firestore copy lacks lat/lng
+          setData(snap.docs.map((d) => {
+            const raw = { id: d.id, ...d.data() } as Premise;
+            if (raw.lat == null || raw.lng == null) {
+              const k = KNOWN_COORDS[raw.name];
+              if (k) return { ...raw, lat: k.lat, lng: k.lng };
+            }
+            return raw;
+          }));
         } else {
           setData(FALLBACK);
         }

@@ -5,7 +5,6 @@ import { AuthProvider } from '@/contexts/auth-context';
 import { I18nProvider } from '@/contexts/i18n-context';
 import { SyncProvider } from '@/contexts/sync-context';
 import { SplashScreen } from '@/components/splash-screen';
-import { GovtSplash } from '@/components/govt-splash';
 import { AccessibilityMenu } from '@/components/accessibility-menu';
 import { Toaster } from 'sonner';
 import { useEffect } from 'react';
@@ -25,7 +24,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <SyncProvider>
             <SplashScreen />
-            <GovtSplash />
             {children}
             <AccessibilityMenu />
             <Toaster position="top-right" richColors closeButton />
