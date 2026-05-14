@@ -12,18 +12,20 @@
  * No other organisation logos appear anywhere in the application.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Mail, ArrowRight, ChevronDown } from 'lucide-react';
+import { Menu, X, Phone, Mail, ArrowRight } from 'lucide-react';
 
 const GoogleTranslateWidget = dynamic(
   () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
   { ssr: false },
 );
 
+// Public navigation — citizen-facing only. PHI-Officer-only resources
+// (Duty of PHI, Downloads) live inside the authenticated dashboard sidebar.
 export const PUBLIC_NAV = [
   { label: 'About', href: '/public/about' },
   { label: 'Find PHI', href: '/public/find-phi' },
@@ -32,29 +34,11 @@ export const PUBLIC_NAV = [
   { label: 'Contact', href: '/public/contact' },
 ] as const;
 
-// Items moved into the "For PHI Officers" dropdown
-export const PHI_OFFICER_NAV = [
-  { label: 'Duty of PHI', href: '/public/duty' },
-  { label: 'Downloads', href: '/public/downloads' },
-] as const;
-
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
-  const [officerOpen, setOfficerOpen] = useState(false);
-  const officerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
-  const isOfficerActive = PHI_OFFICER_NAV.some((i) => pathname.startsWith(i.href));
-
-  useEffect(() => {
-    if (!officerOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (officerRef.current && !officerRef.current.contains(e.target as Node)) setOfficerOpen(false);
-    };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, [officerOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm dark:bg-slate-950/95">
@@ -117,7 +101,7 @@ export function PublicHeader() {
       </div>
 
       {/* Main nav bar */}
-      <nav className="border-t border-slate-100 bg-gradient-to-r from-[#5e1212] to-[#7a1a1a] dark:border-slate-800">
+      <nav className="border-t border-blue-900/30 bg-gradient-to-r from-blue-800 to-blue-950">
         <div className="mx-auto hidden max-w-7xl items-center gap-2 px-4 sm:px-6 lg:flex lg:px-8">
           {PUBLIC_NAV.map((item) => (
             <Link
@@ -126,56 +110,16 @@ export function PublicHeader() {
               className={`whitespace-nowrap rounded-sm px-5 py-3 text-sm font-semibold tracking-wide transition-colors ${
                 isActive(item.href)
                   ? 'bg-black/25 text-white'
-                  : 'text-rose-50/90 hover:bg-black/15 hover:text-white'
+                  : 'text-blue-100/90 hover:bg-black/15 hover:text-white'
               }`}
             >
               {item.label}
             </Link>
           ))}
 
-          {/* For PHI Officers — dropdown holding Duty of PHI + Downloads */}
-          <div ref={officerRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setOfficerOpen((v) => !v)}
-              aria-haspopup="menu"
-              aria-expanded={officerOpen}
-              className={`flex items-center gap-1.5 whitespace-nowrap rounded-sm px-5 py-3 text-sm font-semibold tracking-wide transition-colors ${
-                isOfficerActive
-                  ? 'bg-black/25 text-white'
-                  : 'text-rose-50/90 hover:bg-black/15 hover:text-white'
-              }`}
-            >
-              For PHI Officers
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${officerOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {officerOpen && (
-              <div
-                role="menu"
-                className="absolute left-0 top-full z-50 mt-1 w-56 overflow-hidden rounded-md border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-              >
-                {PHI_OFFICER_NAV.map((i) => (
-                  <Link
-                    key={i.href}
-                    href={i.href}
-                    role="menuitem"
-                    onClick={() => setOfficerOpen(false)}
-                    className={`block px-4 py-2.5 text-sm font-semibold ${
-                      pathname.startsWith(i.href)
-                        ? 'bg-rose-50 text-[#7a1a1a] dark:bg-slate-800 dark:text-rose-200'
-                        : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {i.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
           <Link
             href="/login"
-            className="ml-auto my-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-white px-5 py-1.5 text-sm font-bold text-[#7a1a1a] transition-all hover:bg-rose-50"
+            className="ml-auto my-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-white px-5 py-1.5 text-sm font-bold text-blue-900 transition-all hover:bg-blue-50"
           >
             Members Login <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -196,22 +140,7 @@ export function PublicHeader() {
                 onClick={() => setOpen(false)}
                 className={`rounded-md px-3 py-2.5 text-sm font-semibold ${
                   isActive(item.href)
-                    ? 'bg-[#7a1a1a] text-white'
-                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <p className="mt-3 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">For PHI Officers</p>
-            {PHI_OFFICER_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={`rounded-md px-3 py-2.5 text-sm font-semibold ${
-                  isActive(item.href)
-                    ? 'bg-[#7a1a1a] text-white'
+                    ? 'bg-blue-800 text-white'
                     : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                 }`}
               >
@@ -221,7 +150,7 @@ export function PublicHeader() {
             <Link
               href="/login"
               onClick={() => setOpen(false)}
-              className="mt-3 rounded-md bg-gradient-to-r from-[#5e1212] to-[#7a1a1a] px-3 py-2.5 text-center text-sm font-bold text-white"
+              className="mt-3 rounded-md bg-gradient-to-r from-blue-700 to-blue-900 px-3 py-2.5 text-center text-sm font-bold text-white"
             >
               Members Login
             </Link>
@@ -262,18 +191,13 @@ export function PublicFooter() {
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">Quick Links</h3>
           <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-            <li><Link href="/" className="hover:text-[#7a1a1a] dark:hover:text-rose-300">Home</Link></li>
+            <li><Link href="/" className="hover:text-blue-700 dark:hover:text-blue-300">Home</Link></li>
             {PUBLIC_NAV.map((i) => (
               <li key={i.href}>
-                <Link href={i.href} className="hover:text-[#7a1a1a] dark:hover:text-rose-300">{i.label}</Link>
+                <Link href={i.href} className="hover:text-blue-700 dark:hover:text-blue-300">{i.label}</Link>
               </li>
             ))}
-            {PHI_OFFICER_NAV.map((i) => (
-              <li key={i.href}>
-                <Link href={i.href} className="hover:text-[#7a1a1a] dark:hover:text-rose-300">{i.label}</Link>
-              </li>
-            ))}
-            <li><Link href="/login" className="hover:text-[#7a1a1a] dark:hover:text-rose-300">Members Login</Link></li>
+            <li><Link href="/login" className="hover:text-blue-700 dark:hover:text-blue-300">Members Login</Link></li>
           </ul>
         </div>
 

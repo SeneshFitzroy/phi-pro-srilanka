@@ -34,7 +34,7 @@ const quickActions = [
     desc: 'Report food safety, hygiene, or outbreak concerns.',
     href: '/public/complaints',
     badge: 'Anonymous',
-    accent: 'from-[#7a1a1a] to-[#5e1212]',
+    accent: 'from-blue-700 to-blue-900',
   },
   {
     icon: CheckCircle,
@@ -42,7 +42,7 @@ const quickActions = [
     desc: 'Confirm a PHI-issued permit by QR scan or reference ID.',
     href: '/public/verify',
     badge: 'Instant',
-    accent: 'from-[#8a2a2a] to-[#6e1818]',
+    accent: 'from-sky-600 to-blue-800',
   },
   {
     icon: CreditCard,
@@ -50,7 +50,7 @@ const quickActions = [
     desc: 'Settle permits and compliance fines via PayHere.',
     href: '/public/payments',
     badge: 'GovPay',
-    accent: 'from-[#9a3a3a] to-[#7a1a1a]',
+    accent: 'from-indigo-600 to-blue-900',
   },
 ];
 
@@ -79,35 +79,31 @@ const mapServices = [
 const personas = [
   {
     icon: UserCheck,
-    title: 'PHI · SPHI · MOH Officers',
+    title: 'PHI · SPHI · MOH',
     tag: 'Field & Supervisory',
-    desc: 'Conduct inspections, file H-series statutory forms, run epidemiological surveillance, approve permits, and analyse compliance trends across MOH areas.',
+    desc: 'Inspections, statutory forms, surveillance and approvals.',
     features: [
       'H800 / H1046 / H1203 / H399 digital forms',
-      'Offline-first field inspection on tablet',
+      'Offline-first field inspections',
       'GIS disease maps + outbreak triage',
-      'Tamper-evident audit chain (SHA-256)',
-      'AI compliance copilot (Sinhala/Tamil)',
-      'Role-based dashboards (PHI < SPHI < MOH)',
+      'AI compliance copilot',
     ],
-    accent: 'from-[#7a1a1a] to-[#5e1212]',
-    cta: 'PHI Officer Login',
+    accent: 'from-blue-700 to-blue-950',
+    cta: 'Officer Login',
     href: '/login',
   },
   {
     icon: Store,
     title: 'Business Owners',
-    tag: 'Food premises · Factories · Trades',
-    desc: 'Track your inspection grade, pay permit renewals online, download certificates, and respond to improvement notices — all in one portal.',
+    tag: 'Premises · Factories · Trades',
+    desc: 'Track grade, pay fees, renew permits.',
     features: [
-      'View your current Grade A/B/C status',
-      'Renew Food / Trade / Factory permits',
-      'Download signed permits as PDF + QR',
-      'Pay fines via PayHere (sandbox-ready)',
-      'Receive improvement-notice alerts',
-      'Single source of truth — no paperwork',
+      'Live Grade A/B/C status',
+      'Online permit renewal',
+      'PDF + QR signed certificates',
+      'PayHere fines & fees',
     ],
-    accent: 'from-amber-600 to-orange-700',
+    accent: 'from-sky-600 to-blue-800',
     cta: 'Pay or Renew',
     href: '/public/payments',
   },
@@ -115,16 +111,14 @@ const personas = [
     icon: Users,
     title: 'General Public',
     tag: 'Citizens of Sri Lanka',
-    desc: 'Check where it is safe to eat, see what disease outbreaks are active near you, and report unsafe premises anonymously to your local PHI office.',
+    desc: 'Eat safe, stay informed, report concerns.',
     features: [
-      'Restaurant hygiene grade lookup',
-      'Active outbreak alerts in your district',
-      'Anonymous complaint submission',
-      'Verify any certificate via QR',
-      'Public health hotline & PHI directory',
-      'Trilingual: English · සිංහල · தமிழ்',
+      'Restaurant hygiene lookup',
+      'District outbreak alerts',
+      'Anonymous complaints',
+      'Trilingual EN · සි · த',
     ],
-    accent: 'from-blue-700 to-indigo-800',
+    accent: 'from-indigo-600 to-blue-900',
     cta: 'Public Portal',
     href: '#services',
   },
@@ -340,7 +334,7 @@ export default function HomePage() {
       <section id="services" className="scroll-mt-16 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#7a1a1a] dark:text-rose-300">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
               Public Health Portal
             </p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
@@ -405,7 +399,7 @@ export default function HomePage() {
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-[#7a1a1a] dark:text-rose-300">
+                  <div className="mt-5 flex items-center gap-1 text-sm font-semibold text-blue-700 dark:text-blue-300">
                     Open interactive map
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5" />
                   </div>
@@ -440,7 +434,7 @@ export default function HomePage() {
       <section className="border-t border-slate-200 bg-slate-50/60 py-20 dark:border-slate-800 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#7a1a1a] dark:text-rose-300">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
               Who PHI-PRO is for
             </p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -495,11 +489,11 @@ export default function HomePage() {
           {/* Flow connector — visual diagram */}
           <div className="mt-12 grid items-center gap-4 sm:grid-cols-5">
             <div className="flex items-center justify-center sm:col-span-1">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#7a1a1a] text-white shadow-md">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-700 to-blue-950 text-white shadow-md">
                 <Briefcase className="h-6 w-6" />
               </div>
             </div>
-            <div className="hidden text-center text-[#7a1a1a] sm:block">
+            <div className="hidden text-center text-blue-700 sm:block">
               <ArrowRight className="mx-auto h-5 w-5" />
             </div>
             <div className="flex items-center justify-center sm:col-span-1">
@@ -507,7 +501,7 @@ export default function HomePage() {
                 <Building2 className="h-6 w-6" />
               </div>
             </div>
-            <div className="hidden text-center text-[#7a1a1a] sm:block">
+            <div className="hidden text-center text-blue-700 sm:block">
               <ArrowRight className="mx-auto h-5 w-5" />
             </div>
             <div className="flex items-center justify-center sm:col-span-1">
