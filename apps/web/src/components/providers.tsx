@@ -22,6 +22,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <I18nProvider>
         <AuthProvider>
           <SyncProvider>
+            {/* WCAG 2.4.1 — bypass blocks: keyboard users skip directly to main */}
+            <a href="#main-content" className="sr-only-focusable">Skip to main content</a>
             {children}
             <AccessibilityMenu />
             <Toaster position="top-right" richColors closeButton />
