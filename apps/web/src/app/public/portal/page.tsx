@@ -100,7 +100,7 @@ export default function PublicPortalPage() {
         </div>
       </section>
 
-      {/* Primary trio */}
+      {/* Primary trio — badge floats top-right so titles never wrap awkwardly */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h2 className="sr-only">Quick actions</h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -108,21 +108,18 @@ export default function PublicPortalPage() {
             <Link
               key={s.href}
               href={s.href}
-              className={`group relative flex items-start gap-4 overflow-hidden rounded-2xl bg-gradient-to-br ${s.accent} p-6 text-white shadow-lg shadow-blue-900/10 transition-all hover:-translate-y-1 hover:shadow-2xl`}
+              className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${s.accent} p-6 pr-8 text-white shadow-lg shadow-blue-900/10 transition-all hover:-translate-y-1 hover:shadow-2xl`}
             >
-              <div className="inline-flex shrink-0 rounded-xl bg-white/15 p-3 ring-1 ring-white/20 backdrop-blur-sm">
+              <span className="absolute right-4 top-4 whitespace-nowrap rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-white/20 backdrop-blur-sm">
+                {s.tag}
+              </span>
+              <ArrowRight className="absolute bottom-5 right-5 h-5 w-5 text-white/80 transition-transform group-hover:translate-x-1" />
+
+              <div className="inline-flex rounded-xl bg-white/15 p-3 ring-1 ring-white/20 backdrop-blur-sm">
                 <s.icon className="h-6 w-6 text-white" />
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold">{s.title}</h3>
-                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                    {s.tag}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-white/85">{s.desc}</p>
-              </div>
-              <ArrowRight className="h-5 w-5 shrink-0 text-white/80 transition-transform group-hover:translate-x-1" />
+              <h3 className="mt-4 text-lg font-bold leading-tight">{s.title}</h3>
+              <p className="mt-1.5 max-w-[22ch] text-[13px] leading-relaxed text-white/85">{s.desc}</p>
             </Link>
           ))}
         </div>

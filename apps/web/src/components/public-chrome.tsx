@@ -17,7 +17,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Menu, X, Phone, Mail, ArrowRight, ExternalLink } from 'lucide-react';
 
 const GoogleTranslateWidget = dynamic(
   () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
@@ -27,16 +27,16 @@ const GoogleTranslateWidget = dynamic(
 // Public navigation — citizen-facing only. PHI-Officer-only resources
 // (Duty of PHI, Downloads) live inside the authenticated dashboard sidebar.
 //
-// Two consolidations were made at the user's request:
+// Order follows the citizen action funnel: land → act → find → read → learn.
 //   • Contact is folded into the Find PHI page (no separate /public/contact)
 //   • Press Release is folded into News & Press (no separate /public/press)
 //   • /public/portal is the citizen services hub (complaints, payments, …)
 export const PUBLIC_NAV = [
   { label: 'Home',           href: '/' },
   { label: 'Public Portal',  href: '/public/portal' },
-  { label: 'About',          href: '/public/about' },
   { label: 'Find PHI',       href: '/public/find-phi' },
   { label: 'News & Press',   href: '/public/news' },
+  { label: 'About',          href: '/public/about' },
 ] as const;
 
 export function PublicHeader() {
@@ -47,24 +47,28 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm dark:bg-slate-950/95">
-      {/* Top contact strip */}
-      <div className="hidden border-b border-slate-100 bg-gradient-to-r from-blue-800 to-slate-900 text-white sm:block dark:border-slate-800">
-        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-[11px] sm:px-6 lg:px-8">
+      {/* Top contact strip — language toggle stays visible at every viewport */}
+      <div className="border-b border-slate-100 bg-gradient-to-r from-blue-800 to-slate-900 text-white dark:border-slate-800">
+        <div className="mx-auto flex min-h-9 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-1 text-[11px] sm:px-6 lg:px-8">
           <span className="font-medium tracking-wide">
-            The Public Health Inspector&apos;s Union of Sri Lanka — Est. 1913
+            <span className="hidden sm:inline">The Public Health Inspector&apos;s Union of Sri Lanka — </span>Est. 1913
           </span>
-          <div className="flex items-center gap-4">
-            <a href="tel:+94112635675" className="flex items-center gap-1.5 hover:text-blue-200">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a href="tel:+94112635675" className="hidden items-center gap-1.5 hover:text-blue-200 sm:flex">
               <Phone className="h-3 w-3" /> (+94) 11-2635675
             </a>
-            <a href="mailto:info@phi.lk" className="flex items-center gap-1.5 hover:text-blue-200">
+            <a href="mailto:info@phi.lk" className="hidden items-center gap-1.5 hover:text-blue-200 sm:flex">
               <Mail className="h-3 w-3" /> info@phi.lk
             </a>
+            <span aria-hidden className="hidden h-3 w-px bg-white/20 sm:inline-block" />
+            <div className="inline-flex items-center" aria-label="Site language">
+              <GoogleTranslateWidget />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Logo + language */}
+      {/* Logo row */}
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <Link
           href="/"
@@ -95,18 +99,13 @@ export function PublicHeader() {
             The Public Health Inspector&apos;s Union of Sri Lanka
           </span>
         </Link>
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden overflow-hidden sm:block">
-            <GoogleTranslateWidget />
-          </div>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-            className="rounded-md p-2 text-slate-600 hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+          className="rounded-md p-2 text-slate-600 hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
       {/* Main nav bar */}
@@ -135,12 +134,9 @@ export function PublicHeader() {
         </div>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer (language toggle already lives in the top strip) */}
       {open && (
         <div className="border-t border-slate-100 bg-white px-4 py-3 lg:hidden dark:border-slate-800 dark:bg-slate-950">
-          <div className="mb-3 sm:hidden">
-            <GoogleTranslateWidget />
-          </div>
           <div className="flex flex-col">
             {PUBLIC_NAV.map((item) => (
               <Link
@@ -214,7 +210,16 @@ export function PublicFooter() {
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">Contact</h3>
           <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-            <li>673 Maradana Rd, Colombo 01000, Sri Lanka</li>
+            <li>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=673+Maradana+Road+Colombo+01000+Sri+Lanka"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-start gap-1 hover:text-blue-700 dark:hover:text-blue-400"
+              >
+                673 Maradana Rd, Colombo 01000, Sri Lanka <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
+              </a>
+            </li>
             <li><a href="tel:+94112670759" className="hover:text-blue-700 dark:hover:text-blue-400">(+94) 112 670 759</a></li>
             <li><a href="tel:+94112635675" className="hover:text-blue-700 dark:hover:text-blue-400">(+94) 11-263 5675</a></li>
             <li><a href="mailto:info@phi.lk" className="hover:text-blue-700 dark:hover:text-blue-400">info@phi.lk</a></li>

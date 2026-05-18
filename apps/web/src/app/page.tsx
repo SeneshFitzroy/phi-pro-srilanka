@@ -94,23 +94,23 @@ export default function HomePage() {
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-blue-700 shadow-sm dark:border-blue-800/60 dark:bg-slate-900 dark:text-blue-300">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                Live &middot; Official digital platform &middot; Ministry of Health
+                Live &middot; National Health Enforcement Grid
               </div>
 
               <h1 className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-6xl lg:text-[4.2rem] dark:text-white">
-                Sri Lanka&rsquo;s{' '}
+                The digital{' '}
                 <span className="relative inline-block">
                   <span className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-900 bg-clip-text text-transparent">
-                    preventive
+                    frontline
                   </span>
                 </span>{' '}
-                health corps,&nbsp;online.
+                of Sri Lanka&rsquo;s public health.
               </h1>
 
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
-                PHI-PRO is the secure, audit-grade workspace that carries the daily statutory work of every
-                Public Health Inspector — from the food-stall in Kandy to the airport in Katunayake. Built for
-                the field, signed by the Ministry, open to every citizen.
+                PHI-PRO is the audit-grade ecosystem powering the daily operations of Public Health Inspectors
+                nationwide. From rural food stalls to international transit hubs, we ensure public safety is
+                transparent, secure, and accessible to every citizen.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">

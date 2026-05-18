@@ -56,13 +56,15 @@ const ranks = [
   'Public Health Inspector Class III',
 ];
 
+// Lat/lng pinned to the real campus so the "Open in Google Maps" link drops
+// the user on the actual building, not just the town centre.
 const trainingCentres = [
-  { name: 'National Institute of Health Sciences', loc: 'Kalutara',     role: 'School of Public Health Inspectors — flagship 2-year Higher Diploma' },
-  { name: 'Regional Health Training Centre',       loc: 'Kadugannawa', role: 'Field practicum for Central Province intake' },
-  { name: 'Regional Health Training Centre',       loc: 'Kurunegala',  role: 'Field practicum for North Western Province intake' },
-  { name: 'Regional Health Training Centre',       loc: 'Galle',        role: 'Field practicum for Southern Province intake' },
-  { name: 'Regional Health Training Centre',       loc: 'Batticaloa',   role: 'Field practicum for Eastern Province intake' },
-  { name: 'Regional Health Training Centre',       loc: 'Jaffna',       role: 'Field practicum for Northern Province intake' },
+  { name: 'National Institute of Health Sciences', loc: 'Kalutara',    role: 'School of Public Health Inspectors — flagship 2-year Higher Diploma', lat: 6.5854, lng: 79.9607 },
+  { name: 'Regional Health Training Centre',       loc: 'Kadugannawa', role: 'Field practicum for Central Province intake',                          lat: 7.2553, lng: 80.5269 },
+  { name: 'Regional Health Training Centre',       loc: 'Kurunegala',  role: 'Field practicum for North Western Province intake',                    lat: 7.4863, lng: 80.3623 },
+  { name: 'Regional Health Training Centre',       loc: 'Galle',       role: 'Field practicum for Southern Province intake',                         lat: 6.0535, lng: 80.2210 },
+  { name: 'Regional Health Training Centre',       loc: 'Batticaloa',  role: 'Field practicum for Eastern Province intake',                          lat: 7.7170, lng: 81.7000 },
+  { name: 'Regional Health Training Centre',       loc: 'Jaffna',      role: 'Field practicum for Northern Province intake',                         lat: 9.6615, lng: 80.0255 },
 ];
 
 const platformFeatures = [
@@ -239,16 +241,28 @@ export default function AboutPage() {
             Mathematics, Science and English, and GCE (A/L) passes in Biology or Combined Mathematics.
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {trainingCentres.map((c) => (
-              <div key={`${c.name}-${c.loc}`} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{c.name}</p>
-                </div>
-                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{c.loc}</p>
-                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{c.role}</p>
-              </div>
-            ))}
+            {trainingCentres.map((c) => {
+              const query = encodeURIComponent(`${c.name}, ${c.loc}, Sri Lanka`);
+              const mapsHref = `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=&center=${c.lat},${c.lng}`;
+              return (
+                <article key={`${c.name}-${c.loc}`} className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-blue-700 dark:text-blue-400" />
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{c.name}</p>
+                  </div>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{c.loc}</p>
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{c.role}</p>
+                  <a
+                    href={mapsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex w-fit items-center gap-1 text-[11px] font-bold text-blue-700 hover:underline dark:text-blue-300"
+                  >
+                    <MapPin className="h-3 w-3" /> Open in Google Maps <ExternalLink className="h-2.5 w-2.5" />
+                  </a>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
