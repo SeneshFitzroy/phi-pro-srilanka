@@ -3,8 +3,8 @@ import Image from 'next/image';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   Shield, Globe, History, Users, ExternalLink, Award, BookOpen, Building2, Sparkles,
-  HeartPulse, BadgeCheck, GraduationCap, Layers, Stethoscope, Microscope, Phone, Mail,
-  MapPin, Languages, ShieldCheck, Briefcase, Activity, Quote,
+  HeartPulse, BadgeCheck, GraduationCap, Layers, Stethoscope, Microscope, Phone,
+  MapPin, Briefcase, Activity, Quote,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -65,15 +65,6 @@ const trainingCentres = [
   { name: 'Regional Health Training Centre',       loc: 'Galle',       role: 'Field practicum for Southern Province intake',                         lat: 6.0535, lng: 80.2210 },
   { name: 'Regional Health Training Centre',       loc: 'Batticaloa',  role: 'Field practicum for Eastern Province intake',                          lat: 7.7170, lng: 81.7000 },
   { name: 'Regional Health Training Centre',       loc: 'Jaffna',      role: 'Field practicum for Northern Province intake',                         lat: 9.6615, lng: 80.0255 },
-];
-
-const platformFeatures = [
-  { icon: <ShieldCheck className="h-5 w-5" />, title: 'WebAuthn-secured login',          body: 'Officers authenticate with passkeys, biometrics or hardware keys — no shared passwords or phishable codes.' },
-  { icon: <Layers      className="h-5 w-5" />, title: 'Single digital case file',         body: 'Inspections, samples, notices and prosecutions live in one tamper-evident record per premises.' },
-  { icon: <Activity    className="h-5 w-5" />, title: 'Live disease dashboard',           body: 'Outbreak signals, vector indices and notifiable-disease counts streamed from MOH offices in near real-time.' },
-  { icon: <MapPin      className="h-5 w-5" />, title: 'Field-first mobile app',           body: 'Offline-ready Progressive Web App with GPS-stamped inspections and on-device photo evidence capture.' },
-  { icon: <Languages   className="h-5 w-5" />, title: 'Trilingual interface',             body: 'Every screen is available in Sinhala, Tamil and English — the official languages mandated by the constitution.' },
-  { icon: <BadgeCheck  className="h-5 w-5" />, title: 'Audit-chain transparency',         body: 'Every action is hash-chained for legal admissibility, satisfying Right-to-Information requests on demand.' },
 ];
 
 const downloads = [
@@ -283,30 +274,6 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      {/* Platform features (industrial / professional) */}
-      <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-14 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-blue-300">PHI-PRO platform</p>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Digital Enforcement, Industrial Scale</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-blue-100/90">
-            PHI-PRO is the official digital workspace commissioned to modernise PHI operations. It carries the
-            statutory work of every officer from inspection through prosecution &mdash; secure, auditable and built
-            for the field.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {platformFeatures.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition-colors hover:bg-white/10">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg">
-                  {f.icon}
-                </div>
-                <h3 className="mt-4 text-base font-bold">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-blue-100/80">{f.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Office bearers */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center gap-2">
@@ -367,47 +334,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Contact strip */}
-      <section className="bg-gradient-to-r from-blue-700 to-blue-900 py-12 text-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-200">Reach the Union</p>
-            <h3 className="mt-1 text-xl font-bold">Talk to a real person</h3>
-            <p className="mt-2 text-sm text-blue-100/90">
-              The Union secretariat operates Monday – Friday, 09:00 – 16:00 (IST). For after-hours public-health
-              emergencies, please call the Ministry hotline <strong>1390</strong>.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <div className="flex items-center gap-2 text-sm font-bold"><Phone className="h-4 w-4" /> Telephone</div>
-            <ul className="mt-3 space-y-1.5 text-sm">
-              <li><a href="tel:+94112635675" className="hover:underline">(+94) 11 263 5675</a> &middot; main</li>
-              <li><a href="tel:+94112670759" className="hover:underline">(+94) 11 267 0759</a> &middot; secretariat</li>
-            </ul>
-            <div className="mt-4 flex items-center gap-2 text-sm font-bold"><Mail className="h-4 w-4" /> Email</div>
-            <ul className="mt-3 space-y-1.5 text-sm">
-              <li><a href="mailto:info@phi.lk" className="hover:underline">info@phi.lk</a></li>
-              <li><a href="mailto:phisrilanka1@gmail.com" className="hover:underline">phisrilanka1@gmail.com</a></li>
-            </ul>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <div className="flex items-center gap-2 text-sm font-bold"><MapPin className="h-4 w-4" /> Head office</div>
-            <p className="mt-3 text-sm leading-relaxed text-blue-100/90">
-              673 Maradana Road,<br />
-              Colombo 01000,<br />
-              Sri Lanka.
-            </p>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=673+Maradana+Road+Colombo+01000+Sri+Lanka"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-blue-200 hover:underline"
-            >
-              Open in Google Maps <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Union secretariat contact lives on /public/find-phi#contact — not duplicated here. */}
 
       {/* Quick links */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">

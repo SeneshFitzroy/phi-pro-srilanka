@@ -27,31 +27,32 @@ const ALL_MOHS = listMohOffices();
 const ALL_PINS = mohPins();
 
 /**
- * Mapbox-GL-compatible raster style that points at the OpenStreetMap tile
- * servers. We use this regardless of whether a Mapbox token is configured —
- * production Mapbox tokens often carry domain restrictions and quotas that
- * cause the basemap to render blank in deployed environments. OSM raster
- * tiles are token-free, copyright-clean and always render Sri Lanka.
+ * Mapbox-GL-compatible raster style that points at Carto's free OpenStreetMap
+ * basemaps. Carto's CDN is token-free, allows hot-linking and isn't subject
+ * to the same per-domain throttling as tile.openstreetmap.org — which was
+ * returning blank tiles for phipro.lk before. Voyager carries a balanced set
+ * of labels and road colours that render Sri Lanka cleanly at every zoom.
  */
-const OSM_STYLE: StyleSpecification = {
+const BASEMAP_STYLE: StyleSpecification = {
   version: 8,
-  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+  glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
   sources: {
-    osm: {
+    carto: {
       type: 'raster',
       tiles: [
-        'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
       ],
       tileSize: 256,
-      attribution: '© OpenStreetMap contributors',
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &middot; © <a href="https://carto.com/attributions">CARTO</a>',
       maxzoom: 19,
     },
   },
   layers: [
-    { id: 'osm-bg', type: 'background', paint: { 'background-color': '#e8edf2' } },
-    { id: 'osm', type: 'raster', source: 'osm', minzoom: 0, maxzoom: 22 },
+    { id: 'bg', type: 'background', paint: { 'background-color': '#f1f5f9' } },
+    { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 },
   ],
 };
 
@@ -259,11 +260,11 @@ export default function FindPhiPage() {
 
           <div className="relative h-[28rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
             <MapGL
-              mapStyle={OSM_STYLE}
+              mapStyle={BASEMAP_STYLE}
               initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
               key={`${centre.lat}-${centre.lng}-${centre.zoom}-${pins.length}`}
               style={{ width: '100%', height: '100%' }}
-              maxBounds={[[78.5, 5.0], [82.5, 10.5]]}
+              maxBounds={[[78.0, 5.0], [83.0, 10.5]]}
               minZoom={6.4}
               maxZoom={17}
               attributionControl
@@ -321,7 +322,7 @@ export default function FindPhiPage() {
                       ))}
                     </div>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${selected.lat},${selected.lng}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${selected.moh}, ${selected.district}, Sri Lanka`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block rounded-md bg-blue-700 px-2 py-1.5 text-center text-[11px] font-bold text-white hover:bg-blue-800"
@@ -334,7 +335,7 @@ export default function FindPhiPage() {
             </MapGL>
 
             <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 shadow dark:bg-slate-900/90 dark:text-slate-300">
-              Basemap: © OpenStreetMap contributors
+              Basemap: CARTO · © OpenStreetMap contributors
             </p>
           </div>
         </div>
@@ -417,13 +418,24 @@ export default function FindPhiPage() {
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PROVINCE_BADGE[p.province]}`}>{p.province}</span>
                 </div>
                 <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">{p.officers.length} listed PHI officer{p.officers.length === 1 ? '' : 's'}</p>
-                <button
-                  type="button"
-                  onClick={() => setSelected(p)}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[12px] font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
-                >
-                  <MapIcon className="h-3.5 w-3.5" /> Show on map
-                </button>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(p)}
+                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[12px] font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                  >
+                    <MapIcon className="h-3.5 w-3.5" /> Show on map
+                  </button>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${p.moh}, ${p.district}, Sri Lanka`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open ${p.moh} MOH in Google Maps`}
+                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-bold text-slate-600 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
               </article>
             ))}
           </div>
