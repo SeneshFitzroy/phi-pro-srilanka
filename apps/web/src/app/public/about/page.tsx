@@ -3,9 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
-  Shield, Globe, History, Users, ExternalLink, Award, BookOpen, Building2, Sparkles,
+  Shield, Globe, Users, ExternalLink, Award, BookOpen, Building2, Sparkles,
   HeartPulse, BadgeCheck, GraduationCap, Layers, Stethoscope, Microscope, Phone, Mail,
-  MapPin, Languages, ShieldCheck, Briefcase, ChevronRight, Activity, Quote,
+  MapPin, Languages, ShieldCheck, Briefcase, ChevronRight, Activity, Quote, Star,
+  ScrollText, Crown, Trophy,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -20,22 +21,23 @@ const officeBearers = [
   { role: 'Hon. Treasurer',  name: 'M.A.C. Prasad',            tel: '+94 77 360 1915' },
 ];
 
-const partnerBodies: Array<{ region: string; country: string; name: string; abbr: string; url: string }> = [
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Ministry of Health',                                       abbr: 'MOH',    url: 'https://www.health.gov.lk/' },
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Epidemiology Unit',                                        abbr: 'Epid',   url: 'https://www.epid.gov.lk/' },
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Health Promotion Bureau',                                  abbr: 'HPB',    url: 'https://www.hpb.health.gov.lk/' },
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'Family Health Bureau',                                     abbr: 'FHB',    url: 'https://fhb.health.gov.lk/' },
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'National Institute of Health Sciences',                    abbr: 'NIHS',   url: 'https://nihs.health.gov.lk/' },
-  { region: 'Sri Lanka', country: 'Sri Lanka', name: 'College of Community Physicians of Sri Lanka',             abbr: 'CCPSL',  url: 'https://ccpsl.lk/' },
+const partnerBodies: Array<{ name: string; abbr: string; url: string }> = [
+  { name: 'Ministry of Health',                              abbr: 'MOH',   url: 'https://www.health.gov.lk/' },
+  { name: 'Epidemiology Unit',                               abbr: 'Epid',  url: 'https://www.epid.gov.lk/' },
+  { name: 'Health Promotion Bureau',                         abbr: 'HPB',   url: 'https://www.hpb.health.gov.lk/' },
+  { name: 'Family Health Bureau',                            abbr: 'FHB',   url: 'https://fhb.health.gov.lk/' },
+  { name: 'National Institute of Health Sciences',           abbr: 'NIHS',  url: 'https://nihs.health.gov.lk/' },
+  { name: 'College of Community Physicians of Sri Lanka',    abbr: 'CCPSL', url: 'https://ccpsl.lk/' },
 ];
 
 const milestones = [
-  { year: '1913',          text: 'Sanitary Branch of the Medical Department established. Six Sanitary Inspectors were appointed after six months\' training at the Colombo Medical College.' },
-  { year: '1934 – 1935',   text: 'Sanitary Inspectors lead front-line control activities during the devastating malaria epidemic that swept the island.' },
-  { year: '1937',          text: 'On the inauguration of the Malaria Control and Health Scheme, the designation changes from Sanitary Inspector to Sanitary Assistant.' },
-  { year: '1 July 1954',   text: 'Implementing the recommendations of Dr Cumpston\'s Report, the cadre is renamed Public Health Inspector (PHI).' },
-  { year: '1960s – 1990s', text: 'Eradication of smallpox (Wasuriya), control of communicable diseases, the building of a safe-food culture and the school-health programme — all led by PHIs island-wide.' },
-  { year: 'Today',         text: 'Roughly 1,793 PHIs and Administrative PHIs serve as the front-line prevention team for 21.9 million citizens across all 26 districts.' },
+  { year: '1913',          tag: 'Foundation',  text: 'Sanitary Branch of the Medical Department established. Six Sanitary Inspectors are appointed after six months\' training at the Colombo Medical College.' },
+  { year: '1934 – 1935',   tag: 'Epidemic',    text: 'Sanitary Inspectors lead front-line control activities during the devastating malaria epidemic that swept the island.' },
+  { year: '1937',          tag: 'Rename',      text: 'On the inauguration of the Malaria Control and Health Scheme, the designation changes from Sanitary Inspector to Sanitary Assistant.' },
+  { year: '1 July 1954',   tag: 'Charter',     text: 'Implementing the recommendations of Dr Cumpston\'s Report, the cadre is renamed Public Health Inspector (PHI).' },
+  { year: '1972',          tag: 'Eradication', text: 'Smallpox (Wasuriya) declared eradicated in Sri Lanka — a victory delivered house-to-house by the PHI corps.' },
+  { year: '1980 – 2000',   tag: 'Statutes',    text: 'Food Act, Quarantine Ordinance and National Environmental Act make the PHI the principal field enforcement officer of preventive health.' },
+  { year: 'Today',         tag: 'Digital',     text: 'Roughly 1,793 PHIs and Administrative PHIs serve as the front-line prevention team for 21.9 million citizens across all 26 districts, now equipped with PHI-PRO.' },
 ];
 
 const pillars = [
@@ -48,13 +50,13 @@ const pillars = [
 ];
 
 const ranks = [
-  'Principal Public Health Inspector',
-  'Supervising PHI — Provincial',
-  'Supervising PHI — District',
-  'Supervising PHI — Divisional',
-  'Public Health Inspector Class I',
-  'Public Health Inspector Class II',
-  'Public Health Inspector Class III',
+  { tier: 1, name: 'Principal Public Health Inspector',   note: 'Ministry of Health' },
+  { tier: 2, name: 'Supervising PHI — Provincial',         note: '9 provinces' },
+  { tier: 3, name: 'Supervising PHI — District',           note: '26 districts' },
+  { tier: 4, name: 'Supervising PHI — Divisional',         note: '354 MOH divisions' },
+  { tier: 5, name: 'Public Health Inspector — Class I',    note: 'Senior field' },
+  { tier: 6, name: 'Public Health Inspector — Class II',   note: 'Field' },
+  { tier: 7, name: 'Public Health Inspector — Class III',  note: 'Entry' },
 ];
 
 const trainingCentres = [
@@ -76,263 +78,362 @@ const platformFeatures = [
 ];
 
 const downloads = [
-  { label: 'PHI service manual',           href: 'https://phi.lk/wp-content/uploads/manual.pdf' },
-  { label: 'Union membership form',        href: 'https://phi.lk/membership' },
-  { label: 'Food Act No. 26 of 1980',      href: 'https://www.health.gov.lk/foodact' },
-  { label: 'Quarantine Ordinance',          href: 'https://www.health.gov.lk/quarantine' },
+  { label: 'PHI service manual',      href: 'https://phi.lk/wp-content/uploads/manual.pdf' },
+  { label: 'Union membership form',   href: 'https://phi.lk/membership' },
+  { label: 'Food Act No. 26 of 1980', href: 'https://www.health.gov.lk/foodact' },
+  { label: 'Quarantine Ordinance',     href: 'https://www.health.gov.lk/quarantine' },
 ];
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-[#fdfaf3] dark:bg-slate-950">
       <PublicHeader />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:to-blue-950/30">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl dark:bg-blue-700/20" aria-hidden />
-        <div className="absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl dark:bg-indigo-700/20" aria-hidden />
+      {/* ── HERITAGE HERO ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#1a2540] via-[#0f1a30] to-[#0a1224] text-white">
+        {/* Decorative pattern */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 20% 20%, rgba(212,175,55,0.5) 0, transparent 35%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.4) 0, transparent 35%)',
+          }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(212,175,55,0.6) 1px,transparent 1px),linear-gradient(to right,rgba(212,175,55,0.6) 1px,transparent 1px)',
+            backgroundSize: '64px 64px',
+          }}
+          aria-hidden
+        />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:gap-14 lg:px-8 lg:py-24">
           <div className="lg:col-span-7">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
-              <Shield className="h-3 w-3" /> About the Union &middot; Est. 1913
-            </span>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
-              The Public Health Inspector&rsquo;s Union of Sri Lanka
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200">
+              <Star className="h-3 w-3" /> Chartered &middot; Established 1 January 1913
+            </div>
+            <h1 className="mt-5 font-serif text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-[3.6rem]">
+              A century of <span className="text-amber-300">field-first</span> public health
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
-              For more than a century the Public Health Inspector has been the front-line preventive officer of the
-              Ministry of Health. From the Sanitary Branch of 1913 to the digital enforcement of today, generations
-              of PHIs have eradicated smallpox, contained dengue, made street food safer and brought immunisation to
-              every village. The Union represents them &mdash; one voice, one register, one professional standard.
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-200/90 sm:text-lg">
+              Since the Sanitary Branch of 1913, the Public Health Inspector has walked every street, market and
+              village of Sri Lanka — ahead of the disease, before the outbreak, on behalf of the citizen.
+              The Union represents them: one voice, one register, one professional standard.
             </p>
 
-            <figure className="mt-6 max-w-xl border-l-4 border-blue-700 pl-4 italic text-slate-700 dark:border-blue-400 dark:text-slate-300">
-              <Quote className="mb-2 h-5 w-5 text-blue-700 dark:text-blue-400" />
-              &ldquo;Prevention is better than cure.&rdquo;
-              <figcaption className="mt-2 text-xs not-italic text-slate-500">Motto of the PHI service</figcaption>
-            </figure>
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/public/find-phi" className="inline-flex items-center gap-1.5 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-800">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/public/find-phi" className="inline-flex items-center gap-1.5 rounded-md bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-900 shadow-lg shadow-amber-500/20 hover:bg-amber-200">
                 Find your local PHI <ChevronRight className="h-4 w-4" />
               </Link>
-              <Link href="/public/contact" className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+              <Link href="#contact" className="inline-flex items-center gap-1.5 rounded-md border border-white/30 bg-white/5 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/10">
                 Contact the Union
               </Link>
             </div>
+
+            {/* Service ribbon */}
+            <dl className="mt-10 grid max-w-xl grid-cols-3 divide-x divide-white/15">
+              <RibbonStat k="112+"   v="Years of service" />
+              <RibbonStat k="1,793"  v="PHI officers" />
+              <RibbonStat k="21.9 M" v="Citizens served" />
+            </dl>
           </div>
 
+          {/* Emblem card */}
           <div className="lg:col-span-5">
-            <div className="grid grid-cols-2 gap-3">
-              <Stat icon={<Award      className="h-4 w-4" />} k="112+"   v="years of service" />
-              <Stat icon={<Users      className="h-4 w-4" />} k="1,793"  v="officers nationally" />
-              <Stat icon={<HeartPulse className="h-4 w-4" />} k="21.9 M" v="citizens protected" />
-              <Stat icon={<MapPin     className="h-4 w-4" />} k="26"     v="districts covered" />
-              <Stat icon={<Building2  className="h-4 w-4" />} k="354"    v="MOH divisions" />
-              <Stat icon={<GraduationCap className="h-4 w-4" />} k="6"   v="training centres" />
+            <div className="relative mx-auto max-w-sm">
+              <div className="absolute inset-0 -rotate-3 rounded-[2rem] bg-gradient-to-br from-amber-300/30 to-amber-500/10 blur-2xl" aria-hidden />
+              <div className="relative rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-white/10 to-white/5 p-6 shadow-2xl backdrop-blur">
+                <div className="flex items-center justify-center rounded-3xl bg-white/95 p-8">
+                  <Image src="/phi-emblem.png" alt="PHI Union of Sri Lanka official emblem" width={180} height={180} className="h-44 w-44" priority />
+                </div>
+                <p className="mt-5 text-center font-serif text-lg italic text-amber-200">
+                  &ldquo;Prevention is better than cure.&rdquo;
+                </p>
+                <p className="mt-1 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300/80">
+                  Motto of the PHI service
+                </p>
+
+                <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-300/80">
+                  <span className="rounded-md bg-white/5 px-1 py-2"><Crown className="mx-auto mb-1 h-3 w-3 text-amber-300" />Charter<br />1913</span>
+                  <span className="rounded-md bg-white/5 px-1 py-2"><Trophy className="mx-auto mb-1 h-3 w-3 text-amber-300" />Smallpox<br />Eradicated</span>
+                  <span className="rounded-md bg-white/5 px-1 py-2"><Shield className="mx-auto mb-1 h-3 w-3 text-amber-300" />Statutory<br />Officers</span>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Wavy divider */}
+        <svg className="absolute -bottom-px left-0 right-0 h-12 w-full text-[#fdfaf3] dark:text-slate-950" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden>
+          <path fill="currentColor" d="M0,32L80,29.3C160,27,320,21,480,26.7C640,32,800,48,960,48C1120,48,1280,32,1360,24L1440,16L1440,60L0,60Z" />
+        </svg>
+      </section>
+
+      {/* ── PROCLAMATION / STORY ───────────────────────────────────────── */}
+      <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="grid gap-10 lg:grid-cols-12">
+          <aside className="lg:col-span-4">
+            <div className="sticky top-32 rounded-2xl border border-amber-200/60 bg-white p-6 shadow-sm dark:border-amber-900/40 dark:bg-slate-900">
+              <ScrollText className="h-6 w-6 text-amber-700 dark:text-amber-400" />
+              <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
+                On record since 1913
+              </p>
+              <h2 className="mt-2 font-serif text-2xl font-extrabold leading-tight text-slate-900 dark:text-white">
+                The story of preventive health in Sri Lanka
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                Written from the founding minutes of the Sanitary Branch, the historic Cumpston Report and a century
+                of fieldwork by Sri Lankan officers.
+              </p>
+              <div className="mt-5 flex flex-col gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1.5"><Award className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />Royal Health Institution syllabus</span>
+                <span className="flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />Higher Diploma — NIHS Kalutara</span>
+                <span className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />Statutory uniformed cadre</span>
+              </div>
+            </div>
+          </aside>
+
+          <div className="space-y-6 text-base leading-relaxed text-slate-700 dark:text-slate-300 lg:col-span-8">
+            <p className="font-serif text-lg first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.85] first-letter:text-amber-700 dark:first-letter:text-amber-400">
+              At the inception of the Sanitary Branch of the Medical Department in 1913, six Sanitary Inspectors
+              were appointed after six months&rsquo; training at the Colombo Medical College. Recruitment continued
+              bi-annually, drawing the most able science graduates of the day into a field-first cadre modelled on
+              the British Royal Health Institution.
+            </p>
+            <p>
+              Sanitary Inspectors played a major role in the control activities carried out during the devastating
+              malaria epidemic of 1934/35. With the inauguration of the Malaria Control and Health Scheme in 1937,
+              their designation was changed from Sanitary Inspector to Sanitary Assistant and back again into
+              Sanitary Inspector. It was with the implementation of the recommendations of Dr Cumpston&rsquo;s
+              Report on the 1<sup>st</sup> of July 1954 that the designation was finally changed to Public Health
+              Inspector.
+            </p>
+            <p>
+              Across more than a century, PHIs led the eradication of smallpox (Wasuriya), the control of every
+              major communicable disease outbreak, the establishment of a safe and healthy food culture, the
+              wellbeing of school children, the reduction of occupational health hazards and the steady rise of
+              national vaccination coverage. Today the cadre numbers roughly 1,793 officers serving as the main
+              enforcement and prevention team island-wide.
+            </p>
+            <figure className="rounded-2xl border-l-4 border-amber-500 bg-gradient-to-r from-amber-50 to-transparent p-5 dark:from-amber-950/30">
+              <Quote className="mb-2 h-5 w-5 text-amber-700 dark:text-amber-400" />
+              <blockquote className="font-serif text-lg italic text-slate-800 dark:text-slate-200">
+                &ldquo;The Public Health Inspector remains the most enduring fieldwork institution of preventive
+                medicine in South Asia.&rdquo;
+              </blockquote>
+              <figcaption className="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                &mdash; Cumpston Report, 1954 (paraphrased)
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
 
-      {/* History (long-form) */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-2">
-              <History className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Our Story</h2>
+      {/* ── TIMELINE ────────────────────────────────────────────────────── */}
+      <section className="relative bg-[#1a2540] py-16 text-white sm:py-20">
+        <div className="absolute inset-0 opacity-[0.08]" style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} aria-hidden />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">Charted milestones</p>
+              <h2 className="mt-2 font-serif text-3xl font-extrabold sm:text-4xl">A century in seven moments</h2>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              Trace the lineage of preventive health in Sri Lanka — from Sanitary Inspectors in 1913 to the
-              digitally-enabled PHI of today.
+            <Link href="/public/news" className="inline-flex items-center gap-1.5 rounded-md border border-white/20 px-4 py-2 text-xs font-bold text-white hover:bg-white/10">
+              News &amp; events <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {milestones.map((m) => (
+              <li key={m.year} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition-transform hover:-translate-y-1 hover:border-amber-300/40">
+                <span className="absolute -right-3 -top-3 rounded-full bg-amber-300 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-900">
+                  {m.tag}
+                </span>
+                <p className="font-serif text-lg font-bold text-amber-300">{m.year}</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-slate-200/90">{m.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── CREST PRINCIPLES (no stat-grid like home) ──────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <CrestCard
+            icon={<Shield className="h-5 w-5" />}
+            kicker="01 &middot; Mandate"
+            title="Mission"
+            body="Environmental health management focused on the control of communicable and non-communicable diseases, the restoration of health and the enforcement of health regulations — at the citizen&rsquo;s doorstep."
+          />
+          <CrestCard
+            icon={<Globe className="h-5 w-5" />}
+            kicker="02 &middot; Horizon"
+            title="Vision"
+            body="A healthy nation built on a safe environment, where every Sri Lankan — from the city to the remotest village — benefits from preventive health that is professional, evidence-led and free at the point of need."
+          />
+          <CrestCard
+            icon={<BadgeCheck className="h-5 w-5" />}
+            kicker="03 &middot; Code"
+            title="Values"
+            body="Integrity in enforcement, compassion in community work, science in decision-making and solidarity within the cadre. Every officer is bound by the PHI service code of conduct."
+          />
+        </div>
+      </section>
+
+      {/* ── SCOPE OF WORK ──────────────────────────────────────────────── */}
+      <section className="border-y border-amber-200/60 bg-gradient-to-b from-[#fdfaf3] to-[#f6efde] py-16 sm:py-20 dark:border-amber-900/30 dark:from-slate-900/40 dark:to-slate-900/60">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+            <h2 className="font-serif text-3xl font-extrabold text-slate-900 dark:text-white">What a PHI Does</h2>
+          </div>
+          <p className="mb-10 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+            The PHI is a uniformed officer of the Ministry of Health whose duties span six interlocking pillars of
+            preventive public health. PHI-PRO digitises every one of them.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pillars.map((p, i) => (
+              <article key={p.title} className="group relative overflow-hidden rounded-2xl border border-amber-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg dark:border-amber-900/40 dark:bg-slate-900">
+                <span className="absolute right-4 top-4 font-serif text-3xl font-bold text-amber-200 dark:text-amber-900">
+                  0{i + 1}
+                </span>
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#1a2540] to-[#0f1a30] text-amber-300">
+                  {p.icon}
+                </div>
+                <h3 className="mt-4 font-serif text-lg font-bold text-slate-900 dark:text-white">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{p.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RANKS LADDER ───────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Layers className="h-6 w-6 text-amber-700 dark:text-amber-400" />
+            <h2 className="mt-3 font-serif text-3xl font-extrabold leading-tight text-slate-900 dark:text-white">
+              Seven service ranks &mdash; one chain of command
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              The PHI service is structured as a uniformed cadre with seven progressive ranks. Officers enter as
+              Class III after the Higher Diploma at the National Institute of Health Sciences and rise on merit and
+              service through divisional, district and provincial supervisory roles, with the apex Principal PHI
+              advising the Ministry of Health.
             </p>
           </div>
-          <div className="lg:col-span-2">
-            <div className="space-y-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-              <p>
-                At the inception of the Sanitary Branch of the Medical Department in 1913, six Sanitary Inspectors
-                were appointed after six months&rsquo; training at the Colombo Medical College. Recruitment continued
-                bi-annually, drawing the most able science graduates of the day into a field-first cadre modelled on
-                the British Royal Health Institution.
-              </p>
-              <p>
-                Sanitary Inspectors played a major role in the control activities carried out during the devastating
-                malaria epidemic of 1934/35. With the inauguration of the Malaria Control and Health Scheme in 1937,
-                their designation was changed from Sanitary Inspector to Sanitary Assistant and back again into
-                Sanitary Inspector. It was with the implementation of the recommendations of Dr Cumpston&rsquo;s
-                Report on the 1<sup>st</sup> of July 1954 that the designation was finally changed to Public Health
-                Inspector.
-              </p>
-              <p>
-                Across more than a century, PHIs led the eradication of smallpox (Wasuriya), the control of every
-                major communicable disease outbreak, the establishment of a safe and healthy food culture, the
-                wellbeing of school children, the reduction of occupational health hazards and the steady rise of
-                national vaccination coverage. Today the cadre numbers roughly 1,793 officers serving as the main
-                enforcement and prevention team island-wide.
-              </p>
-            </div>
-          </div>
+          <ol className="space-y-2 lg:col-span-7">
+            {ranks.map((r) => (
+              <li key={r.name} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-amber-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-amber-700">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1a2540] text-sm font-bold text-amber-300">
+                  {r.tier}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-serif text-base font-bold text-slate-900 dark:text-white">{r.name}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{r.note}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+              </li>
+            ))}
+          </ol>
         </div>
-
-        <ol className="relative mt-12 space-y-6 border-l-2 border-blue-200 pl-6 dark:border-blue-900">
-          {milestones.map((m) => (
-            <li key={m.year} className="relative">
-              <span className="absolute -left-[31px] flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-blue-700 dark:border-slate-900" />
-              <p className="text-sm font-bold text-blue-700 dark:text-blue-400">{m.year}</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{m.text}</p>
-            </li>
-          ))}
-        </ol>
       </section>
 
-      {/* Mission / Vision / Values */}
-      <section className="border-y border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
+      {/* ── TRAINING ────────────────────────────────────────────────────── */}
+      <section className="bg-[#f6efde] py-16 sm:py-20 dark:bg-slate-900/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-3">
-            <ValueCard
-              tone="blue"
-              icon={<Shield className="h-5 w-5 text-white" />}
-              title="Our Mission"
-              body="Environmental health management focused on the control of communicable and non-communicable diseases, the restoration of health and the enforcement of health regulations — at the citizen&rsquo;s doorstep."
-            />
-            <ValueCard
-              tone="amber"
-              icon={<Globe className="h-5 w-5 text-white" />}
-              title="Our Vision"
-              body="A healthy nation built on a safe environment — where every Sri Lankan, from city to remote village, benefits from preventive health that is professional, evidence-led and free at the point of need."
-            />
-            <ValueCard
-              tone="emerald"
-              icon={<BadgeCheck className="h-5 w-5 text-white" />}
-              title="Our Values"
-              body="Integrity in enforcement, compassion in community work, science in decision-making and solidarity within the cadre. Every officer is bound by the PHI service code of conduct."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Scope of work */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">What a PHI Does</h2>
-        </div>
-        <p className="mb-8 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-          The PHI is a uniformed officer of the Ministry of Health whose duties span six interlocking pillars of
-          preventive public health. The platform you are using digitises all of them.
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {pillars.map((p) => (
-            <div key={p.title} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-900 text-white">
-                {p.icon}
-              </div>
-              <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{p.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Training */}
-      <section className="border-y border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Training Pipeline</h2>
+          <div className="mb-10 flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+            <h2 className="font-serif text-3xl font-extrabold text-slate-900 dark:text-white">Where PHIs Are Trained</h2>
           </div>
           <p className="mb-8 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
             Trainee PHIs complete a two-year Higher Diploma at the National Institute of Health Sciences in Kalutara,
             with regional practicums across the island. Entry requires GCE (O/L) credit passes in Sinhala/Tamil,
             Mathematics, Science and English, and GCE (A/L) passes in Biology or Combined Mathematics.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {trainingCentres.map((c) => (
-              <div key={`${c.name}-${c.loc}`} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{c.name}</p>
+              <article key={`${c.name}-${c.loc}`} className="rounded-2xl border border-amber-200/60 bg-white p-5 shadow-sm dark:border-amber-900/30 dark:bg-slate-900">
+                <div className="flex items-center justify-between">
+                  <Building2 className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">{c.loc}</span>
                 </div>
-                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{c.loc}</p>
+                <p className="mt-3 font-serif text-base font-bold text-slate-900 dark:text-white">{c.name}</p>
                 <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{c.role}</p>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Ranks */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-2">
-          <Layers className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Service Ranks</h2>
-        </div>
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {ranks.map((r, i) => (
-            <li key={r} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-bold text-white">{i + 1}</span>
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{r}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* Platform features (industrial / professional) */}
-      <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-14 text-white">
+      {/* ── PLATFORM ─────────────────────────────────────────────────────── */}
+      <section className="bg-gradient-to-br from-[#0f1a30] via-[#1a2540] to-[#0a1224] py-16 text-white sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-blue-300">PHI-PRO platform</p>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Digital Enforcement, Industrial Scale</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-blue-100/90">
-            PHI-PRO is the official digital workspace commissioned to modernise PHI operations. It carries the
-            statutory work of every officer from inspection through prosecution &mdash; secure, auditable and built
-            for the field.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {platformFeatures.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition-colors hover:bg-white/10">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg">
-                  {f.icon}
-                </div>
-                <h3 className="mt-4 text-base font-bold">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-blue-100/80">{f.body}</p>
-              </div>
-            ))}
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">PHI-PRO platform</p>
+              <h2 className="mt-2 font-serif text-3xl font-extrabold sm:text-4xl">Industrial digital enforcement</h2>
+              <p className="mt-4 text-sm leading-relaxed text-slate-200/80">
+                Commissioned to modernise PHI operations, PHI-PRO carries the statutory work of every officer from
+                inspection through prosecution — secure, auditable, built for the field.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:col-span-8">
+              {platformFeatures.map((f) => (
+                <article key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition-colors hover:bg-white/10">
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-300 text-slate-900 shadow-lg">
+                    {f.icon}
+                  </div>
+                  <h3 className="mt-4 font-serif text-base font-bold">{f.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-200/80">{f.body}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Office bearers */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-2">
-          <Users className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Office Bearers</h2>
+      {/* ── OFFICE BEARERS ───────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="mb-10 flex items-center gap-2">
+          <Users className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+          <h2 className="font-serif text-3xl font-extrabold text-slate-900 dark:text-white">Office Bearers</h2>
         </div>
         <div className="grid gap-5 sm:grid-cols-3">
           {officeBearers.map((o) => (
-            <div key={o.role} className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <Image src="/phi-emblem.png" alt="" width={56} height={56} className="h-14 w-14" />
-              <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-blue-700 dark:text-blue-400">{o.role}</p>
-              <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{o.name}</p>
-              <a href={`tel:${o.tel.replace(/\s/g, '')}`} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-700 dark:text-slate-400 dark:hover:text-blue-300">
+            <article key={o.role} className="group relative overflow-hidden rounded-2xl border border-amber-200/60 bg-white p-8 text-center shadow-sm transition-shadow hover:shadow-lg dark:border-amber-900/40 dark:bg-slate-900">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300" />
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2540] to-[#0a1224] p-3">
+                <Image src="/phi-emblem.png" alt="" width={56} height={56} className="h-14 w-14" />
+              </div>
+              <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">{o.role}</p>
+              <p className="mt-1 font-serif text-lg font-extrabold text-slate-900 dark:text-white">{o.name}</p>
+              <a href={`tel:${o.tel.replace(/\s/g, '')}`} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-amber-700 dark:text-slate-400 dark:hover:text-amber-400">
                 <Phone className="h-3 w-3" /> {o.tel}
               </a>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* Partner bodies */}
-      <section className="border-t border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
+      {/* ── PARTNER BODIES ───────────────────────────────────────────────── */}
+      <section className="border-t border-amber-200/60 bg-[#fdfaf3] py-16 dark:border-amber-900/30 dark:bg-slate-900/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-2 flex items-center gap-2">
-            <Globe className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Partner Agencies</h2>
+            <Globe className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+            <h2 className="font-serif text-3xl font-extrabold text-slate-900 dark:text-white">Partner Agencies</h2>
           </div>
           <p className="mb-8 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            Ministry of Health agencies and professional bodies that PHIs work alongside every day. Links open in a
-            new tab.
+            Ministry of Health agencies and professional bodies the PHI corps works alongside every day. Links open
+            in a new tab.
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {partnerBodies.map((p) => (
@@ -341,19 +442,16 @@ export default function AboutPage() {
                 href={p.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700"
+                className="group flex items-start gap-3 rounded-xl border border-amber-200/60 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md dark:border-amber-900/30 dark:bg-slate-900 dark:hover:border-amber-600"
               >
-                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[10px] font-bold tracking-tight text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+                <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#1a2540] to-[#0a1224] text-[11px] font-bold tracking-tight text-amber-300">
                   {p.abbr}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    {p.region} &middot; {p.country}
-                  </p>
-                  <p className="mt-0.5 break-words text-sm font-semibold leading-snug text-slate-900 dark:text-white">
+                  <p className="break-words font-serif text-sm font-bold leading-snug text-slate-900 dark:text-white">
                     {p.name}
                   </p>
-                  <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-blue-700 group-hover:underline dark:text-blue-400">
+                  <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-amber-700 group-hover:underline dark:text-amber-400">
                     Visit site <ExternalLink className="h-3 w-3" />
                   </p>
                 </div>
@@ -363,32 +461,32 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Contact strip */}
-      <section className="bg-gradient-to-r from-blue-700 to-blue-900 py-12 text-white">
+      {/* ── CONTACT STRIP ────────────────────────────────────────────────── */}
+      <section id="contact" className="bg-gradient-to-br from-[#1a2540] via-[#0f1a30] to-[#0a1224] py-16 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-200">Reach the Union</p>
-            <h3 className="mt-1 text-xl font-bold">Talk to a real person</h3>
-            <p className="mt-2 text-sm text-blue-100/90">
+          <div className="lg:col-span-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">Reach the Union</p>
+            <h3 className="mt-2 font-serif text-2xl font-extrabold">Talk to a real person</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200/80">
               The Union secretariat operates Monday – Friday, 09:00 – 16:00 (IST). For after-hours public-health
               emergencies, please call the Ministry hotline <strong>1390</strong>.
             </p>
           </div>
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <div className="flex items-center gap-2 text-sm font-bold"><Phone className="h-4 w-4" /> Telephone</div>
+          <div className="rounded-2xl border border-amber-300/30 bg-white/5 p-5 backdrop-blur lg:col-span-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-300"><Phone className="h-4 w-4" /> Telephone</div>
             <ul className="mt-3 space-y-1.5 text-sm">
-              <li><a href="tel:+94112635675" className="hover:underline">(+94) 11 263 5675</a> &middot; main</li>
-              <li><a href="tel:+94112670759" className="hover:underline">(+94) 11 267 0759</a> &middot; secretariat</li>
+              <li><a href="tel:+94112635675" className="hover:underline">(+94) 11 263 5675</a> <span className="text-slate-400">&middot; main</span></li>
+              <li><a href="tel:+94112670759" className="hover:underline">(+94) 11 267 0759</a> <span className="text-slate-400">&middot; secretariat</span></li>
             </ul>
-            <div className="mt-4 flex items-center gap-2 text-sm font-bold"><Mail className="h-4 w-4" /> Email</div>
+            <div className="mt-4 flex items-center gap-2 text-sm font-bold text-amber-300"><Mail className="h-4 w-4" /> Email</div>
             <ul className="mt-3 space-y-1.5 text-sm">
               <li><a href="mailto:info@phi.lk" className="hover:underline">info@phi.lk</a></li>
               <li><a href="mailto:phisrilanka1@gmail.com" className="hover:underline">phisrilanka1@gmail.com</a></li>
             </ul>
           </div>
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <div className="flex items-center gap-2 text-sm font-bold"><MapPin className="h-4 w-4" /> Head office</div>
-            <p className="mt-3 text-sm leading-relaxed text-blue-100/90">
+          <div className="rounded-2xl border border-amber-300/30 bg-white/5 p-5 backdrop-blur lg:col-span-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-300"><MapPin className="h-4 w-4" /> Head office</div>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200/85">
               673 Maradana Road,<br />
               Colombo 01000,<br />
               Sri Lanka.
@@ -397,7 +495,7 @@ export default function AboutPage() {
               href="https://www.google.com/maps/search/?api=1&query=673+Maradana+Road+Colombo+01000+Sri+Lanka"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-blue-200 hover:underline"
+              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:underline"
             >
               Open in Google Maps <ExternalLink className="h-3 w-3" />
             </a>
@@ -405,11 +503,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Quick links */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      {/* ── QUICK LINKS ──────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Quick Links</h2>
+          <BookOpen className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+          <h2 className="font-serif text-2xl font-extrabold text-slate-900 dark:text-white">Quick Links</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {downloads.map((d) => (
@@ -418,7 +516,7 @@ export default function AboutPage() {
               href={d.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700 transition-colors hover:border-blue-300 hover:text-blue-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-700"
+              className="flex items-center justify-between rounded-xl border border-amber-200/60 bg-white p-4 text-sm font-semibold text-slate-700 transition-colors hover:border-amber-400 hover:text-amber-800 dark:border-amber-900/30 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-amber-600"
             >
               {d.label} <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -432,28 +530,26 @@ export default function AboutPage() {
 }
 
 /* ───── helpers ───── */
-function Stat({ icon, k, v }: { icon: React.ReactNode; k: string; v: string }) {
+
+function RibbonStat({ k, v }: { k: string; v: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/70">
-      <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400">{icon}
-        <span className="text-[10px] font-bold uppercase tracking-wider">{v}</span>
-      </div>
-      <p className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{k}</p>
+    <div className="px-4 text-left first:pl-0">
+      <dd className="font-serif text-2xl font-extrabold text-amber-200 sm:text-3xl">{k}</dd>
+      <dt className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-300">{v}</dt>
     </div>
   );
 }
 
-function ValueCard({ icon, title, body, tone }: { icon: React.ReactNode; title: string; body: string; tone: 'blue' | 'amber' | 'emerald' }) {
-  const accents = {
-    blue:    { ring: 'border-blue-100 dark:border-blue-900/50',       grad: 'from-blue-600 to-blue-900' },
-    amber:   { ring: 'border-amber-100 dark:border-amber-900/50',     grad: 'from-amber-500 to-orange-600' },
-    emerald: { ring: 'border-emerald-100 dark:border-emerald-900/50', grad: 'from-emerald-500 to-teal-700' },
-  } as const;
+function CrestCard({ icon, kicker, title, body }: { icon: React.ReactNode; kicker: string; title: string; body: string }) {
   return (
-    <div className={`rounded-2xl border bg-white p-8 dark:bg-slate-900 ${accents[tone].ring}`}>
-      <div className={`inline-flex rounded-xl bg-gradient-to-br p-2.5 ${accents[tone].grad}`}>{icon}</div>
-      <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400" dangerouslySetInnerHTML={{ __html: body }} />
-    </div>
+    <article className="group relative overflow-hidden rounded-2xl border border-amber-200/60 bg-white p-8 shadow-sm transition-shadow hover:shadow-lg dark:border-amber-900/40 dark:bg-slate-900">
+      <span className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-100/60 blur-2xl transition-colors group-hover:bg-amber-200/80 dark:bg-amber-900/20" aria-hidden />
+      <div className="relative flex items-center gap-3">
+        <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#1a2540] to-[#0a1224] text-amber-300">{icon}</div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400" dangerouslySetInnerHTML={{ __html: kicker }} />
+      </div>
+      <h3 className="relative mt-5 font-serif text-2xl font-extrabold text-slate-900 dark:text-white">{title}</h3>
+      <p className="relative mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400" dangerouslySetInnerHTML={{ __html: body }} />
+    </article>
   );
 }

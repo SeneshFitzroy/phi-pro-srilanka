@@ -23,18 +23,19 @@ import {
  *   3. Officer cards with PHI name, range / station, MOH parent, district, phone.
  */
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const ALL_MOHS = listMohOffices();
 const ALL_PINS = mohPins();
 
 /**
- * MapLibre/Mapbox-GL compatible raster style that points at the OpenStreetMap
- * tile servers. Used as the always-available fallback when no Mapbox token is
- * configured at build time — the map still draws Sri Lanka instead of a blank
- * canvas with floating markers.
+ * Mapbox-GL-compatible raster style that points at the OpenStreetMap tile
+ * servers. We use this regardless of whether a Mapbox token is configured —
+ * production Mapbox tokens often carry domain restrictions and quotas that
+ * cause the basemap to render blank in deployed environments. OSM raster
+ * tiles are token-free, copyright-clean and always render Sri Lanka.
  */
 const OSM_STYLE: StyleSpecification = {
   version: 8,
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     osm: {
       type: 'raster',
@@ -48,7 +49,10 @@ const OSM_STYLE: StyleSpecification = {
       maxzoom: 19,
     },
   },
-  layers: [{ id: 'osm', type: 'raster', source: 'osm', minzoom: 0, maxzoom: 22 }],
+  layers: [
+    { id: 'osm-bg', type: 'background', paint: { 'background-color': '#e8edf2' } },
+    { id: 'osm', type: 'raster', source: 'osm', minzoom: 0, maxzoom: 22 },
+  ],
 };
 
 /** Sri Lanka bounding box — keeps the initial map view centred on the island. */
@@ -255,13 +259,13 @@ export default function FindPhiPage() {
 
           <div className="relative h-[28rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
             <MapGL
-              {...(MAPBOX_TOKEN
-                ? { mapboxAccessToken: MAPBOX_TOKEN, mapStyle: 'mapbox://styles/mapbox/outdoors-v12' }
-                : { mapStyle: OSM_STYLE })}
+              mapStyle={OSM_STYLE}
               initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
               key={`${centre.lat}-${centre.lng}-${centre.zoom}-${pins.length}`}
               style={{ width: '100%', height: '100%' }}
               maxBounds={[[78.5, 5.0], [82.5, 10.5]]}
+              minZoom={6.4}
+              maxZoom={17}
               attributionControl
             >
               <NavigationControl position="top-right" />
@@ -329,11 +333,9 @@ export default function FindPhiPage() {
               )}
             </MapGL>
 
-            {!MAPBOX_TOKEN && (
-              <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 shadow dark:bg-slate-900/90 dark:text-slate-300">
-                Tiles: OpenStreetMap (free fallback) — set NEXT_PUBLIC_MAPBOX_TOKEN for HD styles
-              </p>
-            )}
+            <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 shadow dark:bg-slate-900/90 dark:text-slate-300">
+              Basemap: © OpenStreetMap contributors
+            </p>
           </div>
         </div>
       </section>
