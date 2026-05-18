@@ -1,341 +1,511 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import Map, { Marker, Popup, NavigationControl, ScaleControl, GeolocateControl } from 'react-map-gl';
+import { useEffect, useMemo, useState } from 'react';
+import MapGL, { Marker, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
+import type { StyleSpecification } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
-import { MapPin, Search, Phone, Building2, Map as MapIcon } from 'lucide-react';
+import {
+  MapPin, Search, Phone, Building2, Map as MapIcon, Filter, X, ShieldCheck,
+  Users, Layers, Hash, Sparkles, Copy, Check, ArrowUpRight,
+} from 'lucide-react';
+import {
+  DISTRICTS, PHI_OFFICERS, mohPins, listMohOffices,
+  type PhiOfficer, type MohPin, type Province,
+} from '@/data/phi-officers';
 
 /**
- * "Find a PHI" directory — lets a citizen locate the Medical Officer of Health (MOH)
- * office serving their area and the public contact line for its Public Health Inspectors.
- * Includes a real interactive Mapbox map pin-coded to each MOH area.
+ * Public "Find a PHI" directory.
+ *
+ * Three coordinated views over the same dataset:
+ *   1. Live Mapbox map of every MOH office (auto-zooms to filter selection).
+ *   2. District + MOH filter chips with full-text search.
+ *   3. Officer cards with PHI name, range / station, MOH parent, district, phone.
  */
 
-type Office = { moh: string; phone: string; lat: number; lng: number };
-type District = { district: string; province: string; offices: Office[] };
-
-const DIRECTORY: District[] = [
-  {
-    district: 'Colombo', province: 'Western', offices: [
-      { moh: 'Colombo Municipal Council', phone: '011-2667122', lat: 6.9271, lng: 79.8612 },
-      { moh: 'Kolonnawa MOH',             phone: '011-2572929', lat: 6.9412, lng: 79.8861 },
-      { moh: 'Dehiwala MOH',              phone: '011-2738282', lat: 6.8511, lng: 79.8650 },
-      { moh: 'Maharagama MOH',            phone: '011-2850279', lat: 6.8480, lng: 79.9270 },
-    ],
-  },
-  {
-    district: 'Gampaha', province: 'Western', offices: [
-      { moh: 'Gampaha MOH',  phone: '033-2222261', lat: 7.0917, lng: 79.9999 },
-      { moh: 'Negombo MOH',  phone: '031-2222261', lat: 7.2086, lng: 79.8358 },
-      { moh: 'Kelaniya MOH', phone: '011-2911261', lat: 6.9553, lng: 79.9220 },
-      { moh: 'Wattala MOH',  phone: '011-2930261', lat: 6.9899, lng: 79.8916 },
-    ],
-  },
-  {
-    district: 'Kalutara', province: 'Western', offices: [
-      { moh: 'Kalutara MOH', phone: '034-2222261', lat: 6.5854, lng: 79.9607 },
-      { moh: 'Panadura MOH', phone: '038-2232261', lat: 6.7132, lng: 79.9026 },
-      { moh: 'Horana MOH',   phone: '034-2261261', lat: 6.7156, lng: 80.0625 },
-    ],
-  },
-  {
-    district: 'Kandy', province: 'Central', offices: [
-      { moh: 'Kandy Municipal Council', phone: '081-2222261', lat: 7.2906, lng: 80.6337 },
-      { moh: 'Gampola MOH',             phone: '081-2352261', lat: 7.1638, lng: 80.5736 },
-      { moh: 'Akurana MOH',             phone: '081-2300261', lat: 7.3650, lng: 80.6280 },
-    ],
-  },
-  {
-    district: 'Matale', province: 'Central', offices: [
-      { moh: 'Matale MOH',   phone: '066-2222261', lat: 7.4675, lng: 80.6234 },
-      { moh: 'Dambulla MOH', phone: '066-2284261', lat: 7.8606, lng: 80.6519 },
-    ],
-  },
-  {
-    district: 'Nuwara Eliya', province: 'Central', offices: [
-      { moh: 'Nuwara Eliya MOH', phone: '052-2222261', lat: 6.9497, lng: 80.7891 },
-      { moh: 'Hatton MOH',       phone: '051-2222261', lat: 6.8919, lng: 80.5959 },
-    ],
-  },
-  {
-    district: 'Galle', province: 'Southern', offices: [
-      { moh: 'Galle Municipal Council', phone: '091-2222261', lat: 6.0535, lng: 80.2210 },
-      { moh: 'Ambalangoda MOH',         phone: '091-2258261', lat: 6.2354, lng: 80.0537 },
-      { moh: 'Elpitiya MOH',            phone: '091-2291261', lat: 6.2917, lng: 80.1641 },
-    ],
-  },
-  {
-    district: 'Matara', province: 'Southern', offices: [
-      { moh: 'Matara MOH',   phone: '041-2222261', lat: 5.9485, lng: 80.5353 },
-      { moh: 'Weligama MOH', phone: '041-2250261', lat: 5.9667, lng: 80.4296 },
-    ],
-  },
-  {
-    district: 'Hambantota', province: 'Southern', offices: [
-      { moh: 'Hambantota MOH', phone: '047-2220261', lat: 6.1241, lng: 81.1185 },
-      { moh: 'Tangalle MOH',   phone: '047-2240261', lat: 6.0245, lng: 80.7937 },
-    ],
-  },
-  {
-    district: 'Jaffna', province: 'Northern', offices: [
-      { moh: 'Jaffna Municipal Council', phone: '021-2222261', lat: 9.6615, lng: 80.0255 },
-      { moh: 'Chavakachcheri MOH',       phone: '021-2270261', lat: 9.6587, lng: 80.1612 },
-    ],
-  },
-  { district: 'Kilinochchi', province: 'Northern', offices: [{ moh: 'Kilinochchi MOH', phone: '021-2285261', lat: 9.3939, lng: 80.4031 }] },
-  { district: 'Mannar',      province: 'Northern', offices: [{ moh: 'Mannar MOH',      phone: '023-2222261', lat: 8.9777, lng: 79.9080 }] },
-  { district: 'Vavuniya',    province: 'Northern', offices: [{ moh: 'Vavuniya MOH',    phone: '024-2222261', lat: 8.7514, lng: 80.4971 }] },
-  { district: 'Mullaitivu',  province: 'Northern', offices: [{ moh: 'Mullaitivu MOH',  phone: '024-2290261', lat: 9.2671, lng: 80.8142 }] },
-  {
-    district: 'Trincomalee', province: 'Eastern', offices: [
-      { moh: 'Trincomalee MOH', phone: '026-2222261', lat: 8.5874, lng: 81.2152 },
-      { moh: 'Kinniya MOH',     phone: '026-2236261', lat: 8.4924, lng: 81.1815 },
-    ],
-  },
-  {
-    district: 'Batticaloa', province: 'Eastern', offices: [
-      { moh: 'Batticaloa MOH',  phone: '065-2222261', lat: 7.7170, lng: 81.7000 },
-      { moh: 'Kattankudy MOH',  phone: '065-2246261', lat: 7.6859, lng: 81.7283 },
-    ],
-  },
-  {
-    district: 'Ampara', province: 'Eastern', offices: [
-      { moh: 'Ampara MOH',   phone: '063-2222261', lat: 7.2975, lng: 81.6747 },
-      { moh: 'Kalmunai MOH', phone: '067-2229261', lat: 7.4097, lng: 81.8260 },
-    ],
-  },
-  {
-    district: 'Kurunegala', province: 'North Western', offices: [
-      { moh: 'Kurunegala MOH',   phone: '037-2222261', lat: 7.4863, lng: 80.3623 },
-      { moh: 'Kuliyapitiya MOH', phone: '037-2281261', lat: 7.4685, lng: 80.0411 },
-    ],
-  },
-  {
-    district: 'Puttalam', province: 'North Western', offices: [
-      { moh: 'Puttalam MOH', phone: '032-2265261', lat: 8.0408, lng: 79.8394 },
-      { moh: 'Chilaw MOH',   phone: '032-2222261', lat: 7.5763, lng: 79.7951 },
-    ],
-  },
-  {
-    district: 'Anuradhapura', province: 'North Central', offices: [
-      { moh: 'Anuradhapura MOH', phone: '025-2222261', lat: 8.3114, lng: 80.4037 },
-      { moh: 'Kekirawa MOH',     phone: '025-2264261', lat: 8.0353, lng: 80.5908 },
-    ],
-  },
-  { district: 'Polonnaruwa', province: 'North Central', offices: [{ moh: 'Polonnaruwa MOH', phone: '027-2222261', lat: 7.9403, lng: 81.0188 }] },
-  {
-    district: 'Badulla', province: 'Uva', offices: [
-      { moh: 'Badulla MOH',      phone: '055-2222261', lat: 6.9934, lng: 81.0550 },
-      { moh: 'Bandarawela MOH',  phone: '057-2222261', lat: 6.8329, lng: 80.9889 },
-    ],
-  },
-  { district: 'Monaragala', province: 'Uva', offices: [{ moh: 'Monaragala MOH', phone: '055-2276261', lat: 6.8722, lng: 81.3506 }] },
-  {
-    district: 'Ratnapura', province: 'Sabaragamuwa', offices: [
-      { moh: 'Ratnapura MOH',    phone: '045-2222261', lat: 6.6828, lng: 80.3992 },
-      { moh: 'Embilipitiya MOH', phone: '047-2230261', lat: 6.3437, lng: 80.8589 },
-    ],
-  },
-  {
-    district: 'Kegalle', province: 'Sabaragamuwa', offices: [
-      { moh: 'Kegalle MOH',   phone: '035-2222261', lat: 7.2513, lng: 80.3464 },
-      { moh: 'Mawanella MOH', phone: '035-2246261', lat: 7.2533, lng: 80.4471 },
-    ],
-  },
-];
-
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+const ALL_MOHS = listMohOffices();
+const ALL_PINS = mohPins();
 
-interface MarkerPoint extends Office { district: string; province: string }
+/**
+ * MapLibre/Mapbox-GL compatible raster style that points at the OpenStreetMap
+ * tile servers. Used as the always-available fallback when no Mapbox token is
+ * configured at build time — the map still draws Sri Lanka instead of a blank
+ * canvas with floating markers.
+ */
+const OSM_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    osm: {
+      type: 'raster',
+      tiles: [
+        'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      ],
+      tileSize: 256,
+      attribution: '© OpenStreetMap contributors',
+      maxzoom: 19,
+    },
+  },
+  layers: [{ id: 'osm', type: 'raster', source: 'osm', minzoom: 0, maxzoom: 22 }],
+};
+
+/** Sri Lanka bounding box — keeps the initial map view centred on the island. */
+const SL_BOUNDS = { lat: 7.8731, lng: 80.7718, zoom: 6.8 };
+
+const PROVINCE_BADGE: Record<Province, string> = {
+  'Western':       'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
+  'Central':       'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
+  'Southern':      'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+  'Northern':      'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300',
+  'Eastern':       'bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300',
+  'North Western': 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300',
+  'North Central': 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300',
+  'Uva':           'bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300',
+  'Sabaragamuwa':  'bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300',
+};
 
 export default function FindPhiPage() {
   const [q, setQ] = useState('');
-  const [selected, setSelected] = useState<MarkerPoint | null>(null);
+  const [districtFilter, setDistrictFilter] = useState<string | null>(null);
+  const [mohFilter, setMohFilter] = useState<string | null>(null);
+  const [view, setView] = useState<'officers' | 'mohs'>('officers');
+  const [selected, setSelected] = useState<MohPin | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const results = useMemo(() => {
+  // Reset MOH filter when district changes so it does not silently filter out matches.
+  useEffect(() => { setMohFilter(null); }, [districtFilter]);
+
+  const officers = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return DIRECTORY;
-    return DIRECTORY
-      .map((d) => {
-        const districtMatch = d.district.toLowerCase().includes(term) || d.province.toLowerCase().includes(term);
-        const offices = districtMatch ? d.offices : d.offices.filter((o) => o.moh.toLowerCase().includes(term));
-        return offices.length ? { ...d, offices } : null;
-      })
-      .filter(Boolean) as District[];
-  }, [q]);
+    return PHI_OFFICERS.filter((o) => {
+      if (districtFilter && o.district !== districtFilter) return false;
+      if (mohFilter && o.moh !== mohFilter) return false;
+      if (!term) return true;
+      return (
+        (o.name ?? '').toLowerCase().includes(term) ||
+        o.range.toLowerCase().includes(term) ||
+        o.moh.toLowerCase().includes(term) ||
+        o.district.toLowerCase().includes(term) ||
+        o.province.toLowerCase().includes(term) ||
+        o.phone.replace(/\D/g, '').includes(term.replace(/\D/g, '')) ||
+        (o.memberNo ?? '').toLowerCase().includes(term)
+      );
+    });
+  }, [q, districtFilter, mohFilter]);
 
-  const totalOffices = results.reduce((n, d) => n + d.offices.length, 0);
+  const pins = useMemo(() => {
+    const officerKeys = new Set(officers.map((o) => `${o.district}::${o.moh}`));
+    return ALL_PINS.filter((p) => officerKeys.has(`${p.district}::${p.moh}`));
+  }, [officers]);
 
-  const points: MarkerPoint[] = useMemo(
-    () => results.flatMap((d) => d.offices.map((o) => ({ ...o, district: d.district, province: d.province }))),
-    [results],
-  );
-
-  // Auto-fit centre on the filtered set
+  /** Auto-fit centre / zoom for the currently filtered pin-set. */
   const centre = useMemo(() => {
-    if (points.length === 0) return { lat: 7.6, lng: 80.7, zoom: 7 };
-    const lats = points.map((p) => p.lat);
-    const lngs = points.map((p) => p.lng);
+    if (pins.length === 0) return SL_BOUNDS;
+    if (pins.length === 1) return { lat: pins[0].lat, lng: pins[0].lng, zoom: 12 };
+    const lats = pins.map((p) => p.lat);
+    const lngs = pins.map((p) => p.lng);
     const lat = (Math.min(...lats) + Math.max(...lats)) / 2;
     const lng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
     const span = Math.max(Math.max(...lats) - Math.min(...lats), Math.max(...lngs) - Math.min(...lngs));
-    const zoom = span < 0.05 ? 13 : span < 0.2 ? 11 : span < 0.6 ? 10 : span < 1.5 ? 9 : 7.2;
+    const zoom = span < 0.05 ? 13 : span < 0.2 ? 11 : span < 0.6 ? 9.5 : span < 1.5 ? 8.5 : 6.8;
     return { lat, lng, zoom };
-  }, [points]);
+  }, [pins]);
+
+  const officersByDistrict = useMemo(() => {
+    const map = new Map<string, PhiOfficer[]>();
+    for (const o of officers) {
+      if (!map.has(o.district)) map.set(o.district, []);
+      map.get(o.district)!.push(o);
+    }
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [officers]);
+
+  const visibleMohs = useMemo(() => {
+    if (!districtFilter) return ALL_MOHS;
+    return Array.from(new Set(PHI_OFFICERS.filter((o) => o.district === districtFilter).map((o) => o.moh))).sort();
+  }, [districtFilter]);
+
+  const filtersActive = Boolean(q || districtFilter || mohFilter);
+  const clearFilters = () => { setQ(''); setDistrictFilter(null); setMohFilter(null); };
+
+  const copyPhone = async (phone: string) => {
+    try {
+      await navigator.clipboard.writeText(phone);
+      setCopied(phone);
+      setTimeout(() => setCopied(null), 1500);
+    } catch { /* clipboard blocked — silently ignore */ }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       <PublicHeader />
 
+      {/* Hero */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:to-blue-950/20">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">Public Directory</p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Find a PHI</h1>
-          <p className="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-            Search for the Medical Officer of Health (MOH) office serving your area, then call its Public Health Inspectors directly or open the location in maps.
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+            Find a Public Health Inspector
+          </h1>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+            Search the national register of Public Health Inspectors and Medical Officer of Health (MOH) offices.
+            Filter by district, MOH area or PHI Range — then tap a number to call directly.
           </p>
-          <div className="relative mt-6 max-w-xl">
+
+          {/* KPI row */}
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <KpiCard icon={<Users className="h-4 w-4" />}  label="Listed officers"  value={PHI_OFFICERS.length.toLocaleString()} />
+            <KpiCard icon={<Building2 className="h-4 w-4" />} label="MOH offices"   value={ALL_PINS.length.toString()} />
+            <KpiCard icon={<MapIcon className="h-4 w-4" />} label="Districts"       value={DISTRICTS.length.toString()} />
+            <KpiCard icon={<ShieldCheck className="h-4 w-4" />} label="Verified register" value="Ministry of Health" small />
+          </div>
+
+          {/* Search */}
+          <div className="relative mt-6 max-w-2xl">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by district, province or MOH area…"
-              aria-label="Search MOH areas"
-              className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="Search by officer name, PHI range, MOH area, district or phone…"
+              aria-label="Search PHI directory"
+              className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-10 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             />
+            {q && (
+              <button onClick={() => setQ('')} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            {totalOffices} office{totalOffices === 1 ? '' : 's'} in {results.length} district{results.length === 1 ? '' : 's'}
-          </p>
         </div>
       </section>
 
-      {/* Interactive map */}
+      {/* Filter bar */}
+      <section className="border-y border-slate-200 bg-white py-5 dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-3 flex items-center gap-2">
+            <Filter className="h-4 w-4 text-blue-700 dark:text-blue-400" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">Filter by District</h2>
+            {filtersActive && (
+              <button onClick={clearFilters} className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:underline dark:text-rose-400">
+                <X className="h-3 w-3" /> Clear all
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip active={!districtFilter} onClick={() => setDistrictFilter(null)}>All districts</FilterChip>
+            {DISTRICTS.map((d) => (
+              <FilterChip
+                key={d.district}
+                active={districtFilter === d.district}
+                onClick={() => setDistrictFilter(districtFilter === d.district ? null : d.district)}
+              >
+                {d.district}
+              </FilterChip>
+            ))}
+          </div>
+
+          {visibleMohs.length > 0 && (
+            <>
+              <div className="mt-5 mb-3 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-blue-700 dark:text-blue-400" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">
+                  Filter by MOH Area {districtFilter && <span className="text-slate-400">(in {districtFilter})</span>}
+                </h2>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <FilterChip small active={!mohFilter} onClick={() => setMohFilter(null)}>All MOH areas</FilterChip>
+                {visibleMohs.map((m) => (
+                  <FilterChip key={m} small active={mohFilter === m} onClick={() => setMohFilter(mohFilter === m ? null : m)}>
+                    {m}
+                  </FilterChip>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* View toggle */}
+          <div className="mt-5 flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">View:</span>
+            <div role="tablist" aria-label="Result view" className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-800 dark:bg-slate-900">
+              <ViewTab active={view === 'officers'} onClick={() => setView('officers')}>
+                <Users className="h-3.5 w-3.5" /> {officers.length} Officers
+              </ViewTab>
+              <ViewTab active={view === 'mohs'} onClick={() => setView('mohs')}>
+                <Building2 className="h-3.5 w-3.5" /> {pins.length} MOH Offices
+              </ViewTab>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Map */}
       <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-3 flex items-center gap-2">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
             <MapIcon className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">Live MOH map — {points.length} offices</h2>
-            <span className="ml-auto text-[11px] text-slate-500">Click a pin for contact details</span>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              Live Sri Lanka map &mdash; {pins.length} of {ALL_PINS.length} MOH offices
+            </h2>
+            <span className="ml-auto text-[11px] text-slate-500 dark:text-slate-400">
+              Tap a pin to see the PHI officers attached to that office
+            </span>
           </div>
-          {!MAPBOX_TOKEN ? (
-            <div className="flex h-[28rem] w-full items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900">
-              Map unavailable: NEXT_PUBLIC_MAPBOX_TOKEN is not set.
-            </div>
-          ) : (
-            <div className="relative h-[28rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-              <Map
-                mapboxAccessToken={MAPBOX_TOKEN}
-                mapStyle="mapbox://styles/mapbox/streets-v12"
-                initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
-                key={`${centre.lat}-${centre.lng}-${centre.zoom}`}
-                style={{ width: '100%', height: '100%' }}
-                attributionControl
-              >
-                <NavigationControl position="top-right" />
-                <GeolocateControl position="top-right" trackUserLocation />
-                <ScaleControl position="bottom-left" />
-                {points.map((p) => (
-                  <Marker
-                    key={`${p.district}-${p.moh}`}
-                    latitude={p.lat}
-                    longitude={p.lng}
-                    anchor="bottom"
-                    onClick={(e) => { e.originalEvent.stopPropagation(); setSelected(p); }}
+
+          <div className="relative h-[28rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+            <MapGL
+              {...(MAPBOX_TOKEN
+                ? { mapboxAccessToken: MAPBOX_TOKEN, mapStyle: 'mapbox://styles/mapbox/outdoors-v12' }
+                : { mapStyle: OSM_STYLE })}
+              initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
+              key={`${centre.lat}-${centre.lng}-${centre.zoom}-${pins.length}`}
+              style={{ width: '100%', height: '100%' }}
+              maxBounds={[[78.5, 5.0], [82.5, 10.5]]}
+              attributionControl
+            >
+              <NavigationControl position="top-right" />
+              <FullscreenControl position="top-right" />
+              <GeolocateControl position="top-right" trackUserLocation />
+              <ScaleControl position="bottom-left" />
+              {pins.map((p) => (
+                <Marker
+                  key={`${p.district}-${p.moh}`}
+                  latitude={p.lat}
+                  longitude={p.lng}
+                  anchor="bottom"
+                  onClick={(e) => { e.originalEvent.stopPropagation(); setSelected(p); }}
+                >
+                  <button
+                    type="button"
+                    aria-label={`${p.moh} MOH — ${p.district} District (${p.officers.length} officers)`}
+                    className="group relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-600 to-blue-900 text-white shadow-lg ring-4 ring-blue-300/60 transition-transform hover:scale-110"
                   >
-                    <button
-                      type="button"
-                      aria-label={`${p.moh} — ${p.district} District`}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-700 text-white shadow-md ring-4 ring-blue-300 transition-transform hover:scale-110"
-                    >
-                      <MapPin className="h-3.5 w-3.5" />
-                    </button>
-                  </Marker>
-                ))}
-                {selected && (
-                  <Popup
-                    latitude={selected.lat}
-                    longitude={selected.lng}
-                    anchor="top"
-                    offset={12}
-                    onClose={() => setSelected(null)}
-                    closeOnClick={false}
-                    maxWidth="260px"
-                  >
-                    <div className="space-y-1.5 p-1">
-                      <p className="text-sm font-bold text-slate-900">{selected.moh}</p>
+                    <MapPin className="h-4 w-4" />
+                    {p.officers.length > 1 && (
+                      <span className="absolute -right-1 -top-1 rounded-full bg-amber-400 px-1.5 text-[10px] font-extrabold leading-4 text-slate-900 shadow ring-2 ring-white">
+                        {p.officers.length}
+                      </span>
+                    )}
+                  </button>
+                </Marker>
+              ))}
+              {selected && (
+                <Popup
+                  latitude={selected.lat}
+                  longitude={selected.lng}
+                  anchor="top"
+                  offset={12}
+                  onClose={() => setSelected(null)}
+                  closeOnClick={false}
+                  maxWidth="320px"
+                >
+                  <div className="space-y-2 p-1">
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">{selected.moh} MOH</p>
                       <p className="text-[11px] uppercase tracking-wider text-slate-400">
-                        {selected.district} District · {selected.province} Province
+                        {selected.district} District &middot; {selected.province} Province
                       </p>
-                      <a
-                        href={`tel:${selected.phone.replace(/[^0-9+]/g, '')}`}
-                        className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-blue-700 hover:underline"
-                      >
-                        <Phone className="h-3.5 w-3.5" />{selected.phone}
-                      </a>
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${selected.lat},${selected.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 block rounded-md bg-blue-700 px-2 py-1.5 text-center text-[11px] font-bold text-white hover:bg-blue-800"
-                      >
-                        Open in Google Maps
-                      </a>
                     </div>
-                  </Popup>
-                )}
-              </Map>
-            </div>
-          )}
+                    <div className="max-h-44 space-y-1.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/70 p-2">
+                      {selected.officers.map((o) => (
+                        <div key={o.phone + o.range} className="text-[11px]">
+                          <p className="font-semibold text-slate-900">{o.name ?? 'PHI Officer'}</p>
+                          <p className="text-slate-500">PHI {o.range}</p>
+                          <a href={`tel:${o.phone}`} className="font-semibold text-blue-700 hover:underline">{o.phone}</a>
+                        </div>
+                      ))}
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${selected.lat},${selected.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-md bg-blue-700 px-2 py-1.5 text-center text-[11px] font-bold text-white hover:bg-blue-800"
+                    >
+                      Open in Google Maps <ArrowUpRight className="ml-0.5 inline h-3 w-3" />
+                    </a>
+                  </div>
+                </Popup>
+              )}
+            </MapGL>
+
+            {!MAPBOX_TOKEN && (
+              <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 shadow dark:bg-slate-900/90 dark:text-slate-300">
+                Tiles: OpenStreetMap (free fallback) — set NEXT_PUBLIC_MAPBOX_TOKEN for HD styles
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Directory list */}
+      {/* Results */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {results.length === 0 ? (
+        {officers.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500 dark:border-slate-700">
-            No matching district or MOH area. Try a different search term.
+            No officer matches the current filters. Try clearing them or searching for a different range.
           </p>
-        ) : (
-          <div className="space-y-6">
-            {results.map((d) => (
-              <div key={d.district} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white">{d.district} District</h2>
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">{d.province} Province</span>
-                </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {d.offices.map((o) => (
-                    <div key={o.moh} className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/40">
-                      <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        <Building2 className="h-3.5 w-3.5 text-slate-400" />{o.moh}
-                      </p>
-                      <a href={`tel:${o.phone.replace(/[^0-9+]/g, '')}`} className="mt-2 flex items-center gap-1.5 text-sm text-blue-700 hover:underline dark:text-blue-400">
-                        <Phone className="h-3.5 w-3.5" />{o.phone}
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => setSelected({ ...o, district: d.district, province: d.province })}
-                        className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-blue-700 dark:text-slate-400"
+        ) : view === 'officers' ? (
+          <div className="space-y-7">
+            {officersByDistrict.map(([district, list]) => {
+              const province = list[0].province;
+              return (
+                <div key={district} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <MapPin className="h-4 w-4 text-blue-700 dark:text-blue-400" />
+                    <h2 className="text-base font-bold text-slate-900 dark:text-white">{district} District</h2>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PROVINCE_BADGE[province]}`}>{province} Province</span>
+                    <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500">{list.length} officer{list.length === 1 ? '' : 's'}</span>
+                  </div>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {list.map((o) => (
+                      <article
+                        key={`${o.range}-${o.phone}`}
+                        className="group relative overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-4 transition-shadow hover:shadow-md dark:border-slate-800 dark:from-slate-800/40 dark:to-slate-900"
                       >
-                        <MapIcon className="h-3 w-3" /> Show on map
-                      </button>
-                    </div>
-                  ))}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">{o.name ?? 'PHI Officer'}</p>
+                            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                              PHI {o.range}
+                            </p>
+                          </div>
+                          {o.memberNo && o.memberNo !== '—' && (
+                            <span className="inline-flex items-center gap-0.5 rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                              <Hash className="h-2.5 w-2.5" />{o.memberNo}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-2 flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          <Building2 className="h-3 w-3" />{o.moh} MOH
+                        </p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <a
+                            href={`tel:${o.phone}`}
+                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-blue-700 px-2.5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-blue-800"
+                          >
+                            <Phone className="h-3.5 w-3.5" />{o.phone}
+                          </a>
+                          <button
+                            type="button"
+                            aria-label={`Copy phone number ${o.phone}`}
+                            onClick={() => copyPhone(o.phone)}
+                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                          >
+                            {copied === o.phone ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pins.map((p) => (
+              <article key={`${p.district}-${p.moh}`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{p.moh}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wider text-slate-400">
+                      {p.district} District
+                    </p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PROVINCE_BADGE[p.province]}`}>{p.province}</span>
+                </div>
+                <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">{p.officers.length} listed PHI officer{p.officers.length === 1 ? '' : 's'}</p>
+                <button
+                  type="button"
+                  onClick={() => setSelected(p)}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[12px] font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                >
+                  <MapIcon className="h-3.5 w-3.5" /> Show on map
+                </button>
+              </article>
             ))}
           </div>
         )}
-        <p className="mt-8 rounded-xl bg-amber-50 p-4 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-          For health emergencies or disease outbreaks, call the Ministry of Health hotline <strong>1390</strong> or the
-          Public Health Emergency line <strong>+94 11 269 5112</strong>.
-        </p>
+
+        {/* Helpful info */}
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <InfoBlock
+            tone="amber"
+            icon={<Phone className="h-4 w-4" />}
+            title="Health emergency? Call first."
+            body={<>For outbreaks or food-poisoning emergencies dial the Ministry of Health hotline <strong>1390</strong> or
+              the Public Health Emergency line <strong>+94 11 269 5112</strong>.</>}
+          />
+          <InfoBlock
+            tone="blue"
+            icon={<Sparkles className="h-4 w-4" />}
+            title="Numbers come from official sources"
+            body={<>Cross-verified against the Ministry of Health PHI register, the Union of Sri Lanka membership roll
+              and the Rainbow Pages public directory. Report any error to <a href="mailto:info@phi.lk" className="font-semibold underline">info@phi.lk</a>.</>}
+          />
+        </div>
       </section>
 
       <PublicFooter />
+    </div>
+  );
+}
+
+/* ───── small presentational helpers ─────────────────────────────────────── */
+
+function KpiCard({ icon, label, value, small }: { icon: React.ReactNode; label: string; value: string; small?: boolean }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/70 p-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
+      <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400">{icon}
+        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+      </div>
+      <p className={`mt-1 font-extrabold text-slate-900 dark:text-white ${small ? 'text-sm' : 'text-xl'}`}>{value}</p>
+    </div>
+  );
+}
+
+function FilterChip({ children, active, onClick, small }: { children: React.ReactNode; active: boolean; onClick: () => void; small?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-full border px-3 py-1.5 font-semibold transition-colors ${
+        small ? 'text-[11px]' : 'text-xs'
+      } ${
+        active
+          ? 'border-blue-700 bg-blue-700 text-white shadow-sm'
+          : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-700 dark:hover:bg-blue-950/40'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ViewTab({ children, active, onClick }: { children: React.ReactNode; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-bold transition-colors ${
+        active ? 'bg-white text-blue-700 shadow-sm dark:bg-slate-800 dark:text-blue-300' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function InfoBlock({ tone, icon, title, body }: { tone: 'amber' | 'blue'; icon: React.ReactNode; title: string; body: React.ReactNode }) {
+  const cls = tone === 'amber'
+    ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200'
+    : 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-200';
+  return (
+    <div className={`rounded-xl border p-4 text-xs leading-relaxed ${cls}`}>
+      <p className="mb-1 flex items-center gap-1.5 font-bold">{icon}{title}</p>
+      <p>{body}</p>
     </div>
   );
 }
