@@ -10,13 +10,14 @@ import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
 /* ──────────────────────────── data ─────────────────────────────────────── */
 
-// National impact — operational throughput, not the "Union biography" stats
-// that already live on the About page (officers / districts / years).
-const impact = [
-  { value: '12,400+',  label: 'Inspections this year', sub: 'Food, water, vector' },
-  { value: '8,930',    label: 'Certificates verified', sub: 'QR-signed by MoH' },
-  { value: '3,217',    label: 'Complaints resolved',    sub: 'Public-portal intake' },
-  { value: '147',      label: 'Outbreak signals',      sub: 'Live in last 30 days' },
+// Platform coverage — honest "what PHI-PRO is built to do" tiles. We deliberately
+// avoid quoting transaction counts because the platform is in fresh deployment;
+// these read as scope statements, not fabricated history.
+const coverage = [
+  { value: '5',     label: 'Statutory domains',  sub: 'All field PHI duties' },
+  { value: '26 / 26', label: 'Districts ready',    sub: 'Northern → Southern provinces' },
+  { value: '3',     label: 'Official languages', sub: 'Sinhala · Tamil · English' },
+  { value: '24 / 7', label: 'Emergency intake',   sub: 'Hotlines + portal · always on' },
 ];
 
 // The five statutory enforcement pillars — short visual summary. The full
@@ -137,29 +138,29 @@ export default function HomePage() {
               </ul>
             </div>
 
-            {/* Editorial side panel — newsroom-style snapshot, not a stat grid */}
+            {/* Editorial side panel — what the workspace gives a PHI officer */}
             <aside className="lg:col-span-5">
               <div className="relative rounded-3xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 <div className="rounded-[1.4rem] bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 p-6 text-white">
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-blue-100 ring-1 ring-white/20">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />
-                      Operational dashboard
+                      Officer workspace
                     </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80">Snapshot · last 24 h</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80">What ships day one</span>
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <PanelStat icon={<Activity className="h-4 w-4" />}    k="438"   v="inspections logged" />
-                    <PanelStat icon={<LineChart className="h-4 w-4" />}   k="62"    v="grades published" />
-                    <PanelStat icon={<AlertTriangle className="h-4 w-4" />} k="9"   v="new dengue clusters" />
-                    <PanelStat icon={<CheckCircle className="h-4 w-4" />} k="214"  v="certificates issued" />
+                    <PanelStat icon={<Activity className="h-4 w-4" />}      k="H800"    v="Food inspection form" />
+                    <PanelStat icon={<LineChart className="h-4 w-4" />}     k="A · B · C" v="Hygiene grading engine" />
+                    <PanelStat icon={<AlertTriangle className="h-4 w-4" />} k="SIR · GIS" v="Outbreak modelling" />
+                    <PanelStat icon={<CheckCircle className="h-4 w-4" />}   k="QR + PDF" v="Signed certificates" />
                   </div>
 
                   <div className="mt-5 rounded-xl bg-white/5 p-3 ring-1 ring-white/10 backdrop-blur">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Field map</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">National field map</p>
                     <p className="mt-1 text-xs leading-relaxed text-blue-100/90">
-                      74 MOH offices, 354 PHI divisions and 1,793 active officers — live on the
+                      74 MOH offices, 354 PHI divisions and 1,793 listed officers are pinned on the
                       <Link href="/public/find-phi" className="underline-offset-2 hover:underline"> Find PHI</Link> map.
                     </p>
                   </div>
@@ -167,8 +168,8 @@ export default function HomePage() {
 
                 {/* Small footer tag */}
                 <div className="flex items-center justify-between gap-3 px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1"><Shield className="h-3 w-3" />Government data</span>
-                  <span>Updated continuously</span>
+                  <span className="flex items-center gap-1"><Shield className="h-3 w-3" />Built for the field</span>
+                  <span>Audit-grade · MoH-signed</span>
                 </div>
               </div>
             </aside>
@@ -176,11 +177,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ NATIONAL IMPACT TICKER ═══════════════════ */}
+      {/* ═══════════════════ PLATFORM COVERAGE STRIP ═══════════════════ */}
       <section className="border-y border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="mb-5 text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
+            What PHI-PRO covers
+          </p>
           <div className="grid gap-6 sm:grid-cols-4">
-            {impact.map((i) => (
+            {coverage.map((i) => (
               <div key={i.label} className="border-l-2 border-blue-700 pl-4 dark:border-blue-400">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
                   {i.sub}

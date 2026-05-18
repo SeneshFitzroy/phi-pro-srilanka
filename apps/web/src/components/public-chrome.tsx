@@ -17,7 +17,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Mail, ArrowRight, ExternalLink } from 'lucide-react';
+import { Menu, X, Phone, Mail, ArrowRight, ExternalLink, Globe } from 'lucide-react';
 
 const GoogleTranslateWidget = dynamic(
   () => import('@/components/google-translate').then((m) => ({ default: m.GoogleTranslateWidget })),
@@ -47,7 +47,7 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm dark:bg-slate-950/95">
-      {/* Top contact strip — language toggle stays visible at every viewport */}
+      {/* Top contact strip */}
       <div className="border-b border-slate-100 bg-gradient-to-r from-blue-800 to-slate-900 text-white dark:border-slate-800">
         <div className="mx-auto flex min-h-9 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-1 text-[11px] sm:px-6 lg:px-8">
           <span className="font-medium tracking-wide">
@@ -60,10 +60,22 @@ export function PublicHeader() {
             <a href="mailto:info@phi.lk" className="hidden items-center gap-1.5 hover:text-blue-200 sm:flex">
               <Mail className="h-3 w-3" /> info@phi.lk
             </a>
-            <span aria-hidden className="hidden h-3 w-px bg-white/20 sm:inline-block" />
-            <div className="inline-flex items-center" aria-label="Site language">
-              <GoogleTranslateWidget />
-            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Language selector — high-contrast on the white area, always visible */}
+      <div className="border-b border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto flex max-w-7xl items-center justify-end gap-2 px-4 py-1.5 sm:px-6 lg:px-8">
+          <Globe className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" aria-hidden />
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Language
+          </span>
+          <div
+            className="rounded-md border border-slate-300 bg-white px-2 py-0.5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+            aria-label="Site language"
+          >
+            <GoogleTranslateWidget />
           </div>
         </div>
       </div>
@@ -196,7 +208,6 @@ export function PublicFooter() {
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">Quick Links</h3>
           <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-            <li><Link href="/" className="hover:text-blue-700 dark:hover:text-blue-300">Home</Link></li>
             {PUBLIC_NAV.map((i) => (
               <li key={i.href}>
                 <Link href={i.href} className="hover:text-blue-700 dark:hover:text-blue-300">{i.label}</Link>
