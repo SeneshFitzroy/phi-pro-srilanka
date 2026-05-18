@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   Shield, Globe, History, Users, ExternalLink, Award, BookOpen, Building2, Sparkles,
   HeartPulse, BadgeCheck, GraduationCap, Layers, Stethoscope, Microscope, Phone, Mail,
-  MapPin, Languages, ShieldCheck, Briefcase, ChevronRight, Activity, Quote,
+  MapPin, Languages, ShieldCheck, Briefcase, Activity, Quote,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -87,40 +86,31 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white dark:bg-slate-950">
       <PublicHeader />
 
-      {/* Hero */}
+      {/* Hero — compact, no CTA buttons */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:to-blue-950/30">
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl dark:bg-blue-700/20" aria-hidden />
         <div className="absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl dark:bg-indigo-700/20" aria-hidden />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-12 lg:px-8">
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
               <Shield className="h-3 w-3" /> About the Union &middot; Est. 1913
             </span>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-[2.6rem] dark:text-white">
               The Public Health Inspector&rsquo;s Union of Sri Lanka
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600 dark:text-slate-300">
               For more than a century the Public Health Inspector has been the front-line preventive officer of the
               Ministry of Health. From the Sanitary Branch of 1913 to the digital enforcement of today, generations
               of PHIs have eradicated smallpox, contained dengue, made street food safer and brought immunisation to
               every village. The Union represents them &mdash; one voice, one register, one professional standard.
             </p>
 
-            <figure className="mt-6 max-w-xl border-l-4 border-blue-700 pl-4 italic text-slate-700 dark:border-blue-400 dark:text-slate-300">
+            <figure className="mt-5 max-w-xl border-l-4 border-blue-700 pl-4 italic text-slate-700 dark:border-blue-400 dark:text-slate-300">
               <Quote className="mb-2 h-5 w-5 text-blue-700 dark:text-blue-400" />
               &ldquo;Prevention is better than cure.&rdquo;
               <figcaption className="mt-2 text-xs not-italic text-slate-500">Motto of the PHI service</figcaption>
             </figure>
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/public/find-phi" className="inline-flex items-center gap-1.5 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-800">
-                Find your local PHI <ChevronRight className="h-4 w-4" />
-              </Link>
-              <Link href="/public/contact" className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                Contact the Union
-              </Link>
-            </div>
           </div>
 
           <div className="lg:col-span-5">

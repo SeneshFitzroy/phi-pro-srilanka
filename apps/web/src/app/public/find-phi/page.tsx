@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   MapPin, Search, Phone, Building2, Map as MapIcon, Filter, X, ShieldCheck,
-  Users, Layers, Hash, Sparkles, Copy, Check, ArrowUpRight,
+  Users, Layers, Hash, Sparkles, Copy, Check, ArrowUpRight, Mail, Clock, ExternalLink,
 } from 'lucide-react';
 import {
   DISTRICTS, PHI_OFFICERS, mohPins, listMohOffices,
@@ -448,6 +448,48 @@ export default function FindPhiPage() {
         </div>
       </section>
 
+      {/* Union secretariat — merged from the old /public/contact page */}
+      <section id="contact" className="border-t border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">Reach the Union</p>
+          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white">Union Secretariat</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+            For matters that fall outside a specific PHI Range — membership, press, official correspondence, legal
+            notices — the Union secretariat is available during office hours.
+          </p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ContactTile icon={<MapPin className="h-5 w-5" />} title="Office address" lines={['673 Maradana Rd,', 'Colombo 01000,', 'Sri Lanka.']} />
+            <ContactTile
+              icon={<Phone className="h-5 w-5" />}
+              title="Telephone"
+              lines={[
+                <a key="t1" href="tel:+94112670759" className="hover:text-blue-700 dark:hover:text-blue-400">(+94) 11 267 0759</a>,
+                <a key="t2" href="tel:+94112635675" className="hover:text-blue-700 dark:hover:text-blue-400">(+94) 11-263 5675</a>,
+              ]}
+            />
+            <ContactTile
+              icon={<Mail className="h-5 w-5" />}
+              title="Email"
+              lines={[
+                <a key="e1" href="mailto:info@phi.lk" className="hover:text-blue-700 dark:hover:text-blue-400">info@phi.lk</a>,
+                <a key="e2" href="mailto:phisrilanka1@gmail.com" className="hover:text-blue-700 dark:hover:text-blue-400">phisrilanka1@gmail.com</a>,
+              ]}
+            />
+            <ContactTile icon={<Clock className="h-5 w-5" />} title="Office hours" lines={['Mon – Fri', '08:30 – 16:15 (IST)']} />
+          </div>
+
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=673+Maradana+Road+Colombo+01000+Sri+Lanka"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:brightness-110"
+          >
+            <MapPin className="h-4 w-4" /> Open Maradana Rd in Google Maps <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      </section>
+
       <PublicFooter />
     </div>
   );
@@ -508,6 +550,20 @@ function InfoBlock({ tone, icon, title, body }: { tone: 'amber' | 'blue'; icon: 
     <div className={`rounded-xl border p-4 text-xs leading-relaxed ${cls}`}>
       <p className="mb-1 flex items-center gap-1.5 font-bold">{icon}{title}</p>
       <p>{body}</p>
+    </div>
+  );
+}
+
+function ContactTile({ icon, title, lines }: { icon: React.ReactNode; title: string; lines: React.ReactNode[] }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+        {icon}
+      </div>
+      <p className="mt-3 text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">{title}</p>
+      <div className="mt-1 space-y-0.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        {lines.map((l, i) => <div key={i}>{l}</div>)}
+      </div>
     </div>
   );
 }

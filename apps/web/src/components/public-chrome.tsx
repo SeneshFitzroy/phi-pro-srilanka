@@ -26,12 +26,17 @@ const GoogleTranslateWidget = dynamic(
 
 // Public navigation — citizen-facing only. PHI-Officer-only resources
 // (Duty of PHI, Downloads) live inside the authenticated dashboard sidebar.
+//
+// Two consolidations were made at the user's request:
+//   • Contact is folded into the Find PHI page (no separate /public/contact)
+//   • Press Release is folded into News & Press (no separate /public/press)
+//   • /public/portal is the citizen services hub (complaints, payments, …)
 export const PUBLIC_NAV = [
-  { label: 'About', href: '/public/about' },
-  { label: 'Find PHI', href: '/public/find-phi' },
-  { label: 'News & Events', href: '/public/news' },
-  { label: 'Press Release', href: '/public/press' },
-  { label: 'Contact', href: '/public/contact' },
+  { label: 'Home',           href: '/' },
+  { label: 'Public Portal',  href: '/public/portal' },
+  { label: 'About',          href: '/public/about' },
+  { label: 'Find PHI',       href: '/public/find-phi' },
+  { label: 'News & Press',   href: '/public/news' },
 ] as const;
 
 export function PublicHeader() {

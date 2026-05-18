@@ -10,8 +10,36 @@ import { useCallback, useEffect, useState } from 'react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   Newspaper, ShieldCheck, ShieldAlert, ShieldQuestion, RefreshCw,
-  Loader2, ExternalLink, CalendarDays, Search,
+  Loader2, ExternalLink, CalendarDays, Search, Megaphone,
 } from 'lucide-react';
+
+// ── Press Releases (folded in from the old /public/press page) ──────────────
+const PRESS_RELEASES: Array<{ date: string; title: string; body: string }> = [
+  {
+    date: 'August 5, 2025',
+    title: 'Union welcomes constructive discussions with the Ministry of Health',
+    body:
+      'The Public Health Inspector’s Union of Sri Lanka acknowledges the recent discussions held with the Ministry of Health on cadre, service matters and the strengthening of field public health services, and looks forward to early implementation of the agreed measures.',
+  },
+  {
+    date: 'June 12, 2025',
+    title: 'Statement on strengthening dengue prevention ahead of the monsoon',
+    body:
+      'The Union calls on local authorities and the public to support intensified source-reduction and premises-inspection programmes, and reaffirms the commitment of Public Health Inspectors to lead vector-control operations island-wide.',
+  },
+  {
+    date: 'March 2, 2025',
+    title: 'On the digitalisation of field public health work',
+    body:
+      'The Union supports the responsible adoption of digital tools — including offline-capable inspection forms, disease mapping and decision-support — provided they are accessible, secure, and reduce rather than add to the field officer’s burden.',
+  },
+  {
+    date: 'December 10, 2024',
+    title: 'World Human Rights Day — public health is a public good',
+    body:
+      'The Union reiterates that access to safe food, clean water and a healthy environment are fundamental, and that adequate investment in preventive health services is essential to protect them.',
+  },
+];
 
 type Verification = 'verified' | 'single-source' | 'disputed';
 interface NewsItem {
@@ -76,7 +104,7 @@ export default function NewsPage() {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">From the Newsroom</p>
           <h1 className="mt-2 flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-            <Newspaper className="h-8 w-8 text-blue-700" /> News &amp; Events
+            <Newspaper className="h-8 w-8 text-blue-700" /> News &amp; Press
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
             Live Sri Lanka public health news from the wire — cross-referenced across outlets and
@@ -180,6 +208,39 @@ export default function NewsPage() {
           A story is marked <em>verified</em> when ≥2 distinct outlets carry it; <em>disputed</em> when a published fact-check rates it false/misleading.
           For outbreak information always use <a href="https://www.epid.gov.lk" target="_blank" rel="noopener noreferrer" className="underline">the Epidemiology Unit</a> and the <a href="https://www.health.gov.lk" target="_blank" rel="noopener noreferrer" className="underline">Ministry of Health</a>.
         </p>
+      </section>
+
+      {/* Press Releases — merged from the old /public/press page */}
+      <section id="press" className="border-t border-slate-200 bg-slate-50/70 py-14 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">Media</p>
+              <h2 className="mt-1 flex items-center gap-2 text-2xl font-extrabold text-slate-900 dark:text-white">
+                <Megaphone className="h-6 w-6 text-blue-700" /> Press Releases
+              </h2>
+              <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+                Official statements of the Public Health Inspector&apos;s Union of Sri Lanka.
+              </p>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              Media enquiries: <a href="mailto:info@phi.lk" className="text-blue-700 hover:underline dark:text-blue-400">info@phi.lk</a> &middot; (+94) 11-2635675
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {PRESS_RELEASES.map((r) => (
+              <article key={r.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400">
+                  <Megaphone className="h-3.5 w-3.5" /> Press Release
+                  <span className="flex items-center gap-1 text-slate-400"><CalendarDays className="h-3 w-3" />{r.date}</span>
+                </div>
+                <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{r.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{r.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       <PublicFooter />
