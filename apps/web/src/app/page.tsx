@@ -2,49 +2,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowRight, Shield, Globe2, Users, Phone, Newspaper,
-  UserCheck, Store, ChevronDown, ChevronRight, Microscope, Stethoscope,
-  HeartPulse, Briefcase, BookOpen, Sparkles, ShieldCheck, BadgeCheck, MapPin,
-  AlertTriangle, CheckCircle, Megaphone, Activity,
+  UserCheck, Store, ChevronDown, ChevronRight,
+  BookOpen, Sparkles, ShieldCheck, BadgeCheck, MapPin,
+  AlertTriangle, CheckCircle, Megaphone,
 } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
 /* ──────────────────────────── data ─────────────────────────────────────── */
-
-// The five statutory enforcement pillars — full cards with one-line scope and
-// the controlling statute, so the section reads as a clinical mandate, not a
-// generic feature list.
-const pillars = [
-  {
-    icon: Microscope, name: 'Food Safety & Hygiene Enforcement',
-    scope: 'Routine premises inspection, sampling, A / B / C grading, prosecution of unsafe operators.',
-    statute: 'Food Act No. 26 of 1980',
-    tone: 'emerald', grad: 'from-emerald-600 to-emerald-800',
-  },
-  {
-    icon: HeartPulse, name: 'School Health & Medical Inspections',
-    scope: 'School medical inspection coordination, immunisation defaulter tracking, adolescent health.',
-    statute: 'Public Health Service Circulars',
-    tone: 'pink', grad: 'from-pink-600 to-fuchsia-700',
-  },
-  {
-    icon: Stethoscope, name: 'Epidemiology & Disease Surveillance',
-    scope: 'Notifiable-disease surveillance, contact tracing, outbreak containment, weekly / monthly reporting.',
-    statute: 'Quarantine and Prevention of Diseases Ordinance',
-    tone: 'rose', grad: 'from-rose-600 to-rose-800',
-  },
-  {
-    icon: Briefcase, name: 'Occupational Health & Safety',
-    scope: 'Workplace hazard surveys, factory health certificates, flood / chemical / mass-gathering response.',
-    statute: 'Factories Ordinance + DMC Act',
-    tone: 'amber', grad: 'from-amber-500 to-orange-700',
-  },
-  {
-    icon: Activity, name: 'Environmental Sanitation & Vector Control',
-    scope: 'Premises checks, water-quality surveillance, solid-waste oversight, mosquito source reduction.',
-    statute: 'National Environmental Act',
-    tone: 'blue', grad: 'from-blue-600 to-blue-900',
-  },
-];
 
 // Three audiences served by PHI-PRO — operations-grade card content: who they
 // are, what they get on day one, and the single CTA that takes them in.
@@ -174,56 +138,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ FIVE STATUTORY ENFORCEMENT DOMAINS ═══════════════════ */}
-      <section className="border-y border-slate-200 bg-slate-50/60 py-20 dark:border-slate-800 dark:bg-slate-900/40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
-              Statutory remit
-            </p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-              Five enforcement domains. One digital file.
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-300">
-              Every inspection, sample, notice and prosecution a Public Health Inspector files in the field —
-              indexed by premises, sealed with a tamper-evident audit chain.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-5 lg:grid-cols-5 lg:gap-4">
-            {pillars.map((p, i) => (
-              <article
-                key={p.name}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-              >
-                <div className={`flex items-center justify-between bg-gradient-to-br ${p.grad} px-5 py-4 text-white`}>
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 backdrop-blur-sm">
-                    <p.icon className="h-5 w-5" />
-                  </span>
-                  <span className="font-mono text-2xl font-extrabold text-white/40">0{i + 1}</span>
-                </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-base font-bold leading-tight text-slate-900 dark:text-white">{p.name}</h3>
-                  <p className="mt-2 flex-1 text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">{p.scope}</p>
-                  <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Statute</p>
-                    <p className="mt-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300">{p.statute}</p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Link
-              href="/public/about"
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-            >
-              Read the full PHI mandate <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Five enforcement domains section removed — full mandate lives on
+          /public/about for citizens who want the deep dive. */}
 
       {/* ═══════════════════ TODAY (newsroom layout) ═══════════════════ */}
       <section className="py-16">

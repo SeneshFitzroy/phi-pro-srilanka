@@ -2,7 +2,7 @@
 
 // ============================================================================
 // FormScanner — AI-powered H800 paper form digitization
-// Uses: Claude 3.5 Haiku → POST /api/ai/scan-form
+// Uses the project's vision OCR endpoint → POST /api/ai/scan-form
 // On success: calls onScanned(sections) to populate the inspection form
 // ============================================================================
 
@@ -86,7 +86,7 @@ export function FormScanner({ onScanned, className }: FormScannerProps) {
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-slate-800">
-              AI Form Scanner — Claude 3.5 Haiku
+              AI Form Scanner
             </p>
             <p className="text-xs text-muted-foreground">
               Upload a photo of a handwritten H800 form to auto-populate scores

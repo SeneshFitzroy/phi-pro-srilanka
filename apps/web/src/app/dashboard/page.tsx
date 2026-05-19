@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { MentalHealthCheckin } from '@/components/mental-health-checkin';
+import { DashboardMiniCalendar } from '@/components/dashboard-mini-calendar';
 
 const statsCards = [
   {
@@ -143,10 +144,13 @@ export default function DashboardPage() {
       {/* Domain Quick Access — coloured stat tiles removed; the sidebar +
           dashboard search are now the primary way into the five modules. */}
 
-      {/* Bottom Grid: Activity + Tasks */}
+      {/* Bottom Grid: Mini calendar + Recent Activity + Upcoming Tasks */}
       <div className="grid gap-6 lg:grid-cols-3">
+        {/* Mini calendar */}
+        <DashboardMiniCalendar />
+
         {/* Recent Activity */}
-        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t('dashboard.recentActivity') || 'Recent Activity'}

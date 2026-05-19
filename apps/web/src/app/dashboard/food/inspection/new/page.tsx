@@ -387,7 +387,7 @@ export default function NewFoodInspectionPage() {
               className="gap-2"
             >
               <Zap className="h-4 w-4 text-amber-500" />
-              {showAlgorithm ? 'Hide' : 'Show'} Algorithm
+              Algorithm
             </Button>
           </div>
 

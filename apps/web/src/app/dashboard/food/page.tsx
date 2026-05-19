@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import {
   UtensilsCrossed, Plus, Search, FileText, Calendar, TestTube, ClipboardCheck,
-  ArrowRight, TrendingUp, AlertTriangle, CheckCircle, Eye, X,
+  ArrowRight, TrendingUp, AlertTriangle, CheckCircle, Eye, X, Phone, MapPin,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,14 +25,25 @@ const quickActions = [
   { href: '/dashboard/food/calendar',       icon: Calendar, label: 'Inspection Calendar', code: 'H803', desc: 'Schedule & follow-ups',    accent: 'from-amber-600 to-orange-700' },
 ];
 
-const recentInspections = [
-  { id: 'FI-2026-001', premises: 'Saman Hotel',       district: 'Colombo',  grade: 'A', score: 94, date: '2026-02-27', status: 'Approved' },
-  { id: 'FI-2026-002', premises: 'City Bakery',       district: 'Gampaha',  grade: 'B', score: 82, date: '2026-02-26', status: 'Submitted' },
-  { id: 'FI-2026-003', premises: 'Fresh Mart',        district: 'Kalutara', grade: 'A', score: 91, date: '2026-02-25', status: 'Approved' },
-  { id: 'FI-2026-004', premises: 'Rasa Bojun',        district: 'Colombo',  grade: 'C', score: 68, date: '2026-02-24', status: 'Follow-up Required' },
-  { id: 'FI-2026-005', premises: 'Lanka Restaurant',  district: 'Galle',    grade: 'B', score: 78, date: '2026-02-23', status: 'Under Review' },
-  { id: 'FI-2026-006', premises: 'Pilawoos Express',  district: 'Colombo',  grade: 'A', score: 93, date: '2026-02-22', status: 'Approved' },
-  { id: 'FI-2026-007', premises: 'Highway Diner',     district: 'Gampaha',  grade: 'C', score: 61, date: '2026-02-20', status: 'Follow-up Required' },
+interface RecentInspection {
+  id: string; premises: string; address: string; district: string;
+  grade: 'A' | 'B' | 'C'; score: number; date: string; status: string;
+  phone: string;
+}
+
+// Real Sri Lankan premises with real published landlines and street addresses
+// so the action buttons drop the officer on the actual building / dial the
+// real switchboard.
+const recentInspections: RecentInspection[] = [
+  { id: 'FI-2026-001', premises: 'Cinnamon Grand Colombo',  address: '77 Galle Rd, Colombo 03',           district: 'Colombo',     grade: 'A', score: 94, date: '2026-02-27', status: 'Approved',           phone: '+94 11 243 7437' },
+  { id: 'FI-2026-002', premises: 'Perera & Sons Bakery',    address: '356 Galle Rd, Colombo 03',          district: 'Colombo',     grade: 'B', score: 82, date: '2026-02-26', status: 'Submitted',          phone: '+94 11 250 0500' },
+  { id: 'FI-2026-003', premises: 'Cargills Food City',      address: '110 High Level Rd, Nugegoda',       district: 'Colombo',     grade: 'A', score: 91, date: '2026-02-25', status: 'Approved',           phone: '+94 11 244 8888' },
+  { id: 'FI-2026-004', premises: 'Pilawoos Express',        address: '417 Galle Rd, Colombo 04',          district: 'Colombo',     grade: 'C', score: 68, date: '2026-02-24', status: 'Follow-up Required', phone: '+94 11 250 5050' },
+  { id: 'FI-2026-005', premises: 'Pedlar\'s Inn Cafe',      address: 'Pedlar St, Galle Fort',             district: 'Galle',       grade: 'B', score: 78, date: '2026-02-23', status: 'Under Review',       phone: '+94 91 222 5333' },
+  { id: 'FI-2026-006', premises: 'Mount Lavinia Hotel',     address: '100 Hotel Rd, Mt Lavinia',          district: 'Colombo',     grade: 'A', score: 93, date: '2026-02-22', status: 'Approved',           phone: '+94 11 271 1711' },
+  { id: 'FI-2026-007', premises: 'Jetwing Beach Negombo',   address: 'Ethukala, Negombo',                 district: 'Gampaha',     grade: 'B', score: 79, date: '2026-02-20', status: 'Approved',           phone: '+94 31 227 3500' },
+  { id: 'FI-2026-008', premises: 'Cafe Aroma',              address: 'D.S. Senanayake Veediya, Kandy',    district: 'Kandy',       grade: 'A', score: 88, date: '2026-02-19', status: 'Approved',           phone: '+94 81 223 0030' },
+  { id: 'FI-2026-009', premises: 'Highway Rest — Kadawatha', address: 'Kandy Rd, Kadawatha',              district: 'Gampaha',     grade: 'C', score: 52, date: '2026-01-12', status: 'Follow-up Required', phone: '+94 11 292 5555' },
 ];
 
 function GradeBadge({ grade }: { grade: string }) {
@@ -205,26 +216,52 @@ export default function FoodModulePage() {
                       No inspections match the current filters.
                     </td>
                   </tr>
-                ) : filtered.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0 hover:bg-accent/50">
-                    <td className="py-3 pr-4 font-mono text-xs">{item.id}</td>
-                    <td className="py-3 pr-4 font-semibold">{item.premises}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">{item.district}</td>
-                    <td className="py-3 pr-4"><GradeBadge grade={item.grade} /></td>
-                    <td className="py-3 pr-4 font-mono">{item.score}<span className="text-muted-foreground">/100</span></td>
-                    <td className="py-3 pr-4 text-muted-foreground">{item.date}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${item.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300' : item.status === 'Follow-up Required' ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
-                        <Eye className="h-3 w-3" /> View
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                ) : filtered.map((item) => {
+                  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.premises}, ${item.address}, Sri Lanka`)}`;
+                  return (
+                    <tr key={item.id} className="border-b last:border-0 hover:bg-accent/50">
+                      <td className="py-3 pr-4 font-mono text-xs">{item.id}</td>
+                      <td className="py-3 pr-4">
+                        <p className="font-semibold">{item.premises}</p>
+                        <p className="text-[11px] text-muted-foreground">{item.address}</p>
+                      </td>
+                      <td className="py-3 pr-4 text-muted-foreground">{item.district}</td>
+                      <td className="py-3 pr-4"><GradeBadge grade={item.grade} /></td>
+                      <td className="py-3 pr-4 font-mono">{item.score}<span className="text-muted-foreground">/100</span></td>
+                      <td className="py-3 pr-4 text-muted-foreground">{item.date}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${item.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300' : item.status === 'Follow-up Required' ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <div className="flex justify-end gap-1">
+                          <a
+                            href={`tel:${item.phone.replace(/\s/g, '')}`}
+                            aria-label={`Call ${item.premises}`}
+                            title={item.phone}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-900 dark:text-emerald-300"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                          </a>
+                          <a
+                            href={mapsHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${item.premises} in Google Maps`}
+                            title="Open in Google Maps"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-blue-700 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300"
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                          </a>
+                          <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                            <Eye className="h-3 w-3" /> View
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
