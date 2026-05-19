@@ -20,7 +20,6 @@ import {
   ChevronLeft,
   Bell,
   Menu,
-  Search,
   X,
   Sparkles,
   Thermometer,
@@ -39,6 +38,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { SyncStatusBadge } from '@/components/sync-status-badge';
 import { AiAssistantFab } from '@/components/ai-assistant-fab';
 import { VoiceCommands } from '@/components/voice-commands';
+import { DashboardSearch } from '@/components/dashboard-search';
 import { UserRole } from '@phi-pro/shared';
 
 // ── Navigation definitions ────────────────────────────────────────────────────
@@ -376,16 +376,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Menu className="h-5 w-5" />
               </button>
 
-              {/* Search */}
-              <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800 sm:flex">
-                <Search className="h-3.5 w-3.5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-40 bg-transparent text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none dark:text-slate-300 lg:w-56"
-                />
-                <kbd className="hidden rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:border-slate-600 dark:bg-slate-700 lg:inline-block">⌘K</kbd>
-              </div>
+              {/* Search — global dashboard router, ⌘K to focus */}
+              <DashboardSearch className="hidden sm:block" />
             </div>
 
             <div className="flex items-center gap-2">

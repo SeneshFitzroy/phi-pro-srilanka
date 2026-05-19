@@ -15,22 +15,10 @@ import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 // generic feature list.
 const pillars = [
   {
-    icon: Stethoscope, name: 'Epidemiology & Communicable Disease Control',
-    scope: 'Notifiable-disease surveillance, contact tracing, outbreak containment, weekly / monthly reporting.',
-    statute: 'Quarantine and Prevention of Diseases Ordinance',
-    tone: 'rose', grad: 'from-rose-600 to-rose-800',
-  },
-  {
     icon: Microscope, name: 'Food Safety & Hygiene Enforcement',
     scope: 'Routine premises inspection, sampling, A / B / C grading, prosecution of unsafe operators.',
     statute: 'Food Act No. 26 of 1980',
     tone: 'emerald', grad: 'from-emerald-600 to-emerald-800',
-  },
-  {
-    icon: Activity, name: 'Environmental Sanitation & Vector Control',
-    scope: 'Premises checks, water-quality surveillance, solid-waste oversight, mosquito source reduction.',
-    statute: 'National Environmental Act',
-    tone: 'blue', grad: 'from-blue-600 to-blue-900',
   },
   {
     icon: HeartPulse, name: 'School Health & Medical Inspections',
@@ -39,10 +27,22 @@ const pillars = [
     tone: 'pink', grad: 'from-pink-600 to-fuchsia-700',
   },
   {
-    icon: Briefcase, name: 'Occupational Health & Industrial Safety',
+    icon: Stethoscope, name: 'Epidemiology & Disease Surveillance',
+    scope: 'Notifiable-disease surveillance, contact tracing, outbreak containment, weekly / monthly reporting.',
+    statute: 'Quarantine and Prevention of Diseases Ordinance',
+    tone: 'rose', grad: 'from-rose-600 to-rose-800',
+  },
+  {
+    icon: Briefcase, name: 'Occupational Health & Safety',
     scope: 'Workplace hazard surveys, factory health certificates, flood / chemical / mass-gathering response.',
     statute: 'Factories Ordinance + DMC Act',
     tone: 'amber', grad: 'from-amber-500 to-orange-700',
+  },
+  {
+    icon: Activity, name: 'Environmental Sanitation & Vector Control',
+    scope: 'Premises checks, water-quality surveillance, solid-waste oversight, mosquito source reduction.',
+    statute: 'National Environmental Act',
+    tone: 'blue', grad: 'from-blue-600 to-blue-900',
   },
 ];
 
