@@ -29,15 +29,33 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+/**
+ * Race a promise against a timeout. When the page is loaded behind an
+ * aggressive ad-blocker or App Check is throttled, Firestore listen channels
+ * can hang indefinitely — without this race the splash never clears.
+ */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)),
+  ]);
+}
+
 async function fetchUserProfile(firebaseUser: FirebaseUser): Promise<UserProfile | null> {
   try {
-    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+    const userDoc = await withTimeout(getDoc(doc(db, 'users', firebaseUser.uid)), 5000, 'profile fetch');
     if (userDoc.exists()) {
       const data = userDoc.data() as UserProfile;
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLoginAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      // Fire-and-forget the lastLoginAt update so a stalled write doesn't
+      // hold up sign-in.
+      void withTimeout(
+        updateDoc(doc(db, 'users', firebaseUser.uid), {
+          lastLoginAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }),
+        4000,
+        'lastLogin update',
+      ).catch(() => { /* non-fatal */ });
       return { ...data, id: firebaseUser.uid, uid: firebaseUser.uid };
     }
     return null;
@@ -102,21 +120,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({ ...prev, user: cached, isAuthenticated: true }));
     }
 
-    // Hard timeout: never show loading spinner for more than 3s
-    const timeout = setTimeout(() => {
+    // First-paint timeout — never show the splash for more than 3s waiting for
+    // Firebase to wake up. If `onAuthStateChanged` hasn't fired by then we
+    // flip isLoading off; the user lands on `/login` or the cached profile.
+    const fastTimeout = setTimeout(() => {
       setState((prev) => prev.isLoading ? { ...prev, isLoading: false } : prev);
     }, 3000);
 
+    // Hard ceiling — even if any later stage hangs (Firestore behind an
+    // ad-blocker, App Check 24h throttle, etc.) we never leave the splash up
+    // for more than 8s. We also clear the cached profile to nudge the user
+    // to sign in fresh.
+    const ceiling = setTimeout(() => {
+      setState((prev) => {
+        if (!prev.isLoading) return prev;
+        console.warn('[auth] global 8s safety timeout reached — releasing splash');
+        return { ...prev, isLoading: false };
+      });
+    }, 8000);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      clearTimeout(timeout);
+      clearTimeout(fastTimeout);
       if (firebaseUser) {
         try {
           let profile = await fetchUserProfile(firebaseUser);
           if (!profile) {
-            profile = await createUserProfile(
-              firebaseUser,
-              firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-              UserRole.PUBLIC,
+            profile = await withTimeout(
+              createUserProfile(
+                firebaseUser,
+                firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+                UserRole.PUBLIC,
+              ),
+              5000,
+              'profile creation',
             );
           }
           // Block PUBLIC role — dashboard is staff-only
@@ -148,8 +184,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCachedProfile(null);
         setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
       }
+      clearTimeout(ceiling);
     });
-    return () => { unsubscribe(); clearTimeout(timeout); };
+    return () => { unsubscribe(); clearTimeout(fastTimeout); clearTimeout(ceiling); };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {

@@ -40,14 +40,18 @@ if (typeof window !== 'undefined') {
     window.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
   }
 
+  // App Check is best-effort. If the reCAPTCHA site key isn't whitelisted for
+  // this domain Google will return 403 and throttle further requests for 24h —
+  // we must not let that block sign-in or Firestore listens, so any
+  // initialisation error is swallowed here.
   if (recaptchaSiteKey) {
     try {
       appCheck = initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(recaptchaSiteKey),
         isTokenAutoRefreshEnabled: true,
       });
-    } catch {
-      // App Check already initialized (HMR), continue
+    } catch (err) {
+      console.warn('[firebase] App Check init failed (non-fatal):', err);
     }
   }
 }

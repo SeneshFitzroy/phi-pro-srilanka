@@ -54,6 +54,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Modern web-app capability hint (apple-mobile-web-app-capable is
+            deprecated; Next still emits it via metadata.appleWebApp.capable
+            for iOS compatibility, so we add the standards-track equivalent
+            here for Android / Chrome). */}
+        <meta name="mobile-web-app-capable" content="yes" />
         {/* Zero-flicker language init: runs before React hydration */}
         <script
           dangerouslySetInnerHTML={{
