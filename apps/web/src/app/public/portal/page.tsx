@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   MessageSquare, CheckCircle, CreditCard, Search, AlertTriangle, FileText,
-  ArrowRight, ShieldCheck, Phone, BadgeCheck, Newspaper, Languages, Lock,
+  ArrowRight, ShieldCheck, Phone, Newspaper,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -15,16 +15,16 @@ export const metadata: Metadata = {
 const primary = [
   {
     icon: MessageSquare,
-    title: 'Submit a complaint',
-    desc: 'Report unsafe food, hygiene risks or suspected outbreaks. Verified citizen submissions.',
+    title: 'Report a problem',
+    desc: 'Unsafe food, dirty premises or a suspected outbreak — your nearest PHI gets it the same day.',
     href: '/public/complaints',
-    tag: 'Verified',
+    tag: 'Citizen',
     accent: 'from-blue-700 to-blue-900',
   },
   {
     icon: CheckCircle,
     title: 'Verify a certificate',
-    desc: 'Confirm a PHI permit, food-grade or training certificate by QR or reference ID.',
+    desc: 'Scan the QR or enter the reference. Result in under a second.',
     href: '/public/verify',
     tag: 'Instant',
     accent: 'from-emerald-600 to-emerald-800',
@@ -32,9 +32,9 @@ const primary = [
   {
     icon: CreditCard,
     title: 'Pay a fee or fine',
-    desc: 'Settle permits, renewals or compliance fines through PayHere — government-grade.',
+    desc: 'Permits, renewals and compliance fines through PayHere. Receipt issued immediately.',
     href: '/public/payments',
-    tag: 'GovPay',
+    tag: 'Secure',
     accent: 'from-indigo-600 to-blue-900',
   },
 ];
@@ -84,11 +84,8 @@ export default function PublicPortalPage() {
                 Verified data from the field, signed by the Ministry of Health.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500 lg:col-span-4 lg:justify-end dark:text-slate-400">
-              <Pill icon={<Lock className="h-3 w-3" />}>No login</Pill>
-              <Pill icon={<Languages className="h-3 w-3" />}>EN &middot; සිංහල &middot; தமிழ்</Pill>
-              <Pill icon={<BadgeCheck className="h-3 w-3" />}>Signed by MoH</Pill>
-            </div>
+            {/* Trust pills removed per design — header copy already conveys
+                the same reassurance without taking column real estate. */}
           </div>
         </div>
       </section>
@@ -126,22 +123,21 @@ export default function PublicPortalPage() {
             <h2 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">Map-driven services</h2>
           </div>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {maps.map((s) => (
             <Link
               key={s.href}
               href={s.href}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+              className="group relative flex items-start gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
-              <div className={`h-1 w-full bg-gradient-to-r ${s.accent}`} />
-              <div className="flex flex-1 flex-col p-6">
-                <div className={`inline-flex rounded-2xl bg-gradient-to-br ${s.accent} p-3 shadow-sm`}>
-                  <s.icon className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{s.title}</h3>
-                <p className="mt-1.5 flex-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{s.desc}</p>
-                <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 dark:text-blue-300">
-                  Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5" />
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${s.accent} shadow-sm`}>
+                <s.icon className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base font-bold leading-tight text-slate-900 dark:text-white">{s.title}</h3>
+                <p className="mt-1 text-[13px] leading-snug text-slate-500 dark:text-slate-400">{s.desc}</p>
+                <div className="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-blue-700 dark:text-blue-300">
+                  Open <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
             </Link>
@@ -199,10 +195,3 @@ export default function PublicPortalPage() {
   );
 }
 
-function Pill({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-      {icon}{children}
-    </span>
-  );
-}

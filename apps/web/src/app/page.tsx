@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowRight, Shield, Globe2, Users, Phone, Newspaper,
+  ArrowRight, Users, Phone, Newspaper,
   UserCheck, Store, ChevronDown, ChevronRight,
-  BookOpen, Sparkles, ShieldCheck, BadgeCheck, MapPin,
+  BookOpen, ShieldCheck, MapPin,
   AlertTriangle, CheckCircle, Megaphone,
 } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
@@ -128,12 +128,8 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] font-medium text-slate-500 dark:text-slate-400">
-              <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WCAG 2.1 AA</li>
-              <li className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WebAuthn passkeys</li>
-              <li className="flex items-center gap-1.5"><Globe2 className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Sinhala &middot; Tamil &middot; English</li>
-              <li className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Tamper-evident audit chain</li>
-            </ul>
+            {/* Trust-badge strip removed per design — keeps the hero focus on
+                the headline + the two CTAs immediately above. */}
           </div>
         </div>
       </section>

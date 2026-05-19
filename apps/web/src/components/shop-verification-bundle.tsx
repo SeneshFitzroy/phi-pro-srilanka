@@ -6,10 +6,12 @@
 // either taken on-device (camera) or uploaded from the gallery, and the
 // composite result is reported back through `onChange`.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Camera, IdCard, ShieldCheck, Trash2, Upload, Video, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { FaceIdCapture } from '@/components/face-id-capture';
+import { checkPhotoLooksReal } from '@/lib/image-sanity';
 
 export interface ShopVerificationData {
   shopVideo: { name: string; sizeMb: string; url: string; file: File } | null;
@@ -89,9 +91,13 @@ export function ShopVerificationBundle({ onChange }: { onChange: (data: ShopVeri
     return { ...d, shopPhotos: d.shopPhotos.filter((p) => p.id !== id) };
   });
 
-  // NIC photo
-  const onNic = (file: File | null) => {
+  // NIC photo — runs a client-side sanity check before accepting it so we
+  // don't capture a blank / black / single-colour frame.
+  const onNic = async (file: File | null) => {
     if (!file) return;
+    const v = await checkPhotoLooksReal(file);
+    if (!v.ok) { setError(v.reason ?? 'Please retake the NIC card photo.'); return; }
+    setError('');
     setData((d) => {
       if (d.nicPhoto) URL.revokeObjectURL(d.nicPhoto.url);
       return { ...d, nicPhoto: fileToMedia(file) };
@@ -141,10 +147,15 @@ export function ShopVerificationBundle({ onChange }: { onChange: (data: ShopVeri
       {/* 2. SHOP PHOTOS */}
       <ShopPhotosCapture items={data.shopPhotos} onAdd={onPhotos} onRemove={removePhoto} />
 
-      {/* 3. NIC + 4. Selfie */}
+      {/* 3. NIC + 4. Selfie (Apple-style multi-step face verification) */}
       <div className="grid gap-4 sm:grid-cols-2">
         <NicPhotoCapture item={data.nicPhoto} onCapture={onNic} onClear={clearNic} />
-        <SelfieCapture item={data.selfie} onCapture={onSelfie} onClear={clearSelfie} />
+        <FaceIdCapture
+          heading="4. Live owner selfie"
+          item={data.selfie}
+          onCapture={onSelfie}
+          onClear={clearSelfie}
+        />
       </div>
 
       {error && <p className="text-xs text-rose-600">{error}</p>}
@@ -272,193 +283,3 @@ function NicPhotoCapture({ item, onCapture, onClear }: {
   );
 }
 
-/* ─── live selfie with on-device face detection ─────────────────────── */
-
-function SelfieCapture({ item, onCapture, onClear }: {
-  item: ShopVerificationData['selfie'];
-  onCapture: (file: File) => void;
-  onClear: () => void;
-}) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const overlayRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const [streaming, setStreaming] = useState(false);
-  const [err, setErr] = useState('');
-  const [faceLocked, setFaceLocked] = useState(false);
-  const [supportsFaceApi, setSupportsFaceApi] = useState(false);
-
-  const start = useCallback(async () => {
-    setErr('');
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false,
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setStreaming(true);
-      }
-    } catch (e) {
-      setErr(`Camera unavailable: ${e instanceof Error ? e.message : String(e)}`);
-    }
-  }, []);
-
-  const stop = useCallback(() => {
-    const v = videoRef.current;
-    if (!v?.srcObject) return;
-    (v.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
-    v.srcObject = null;
-    setStreaming(false);
-    setFaceLocked(false);
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  }, []);
-
-  /* Run the native FaceDetector loop whenever the camera is streaming. The
-     Shape Detection API is available in Chrome/Edge/Android; on Safari and
-     Firefox we fall back to manual capture (no lock). */
-  useEffect(() => {
-    if (!streaming) return;
-    const FaceDetectorCtor = (window as unknown as { FaceDetector?: new (opts?: object) => { detect: (src: HTMLVideoElement) => Promise<Array<{ boundingBox: DOMRectReadOnly }>> } }).FaceDetector;
-    if (!FaceDetectorCtor) {
-      // No native face detection — we still allow capture; the "Apple-style"
-      // ring just stays at idle teal.
-      setSupportsFaceApi(false);
-      return;
-    }
-    setSupportsFaceApi(true);
-    const detector = new FaceDetectorCtor({ fastMode: true, maxDetectedFaces: 1 });
-    let cancelled = false;
-
-    const tick = async () => {
-      if (cancelled) return;
-      const v = videoRef.current; const o = overlayRef.current;
-      if (v && o && v.readyState === v.HAVE_ENOUGH_DATA) {
-        try {
-          const faces = await detector.detect(v);
-          o.width = v.videoWidth; o.height = v.videoHeight;
-          const ctx = o.getContext('2d');
-          if (ctx) {
-            ctx.clearRect(0, 0, o.width, o.height);
-            if (faces.length > 0) {
-              const f = faces[0].boundingBox;
-              // Mirror x to match the css-mirrored video
-              const x = o.width - f.x - f.width;
-              ctx.strokeStyle = '#10b981';
-              ctx.lineWidth = Math.max(o.width / 160, 3);
-              const r = 18;
-              // Rounded rect
-              ctx.beginPath();
-              ctx.moveTo(x + r, f.y);
-              ctx.arcTo(x + f.width, f.y, x + f.width, f.y + r, r);
-              ctx.lineTo(x + f.width, f.y + f.height - r);
-              ctx.arcTo(x + f.width, f.y + f.height, x + f.width - r, f.y + f.height, r);
-              ctx.lineTo(x + r, f.y + f.height);
-              ctx.arcTo(x, f.y + f.height, x, f.y + f.height - r, r);
-              ctx.lineTo(x, f.y + r);
-              ctx.arcTo(x, f.y, x + r, f.y, r);
-              ctx.stroke();
-              setFaceLocked(true);
-            } else {
-              setFaceLocked(false);
-            }
-          }
-        } catch { /* per-frame detection errors are harmless */ }
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      cancelled = true;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [streaming]);
-
-  const snap = useCallback(() => {
-    const v = videoRef.current; const c = canvasRef.current;
-    if (!v || !c) return;
-    c.width = v.videoWidth || 640;
-    c.height = v.videoHeight || 480;
-    const ctx = c.getContext('2d'); if (!ctx) return;
-    // Mirror the captured image to match how the user saw themselves
-    ctx.translate(c.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(v, 0, 0, c.width, c.height);
-    c.toBlob((blob) => {
-      if (!blob) return;
-      onCapture(new File([blob], `owner-selfie-${Date.now()}.jpg`, { type: 'image/jpeg' }));
-      stop();
-    }, 'image/jpeg', 0.85);
-  }, [onCapture, stop]);
-
-  useEffect(() => () => stop(), [stop]);
-
-  return (
-    <div className="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-900 dark:bg-slate-900">
-      <Label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-        <Camera className="h-3.5 w-3.5" /> 4. Live owner selfie <span className="text-red-500">*</span>
-      </Label>
-      <div className="relative mt-2 aspect-[1.6/1] w-full overflow-hidden rounded border border-dashed border-slate-300 bg-slate-900 dark:border-slate-700">
-        {item && !streaming && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.url} alt="Selfie" className="h-full w-full object-cover" />
-        )}
-        <video ref={videoRef} className={`h-full w-full object-cover [transform:scaleX(-1)] ${streaming ? 'block' : 'hidden'}`} playsInline muted />
-        {/* Face-detection bounding box overlay (rendered when supported) */}
-        {streaming && (
-          <canvas ref={overlayRef} className="pointer-events-none absolute inset-0 h-full w-full" />
-        )}
-        {!item && !streaming && <div className="flex h-full items-center justify-center text-[11px] text-slate-300">No selfie captured</div>}
-        {streaming && (
-          <>
-            {/* Apple-style guidance ring */}
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className={`h-3/4 w-2/3 rounded-full border-[3px] transition-colors ${faceLocked ? 'border-emerald-400/80' : 'border-amber-300/60 animate-pulse'}`} />
-            </div>
-            {/* Status pill */}
-            <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
-              {!supportsFaceApi
-                ? <><Camera className="h-3 w-3" /> Camera live</>
-                : faceLocked
-                ? <><Check className="h-3 w-3 text-emerald-300" /> Face detected — ready to capture</>
-                : <><Camera className="h-3 w-3" /> Position face inside the ring…</>}
-            </div>
-          </>
-        )}
-        <canvas ref={canvasRef} className="hidden" />
-      </div>
-      {err && <p className="mt-1 text-[11px] text-rose-600">{err}</p>}
-      <div className="mt-2 flex gap-2">
-        {!streaming && (
-          <Button type="button" variant="outline" size="sm" onClick={start} className="flex-1">
-            <Camera className="mr-1.5 h-3.5 w-3.5" /> {item ? 'Retake selfie' : 'Open camera'}
-          </Button>
-        )}
-        {streaming && (
-          <>
-            <Button
-              type="button"
-              size="sm"
-              onClick={snap}
-              disabled={supportsFaceApi && !faceLocked}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400"
-              title={supportsFaceApi && !faceLocked ? 'Position your face inside the ring' : 'Capture selfie'}
-            >
-              <Camera className="mr-1.5 h-3.5 w-3.5" />
-              {supportsFaceApi && !faceLocked ? 'Waiting for face…' : 'Capture'}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={stop}>Stop</Button>
-          </>
-        )}
-        {item && !streaming && (
-          <Button type="button" variant="outline" size="sm" onClick={onClear}>
-            <Trash2 className="h-3.5 w-3.5 text-rose-600" />
-          </Button>
-        )}
-      </div>
-      {streaming && !supportsFaceApi && (
-        <p className="mt-1 text-[10px] text-slate-500">Your browser doesn&apos;t support on-device face detection — please ensure your face is centered before capturing.</p>
-      )}
-    </div>
-  );
-}

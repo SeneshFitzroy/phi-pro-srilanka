@@ -33,6 +33,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { VoiceInput } from '@/components/voice-input';
+import { FaceIdCapture } from '@/components/face-id-capture';
+import { checkPhotoLooksReal } from '@/lib/image-sanity';
+import { toast } from 'sonner';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -190,19 +193,40 @@ export default function ComplaintsPage() {
       async (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
         setForm((p) => ({ ...p, pin: { lat, lng } }));
-        // Reverse geocode via OSM Nominatim (free, attribution-only).
+        // Reverse geocode via OSM Nominatim (free, attribution-only). We
+        // fill EVERY locatable field: street address, district, and GN
+        // (Grama Niladhari) division if Nominatim has the suburb/neighbour
+        // hood. Failures are non-fatal — the pin still drops.
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
-            headers: { Accept: 'application/json' },
-          });
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=en`,
+            { headers: { Accept: 'application/json' } },
+          );
           const j = await res.json() as { display_name?: string; address?: Record<string, string> };
-          if (j.display_name) {
-            const district = j.address?.county || j.address?.state_district || j.address?.region || '';
-            const matched = DISTRICTS.find((d) => district.toLowerCase().includes(d.toLowerCase()));
+          if (j) {
+            const a = j.address ?? {};
+            // Compact street address — number + road + suburb + city
+            const parts = [
+              a.house_number,
+              a.road || a.pedestrian || a.footway,
+              a.suburb || a.neighbourhood || a.village || a.hamlet,
+              a.city || a.town,
+            ].filter(Boolean);
+            const niceLocation = parts.length > 0 ? parts.join(', ') : j.display_name;
+
+            // Sri Lanka district detection — Nominatim labels it in
+            // state_district / county / region depending on the area.
+            const districtRaw = (a.county || a.state_district || a.region || a.city_district || '').toLowerCase();
+            const matchedDistrict = DISTRICTS.find((d) => districtRaw.includes(d.toLowerCase()));
+
+            // GN division hint from suburb / neighbourhood / village
+            const gnHint = a.suburb || a.neighbourhood || a.village || '';
+
             setForm((p) => ({
               ...p,
-              location: j.display_name ?? p.location,
-              district: matched ?? p.district,
+              location: niceLocation ?? p.location,
+              district: matchedDistrict ?? p.district,
+              gnDivision: p.gnDivision || gnHint,
             }));
           }
         } catch { /* reverse geocode failure is non-fatal */ }
@@ -627,16 +651,27 @@ export default function ComplaintsPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <NicPhotoCapture
                     item={form.nicPhoto}
-                    onCapture={(file) => {
+                    onCapture={async (file) => {
+                      // Client-side sanity check before we accept the upload.
+                      // Catches blank canvas / all-black / single-colour fills /
+                      // tiny screenshots. The receiving PHI office still does
+                      // a manual review, but this stops the worst rubbish.
+                      const v = await checkPhotoLooksReal(file);
+                      if (!v.ok) {
+                        toast.error(v.reason ?? 'Please retake the NIC photo.');
+                        return;
+                      }
                       if (form.nicPhoto) URL.revokeObjectURL(form.nicPhoto.url);
                       setForm((p) => ({ ...p, nicPhoto: fileToMedia(file, 'photo') }));
+                      toast.success('NIC card photo accepted.');
                     }}
                     onClear={() => {
                       if (form.nicPhoto) URL.revokeObjectURL(form.nicPhoto.url);
                       setForm((p) => ({ ...p, nicPhoto: null }));
                     }}
                   />
-                  <SelfieCapture
+                  <FaceIdCapture
+                    heading="Live selfie (Face-ID style)"
                     item={form.selfie}
                     onCapture={(file) => {
                       if (form.selfie) URL.revokeObjectURL(form.selfie.url);
@@ -803,193 +838,3 @@ function NicPhotoCapture({ item, onCapture, onClear }: {
   );
 }
 
-// Live selfie capture with on-device face detection — Apple Face-ID-style.
-// Uses the Shape Detection API (FaceDetector) where available (Chrome/Edge/
-// Android) to gate Capture until a real face is centered, and overlays a
-// rounded bounding-box on every frame so the user sees the lock. On Safari/
-// Firefox we keep the previous manual capture as a graceful fallback.
-function SelfieCapture({ item, onCapture, onClear }: {
-  item: MediaItem | null;
-  onCapture: (file: File) => void;
-  onClear: () => void;
-}) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const overlayRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const [streaming, setStreaming] = useState(false);
-  const [cameraError, setCameraError] = useState('');
-  const [faceLocked, setFaceLocked] = useState(false);
-  const [supportsFaceApi, setSupportsFaceApi] = useState(false);
-
-  const startCamera = useCallback(async () => {
-    setCameraError('');
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-        audio: false,
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setStreaming(true);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setCameraError(`Camera unavailable: ${msg}`);
-    }
-  }, []);
-
-  const stopCamera = useCallback(() => {
-    const v = videoRef.current;
-    if (!v?.srcObject) return;
-    (v.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
-    v.srcObject = null;
-    setStreaming(false);
-    setFaceLocked(false);
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  }, []);
-
-  /* Face detection loop — runs whenever the camera is streaming. */
-  useEffect(() => {
-    if (!streaming) return;
-    const FaceDetectorCtor = (window as unknown as { FaceDetector?: new (opts?: object) => { detect: (src: HTMLVideoElement) => Promise<Array<{ boundingBox: DOMRectReadOnly }>> } }).FaceDetector;
-    if (!FaceDetectorCtor) {
-      setSupportsFaceApi(false);
-      return;
-    }
-    setSupportsFaceApi(true);
-    const detector = new FaceDetectorCtor({ fastMode: true, maxDetectedFaces: 1 });
-    let cancelled = false;
-
-    const tick = async () => {
-      if (cancelled) return;
-      const v = videoRef.current; const o = overlayRef.current;
-      if (v && o && v.readyState === v.HAVE_ENOUGH_DATA) {
-        try {
-          const faces = await detector.detect(v);
-          o.width = v.videoWidth; o.height = v.videoHeight;
-          const ctx = o.getContext('2d');
-          if (ctx) {
-            ctx.clearRect(0, 0, o.width, o.height);
-            if (faces.length > 0) {
-              const f = faces[0].boundingBox;
-              const x = o.width - f.x - f.width; // mirror to match video transform
-              ctx.strokeStyle = '#10b981';
-              ctx.lineWidth = Math.max(o.width / 160, 3);
-              const r = 18;
-              ctx.beginPath();
-              ctx.moveTo(x + r, f.y);
-              ctx.arcTo(x + f.width, f.y, x + f.width, f.y + r, r);
-              ctx.lineTo(x + f.width, f.y + f.height - r);
-              ctx.arcTo(x + f.width, f.y + f.height, x + f.width - r, f.y + f.height, r);
-              ctx.lineTo(x + r, f.y + f.height);
-              ctx.arcTo(x, f.y + f.height, x, f.y + f.height - r, r);
-              ctx.lineTo(x, f.y + r);
-              ctx.arcTo(x, f.y, x + r, f.y, r);
-              ctx.stroke();
-              setFaceLocked(true);
-            } else {
-              setFaceLocked(false);
-            }
-          }
-        } catch { /* harmless per-frame failure */ }
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      cancelled = true;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [streaming]);
-
-  const snap = useCallback(() => {
-    const v = videoRef.current; const c = canvasRef.current;
-    if (!v || !c) return;
-    c.width = v.videoWidth || 640;
-    c.height = v.videoHeight || 480;
-    const ctx = c.getContext('2d'); if (!ctx) return;
-    ctx.translate(c.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(v, 0, 0, c.width, c.height);
-    c.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], `selfie-${Date.now()}.jpg`, { type: 'image/jpeg' });
-      onCapture(file);
-      stopCamera();
-    }, 'image/jpeg', 0.85);
-  }, [onCapture, stopCamera]);
-
-  useEffect(() => () => stopCamera(), [stopCamera]);
-
-  return (
-    <div className="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-900 dark:bg-slate-900">
-      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-        <Camera className="h-3.5 w-3.5" /> Live selfie
-      </p>
-      <div className="relative mt-2 aspect-[1.6/1] w-full overflow-hidden rounded border border-dashed border-slate-300 bg-slate-900 dark:border-slate-700">
-        {item && !streaming &&
-          // eslint-disable-next-line @next/next/no-img-element -- blob: preview, next/image can't optimize it
-          <img src={item.url} alt="Selfie" className="h-full w-full object-cover" />}
-        <video ref={videoRef} className={`h-full w-full object-cover [transform:scaleX(-1)] ${streaming ? 'block' : 'hidden'}`} playsInline muted />
-        {streaming && (
-          <canvas ref={overlayRef} className="pointer-events-none absolute inset-0 h-full w-full" />
-        )}
-        {!item && !streaming && (
-          <div className="flex h-full items-center justify-center text-[11px] text-slate-300">No selfie captured</div>
-        )}
-        {streaming && (
-          <>
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className={`h-3/4 w-2/3 rounded-full border-[3px] transition-colors ${faceLocked ? 'border-emerald-400/80' : 'border-amber-300/60 animate-pulse'}`} />
-            </div>
-            <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
-              {!supportsFaceApi
-                ? <><Camera className="h-3 w-3" /> Camera live</>
-                : faceLocked
-                ? <><Check className="h-3 w-3 text-emerald-300" /> Face detected — ready</>
-                : <><Camera className="h-3 w-3" /> Position your face…</>}
-            </div>
-          </>
-        )}
-        <canvas ref={canvasRef} className="hidden" />
-      </div>
-      {cameraError && <p className="mt-1 text-[11px] text-rose-600">{cameraError}</p>}
-
-      <div className="mt-2 flex gap-2">
-        {!streaming && (
-          <Button type="button" variant="outline" size="sm" onClick={startCamera} className="flex-1">
-            <Camera className="mr-1.5 h-3.5 w-3.5" /> {item ? 'Retake selfie' : 'Open camera'}
-          </Button>
-        )}
-        {streaming && (
-          <>
-            <Button
-              type="button"
-              size="sm"
-              onClick={snap}
-              disabled={supportsFaceApi && !faceLocked}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400"
-              title={supportsFaceApi && !faceLocked ? 'Position your face inside the ring' : 'Capture selfie'}
-            >
-              <Camera className="mr-1.5 h-3.5 w-3.5" />
-              {supportsFaceApi && !faceLocked ? 'Waiting for face…' : 'Capture'}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={stopCamera}>
-              Stop
-            </Button>
-          </>
-        )}
-        {item && !streaming && (
-          <Button type="button" variant="outline" size="sm" onClick={onClear}>
-            <Trash2 className="h-3.5 w-3.5 text-rose-600" />
-          </Button>
-        )}
-      </div>
-      {streaming && !supportsFaceApi && (
-        <p className="mt-1 text-[10px] text-slate-500">Your browser doesn&apos;t support on-device face detection — please ensure your face is centered before capturing.</p>
-      )}
-    </div>
-  );
-}

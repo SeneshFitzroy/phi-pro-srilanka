@@ -24,6 +24,11 @@ const GoogleTranslateWidget = dynamic(
   { ssr: false },
 );
 
+const LangPicker3 = dynamic(
+  () => import('@/components/lang-picker-3').then((m) => ({ default: m.LangPicker3 })),
+  { ssr: false },
+);
+
 // Public navigation — citizen-facing only. PHI-Officer-only resources
 // (Duty of PHI, Downloads) live inside the authenticated dashboard sidebar.
 //
@@ -142,10 +147,15 @@ export function PublicHeader() {
       {/* Mobile drawer */}
       {open && (
         <div className="border-t border-slate-100 bg-white px-4 py-3 lg:hidden dark:border-slate-800 dark:bg-slate-950">
-          <div className="mb-3 flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 sm:hidden dark:border-slate-700 dark:bg-slate-900" aria-label="Site language">
-            <Globe className="h-3.5 w-3.5 text-slate-500" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Language</span>
-            <div className="ml-auto"><GoogleTranslateWidget /></div>
+          {/* Working 3-button language picker — drives Google Translate
+              under the hood. Big tap targets, full width on phones. */}
+          <div className="mb-3">
+            <p className="mb-1.5 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              <Globe className="h-3 w-3" /> Language
+            </p>
+            <LangPicker3 variant="full" />
+            {/* Hidden GT mount — required for the picker to drive it */}
+            <div className="hidden"><GoogleTranslateWidget /></div>
           </div>
           <div className="flex flex-col">
             {PUBLIC_NAV.map((item) => (
