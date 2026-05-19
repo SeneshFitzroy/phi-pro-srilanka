@@ -12,9 +12,18 @@
 // ============================================================================
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+/**
+ * If the user has provisioned a Google Maps key, route every map through
+ * Google's renderer (rock-solid tiles, never blocked). Otherwise the
+ * component below falls through to OSM-based Leaflet tiles.
+ */
+const HAS_GOOGLE_KEY = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+const GoogleMap = dynamic(() => import('@/components/google-map'), { ssr: false });
 
 /**
  * Tile-source pool, ordered by how reliably the host clears ad-block lists
@@ -150,7 +159,15 @@ function FitBounds({ markers }: { markers: LeafletMarker[] }) {
   return null;
 }
 
-export default function LeafletMap({
+export default function LeafletMap(props: Props) {
+  // Prefer Google Maps when a key is configured — far more reliable than
+  // hot-linked raster tile providers on Sri Lankan networks. Branch BEFORE
+  // any hooks fire so React's hook-order invariant is preserved.
+  if (HAS_GOOGLE_KEY) return <GoogleMap {...props} />;
+  return <LeafletRenderer {...props} />;
+}
+
+function LeafletRenderer({
   centre = SL_CENTRE,
   zoom = 7,
   fitToMarkers = false,
