@@ -71,7 +71,6 @@ export const DISTRICTS: DistrictMeta[] = [
   { district: 'Trincomalee',  province: 'Eastern',       lat: 8.5874, lng: 81.2152, rdhs: '026-2222261' },
   { district: 'Batticaloa',   province: 'Eastern',       lat: 7.7170, lng: 81.7000, rdhs: '065-2222261' },
   { district: 'Ampara',       province: 'Eastern',       lat: 7.2975, lng: 81.6747, rdhs: '063-2222261' },
-  { district: 'Kalmunai',     province: 'Eastern',       lat: 7.4097, lng: 81.8260, rdhs: '067-2229261' },
   { district: 'Kurunegala',   province: 'North Western', lat: 7.4863, lng: 80.3623, rdhs: '037-2222261' },
   { district: 'Puttalam',     province: 'North Western', lat: 8.0408, lng: 79.8394, rdhs: '032-2265261' },
   { district: 'Anuradhapura', province: 'North Central', lat: 8.3114, lng: 80.4037, rdhs: '025-2222261' },
@@ -181,7 +180,7 @@ export const PHI_OFFICERS: PhiOfficer[] = [
   { memberNo: '—',    name: 'M. Kanthasamy',            range: 'Kattankudy',            moh: 'Kattankudy',       district: 'Batticaloa',  province: 'Eastern', phone: '0771211101', lat: 7.6859, lng: 81.7283 },
   { memberNo: '—',    name: 'P. Selvarajah',            range: 'Trincomalee',           moh: 'Trincomalee',      district: 'Trincomalee', province: 'Eastern', phone: '0771210280', lat: 8.5874, lng: 81.2152 },
   { memberNo: '—',    name: 'A. Ahamed',                range: 'Agbopura',              moh: 'Kantale',          district: 'Trincomalee', province: 'Eastern', phone: '0771210287', lat: 8.3500, lng: 81.0500 },
-  { memberNo: '—',    name: 'M. Riyaz',                 range: 'Addalaichchenai-2',     moh: 'Addalaichchenai',  district: 'Kalmunai',    province: 'Eastern', phone: '0771212070', lat: 7.2186, lng: 81.8350 },
+  { memberNo: '—',    name: 'M. Riyaz',                 range: 'Addalaichchenai-2',     moh: 'Addalaichchenai',  district: 'Ampara',      province: 'Eastern', phone: '0771212070', lat: 7.2186, lng: 81.8350 },
 
   // ─── KURUNEGALA / PUTTALAM ────────────────────────────────────────────────
   { memberNo: '—',    name: 'A.J. Karunaratne',         range: 'Kurunegala MC',         moh: 'Kurunegala',       district: 'Kurunegala',  province: 'North Western', phone: '0771211400', lat: 7.4863, lng: 80.3623 },

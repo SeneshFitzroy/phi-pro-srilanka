@@ -335,15 +335,20 @@ export default function HomePage() {
           <div className="lg:col-span-7">
             <div className="grid gap-3 sm:grid-cols-3">
               {[
-                { role: 'Hon. President', name: 'K.A.P. Boralessa' },
-                { role: 'Hon. Secretary', name: 'M.A.A.D.S. Muthukuda' },
-                { role: 'Hon. Treasurer', name: 'M.A.C. Prasad' },
+                { role: 'Hon. President', name: 'K.A.P. Boralessa',     href: '/public/about#officers-boralessa' },
+                { role: 'Hon. Secretary', name: 'M.A.A.D.S. Muthukuda', href: '/public/about#officers-muthukuda' },
+                { role: 'Hon. Treasurer', name: 'M.A.C. Prasad',        href: '/public/about#officers-prasad' },
               ].map((o) => (
-                <div key={o.role} className="flex flex-col items-center rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-center shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/40">
+                <Link
+                  key={o.role}
+                  href={o.href}
+                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/40 dark:hover:border-blue-500"
+                >
                   <Image src="/phi-emblem.png" alt="" width={48} height={48} className="h-12 w-12" />
                   <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">{o.role}</p>
                   <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">{o.name}</p>
-                </div>
+                  <p className="mt-1 text-[10px] font-semibold text-blue-700 group-hover:underline dark:text-blue-300">View profile →</p>
+                </Link>
               ))}
             </div>
 

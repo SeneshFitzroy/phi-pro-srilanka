@@ -90,9 +90,9 @@ export function GoogleTranslateWidget() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden" style={{ maxWidth: 150 }}>
+    <div className="relative overflow-hidden" style={{ maxWidth: 170 }}>
       {/* Google Translate mounts here — widget auto-renders the dropdown */}
-      <div id="google_translate_element" ref={divRef} />
+      <div id="google_translate_element" ref={divRef} className="min-h-[28px]" />
 
       <style>{`
         /* Hide GT's injected top banner */
@@ -138,6 +138,13 @@ export function GoogleTranslateWidget() {
           cursor: pointer;
         }
         #google_translate_element select:focus { outline: 2px solid #0066cc; }
+
+        /* Mobile: make the dropdown 44px tall (Apple's recommended tap target) */
+        @media (max-width: 640px) {
+          .goog-te-gadget-simple { padding: 8px 12px !important; min-height: 40px !important; }
+          .goog-te-menu-value span:first-child { font-size: 14px !important; }
+          #google_translate_element select { padding: 8px 12px; font-size: 14px; min-height: 40px; width: 100%; }
+        }
       `}</style>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { UserRole } from '@phi-pro/shared';
@@ -91,10 +92,43 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
                 </linearGradient>
               </defs>
             </svg>
-            {/* Logo card */}
-            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-3xl bg-white/95 p-3 shadow-2xl ring-1 ring-white/40">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/phi-emblem.png" alt="PHI-PRO" width={72} height={72} className="drop-shadow-sm" />
+            {/* Logo card — inline SVG monogram paints on first frame so the
+                splash never shows a blank white square while the PNG is in
+                flight. The Image overlays the SVG once the asset has decoded. */}
+            <div className="relative z-10 flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white/95 shadow-2xl ring-1 ring-white/40">
+              {/* Instant SVG monogram (rendered with HTML, zero network cost) */}
+              <svg
+                viewBox="0 0 72 72"
+                aria-hidden
+                className="absolute inset-0 h-full w-full p-2"
+              >
+                <defs>
+                  <linearGradient id="phi-mono" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#1e3a8a" />
+                    <stop offset="100%" stopColor="#0f172a" />
+                  </linearGradient>
+                </defs>
+                <circle cx="36" cy="36" r="32" fill="url(#phi-mono)" />
+                <text
+                  x="36"
+                  y="46"
+                  textAnchor="middle"
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                  fontWeight="800"
+                  fontSize="22"
+                  fill="#ffffff"
+                  letterSpacing="-0.5"
+                >PHI</text>
+              </svg>
+              {/* Real emblem fades in on top when the PNG finishes loading */}
+              <Image
+                src="/phi-emblem.png"
+                alt="PHI-PRO"
+                width={72}
+                height={72}
+                priority
+                className="relative z-10 drop-shadow-sm"
+              />
             </div>
           </div>
 

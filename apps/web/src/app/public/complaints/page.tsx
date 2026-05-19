@@ -803,6 +803,11 @@ function NicPhotoCapture({ item, onCapture, onClear }: {
   );
 }
 
+// Live selfie capture with on-device face detection — Apple Face-ID-style.
+// Uses the Shape Detection API (FaceDetector) where available (Chrome/Edge/
+// Android) to gate Capture until a real face is centered, and overlays a
+// rounded bounding-box on every frame so the user sees the lock. On Safari/
+// Firefox we keep the previous manual capture as a graceful fallback.
 function SelfieCapture({ item, onCapture, onClear }: {
   item: MediaItem | null;
   onCapture: (file: File) => void;
@@ -810,8 +815,12 @@ function SelfieCapture({ item, onCapture, onClear }: {
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const overlayRef = useRef<HTMLCanvasElement | null>(null);
+  const rafRef = useRef<number | null>(null);
   const [streaming, setStreaming] = useState(false);
   const [cameraError, setCameraError] = useState('');
+  const [faceLocked, setFaceLocked] = useState(false);
+  const [supportsFaceApi, setSupportsFaceApi] = useState(false);
 
   const startCamera = useCallback(async () => {
     setCameraError('');
@@ -837,7 +846,63 @@ function SelfieCapture({ item, onCapture, onClear }: {
     (v.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
     v.srcObject = null;
     setStreaming(false);
+    setFaceLocked(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, []);
+
+  /* Face detection loop — runs whenever the camera is streaming. */
+  useEffect(() => {
+    if (!streaming) return;
+    const FaceDetectorCtor = (window as unknown as { FaceDetector?: new (opts?: object) => { detect: (src: HTMLVideoElement) => Promise<Array<{ boundingBox: DOMRectReadOnly }>> } }).FaceDetector;
+    if (!FaceDetectorCtor) {
+      setSupportsFaceApi(false);
+      return;
+    }
+    setSupportsFaceApi(true);
+    const detector = new FaceDetectorCtor({ fastMode: true, maxDetectedFaces: 1 });
+    let cancelled = false;
+
+    const tick = async () => {
+      if (cancelled) return;
+      const v = videoRef.current; const o = overlayRef.current;
+      if (v && o && v.readyState === v.HAVE_ENOUGH_DATA) {
+        try {
+          const faces = await detector.detect(v);
+          o.width = v.videoWidth; o.height = v.videoHeight;
+          const ctx = o.getContext('2d');
+          if (ctx) {
+            ctx.clearRect(0, 0, o.width, o.height);
+            if (faces.length > 0) {
+              const f = faces[0].boundingBox;
+              const x = o.width - f.x - f.width; // mirror to match video transform
+              ctx.strokeStyle = '#10b981';
+              ctx.lineWidth = Math.max(o.width / 160, 3);
+              const r = 18;
+              ctx.beginPath();
+              ctx.moveTo(x + r, f.y);
+              ctx.arcTo(x + f.width, f.y, x + f.width, f.y + r, r);
+              ctx.lineTo(x + f.width, f.y + f.height - r);
+              ctx.arcTo(x + f.width, f.y + f.height, x + f.width - r, f.y + f.height, r);
+              ctx.lineTo(x + r, f.y + f.height);
+              ctx.arcTo(x, f.y + f.height, x, f.y + f.height - r, r);
+              ctx.lineTo(x, f.y + r);
+              ctx.arcTo(x, f.y, x + r, f.y, r);
+              ctx.stroke();
+              setFaceLocked(true);
+            } else {
+              setFaceLocked(false);
+            }
+          }
+        } catch { /* harmless per-frame failure */ }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [streaming]);
 
   const snap = useCallback(() => {
     const v = videoRef.current; const c = canvasRef.current;
@@ -845,6 +910,8 @@ function SelfieCapture({ item, onCapture, onClear }: {
     c.width = v.videoWidth || 640;
     c.height = v.videoHeight || 480;
     const ctx = c.getContext('2d'); if (!ctx) return;
+    ctx.translate(c.width, 0);
+    ctx.scale(-1, 1);
     ctx.drawImage(v, 0, 0, c.width, c.height);
     c.toBlob((blob) => {
       if (!blob) return;
@@ -865,14 +932,26 @@ function SelfieCapture({ item, onCapture, onClear }: {
         {item && !streaming &&
           // eslint-disable-next-line @next/next/no-img-element -- blob: preview, next/image can't optimize it
           <img src={item.url} alt="Selfie" className="h-full w-full object-cover" />}
-        <video ref={videoRef} className={`h-full w-full object-cover ${streaming ? 'block' : 'hidden'}`} playsInline muted />
+        <video ref={videoRef} className={`h-full w-full object-cover [transform:scaleX(-1)] ${streaming ? 'block' : 'hidden'}`} playsInline muted />
+        {streaming && (
+          <canvas ref={overlayRef} className="pointer-events-none absolute inset-0 h-full w-full" />
+        )}
         {!item && !streaming && (
           <div className="flex h-full items-center justify-center text-[11px] text-slate-300">No selfie captured</div>
         )}
         {streaming && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="h-3/4 w-2/3 rounded-full border-2 border-dashed border-emerald-300/80" />
-          </div>
+          <>
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <div className={`h-3/4 w-2/3 rounded-full border-[3px] transition-colors ${faceLocked ? 'border-emerald-400/80' : 'border-amber-300/60 animate-pulse'}`} />
+            </div>
+            <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+              {!supportsFaceApi
+                ? <><Camera className="h-3 w-3" /> Camera live</>
+                : faceLocked
+                ? <><Check className="h-3 w-3 text-emerald-300" /> Face detected — ready</>
+                : <><Camera className="h-3 w-3" /> Position your face…</>}
+            </div>
+          </>
         )}
         <canvas ref={canvasRef} className="hidden" />
       </div>
@@ -886,8 +965,16 @@ function SelfieCapture({ item, onCapture, onClear }: {
         )}
         {streaming && (
           <>
-            <Button type="button" size="sm" onClick={snap} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-              <Camera className="mr-1.5 h-3.5 w-3.5" /> Capture
+            <Button
+              type="button"
+              size="sm"
+              onClick={snap}
+              disabled={supportsFaceApi && !faceLocked}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400"
+              title={supportsFaceApi && !faceLocked ? 'Position your face inside the ring' : 'Capture selfie'}
+            >
+              <Camera className="mr-1.5 h-3.5 w-3.5" />
+              {supportsFaceApi && !faceLocked ? 'Waiting for face…' : 'Capture'}
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={stopCamera}>
               Stop
@@ -900,6 +987,9 @@ function SelfieCapture({ item, onCapture, onClear }: {
           </Button>
         )}
       </div>
+      {streaming && !supportsFaceApi && (
+        <p className="mt-1 text-[10px] text-slate-500">Your browser doesn&apos;t support on-device face detection — please ensure your face is centered before capturing.</p>
+      )}
     </div>
   );
 }

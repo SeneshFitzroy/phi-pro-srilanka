@@ -204,7 +204,7 @@ export default function FindPhiPage() {
                   className="w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-9 text-sm font-medium text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                   aria-label="Filter by district"
                 >
-                  <option value="">All 26 districts</option>
+                  <option value="">All 25 districts</option>
                   {DISTRICTS.map((d) => (
                     <option key={d.district} value={d.district}>{d.district} &nbsp;·&nbsp; {d.province}</option>
                   ))}

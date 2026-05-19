@@ -235,23 +235,25 @@ export default function FoodGradesPage() {
         {/* Live national map — every premises pinned, coloured by grade */}
         <LiveFoodGradeMap premises={sorted} loading={loading} />
 
-        {/* Stats summary bar */}
+        {/* Stats summary bar — three cards in one row, content stacks on
+            mobile so each card stays narrow enough that '50–74% hygiene
+            score' doesn't overflow with a tiny font. */}
         {!loading && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {(['A', 'B', 'C'] as const).map(g => {
               const cfg = gradeCfg[g];
               return (
                 <Card key={g} className={`border-2 ${cfg.guideBg} overflow-hidden`}>
                   <CardContent className="p-0">
                     <div className={`h-1.5 w-full bg-gradient-to-r ${cfg.guideClass}`} />
-                    <div className="flex items-center gap-3 p-4">
-                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 text-3xl font-black ${cfg.badge}`}>
+                    <div className="flex flex-col items-center gap-1 p-2.5 text-center sm:flex-row sm:items-center sm:gap-3 sm:p-4 sm:text-left">
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 text-xl font-black sm:h-14 sm:w-14 sm:text-3xl ${cfg.badge}`}>
                         {g}
                       </div>
                       <div className="min-w-0">
-                        <p className={`text-lg font-bold ${cfg.guideText}`}>{gradeCount(g)}</p>
-                        <p className={`text-xs font-semibold ${cfg.guideText}`}>{cfg.label}</p>
-                        <p className="text-[10px] text-muted-foreground">{cfg.sub}</p>
+                        <p className={`text-base font-bold sm:text-lg ${cfg.guideText}`}>{gradeCount(g)}</p>
+                        <p className={`text-[10px] font-semibold leading-tight sm:text-xs ${cfg.guideText}`}>{cfg.label}</p>
+                        <p className="text-[9px] leading-tight text-muted-foreground sm:text-[10px]">{cfg.sub}</p>
                       </div>
                     </div>
                   </CardContent>

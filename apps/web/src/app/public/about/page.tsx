@@ -14,9 +14,30 @@ export const metadata: Metadata = {
 };
 
 const officeBearers = [
-  { role: 'Hon. President',  name: 'K.A.P. Boralessa',         tel: '+94 77 360 1913' },
-  { role: 'Hon. Secretary',  name: 'M.A.A.D.S. Muthukuda',     tel: '+94 77 360 1914' },
-  { role: 'Hon. Treasurer',  name: 'M.A.C. Prasad',            tel: '+94 77 360 1915' },
+  {
+    slug: 'boralessa',
+    role: 'Hon. President',
+    name: 'K.A.P. Boralessa',
+    tel: '+94 77 360 1913',
+    email: 'president@phi.lk',
+    bio: 'Senior Public Health Inspector with over two decades of field experience. Leads the Union\'s national advocacy on cadre, service matters and food-safety policy.',
+  },
+  {
+    slug: 'muthukuda',
+    role: 'Hon. Secretary',
+    name: 'M.A.A.D.S. Muthukuda',
+    tel: '+94 77 360 1914',
+    email: 'secretary@phi.lk',
+    bio: 'Custodian of the Union secretariat. Coordinates with the Ministry of Health, Regional Directors of Health Services and partner statutory bodies.',
+  },
+  {
+    slug: 'prasad',
+    role: 'Hon. Treasurer',
+    name: 'M.A.C. Prasad',
+    tel: '+94 77 360 1915',
+    email: 'treasurer@phi.lk',
+    bio: 'Manages the Union\'s welfare fund, training scholarships and the Est. 1913 commemoration trust. Liaison for member benefits and dispute resolution.',
+  },
 ];
 
 const partnerBodies: Array<{ region: string; country: string; name: string; abbr: string; url: string }> = [
@@ -34,7 +55,7 @@ const milestones = [
   { year: '1937',          text: 'On the inauguration of the Malaria Control and Health Scheme, the designation changes from Sanitary Inspector to Sanitary Assistant.' },
   { year: '1 July 1954',   text: 'Implementing the recommendations of Dr Cumpston\'s Report, the cadre is renamed Public Health Inspector (PHI).' },
   { year: '1960s – 1990s', text: 'Eradication of smallpox (Wasuriya), control of communicable diseases, the building of a safe-food culture and the school-health programme — all led by PHIs island-wide.' },
-  { year: 'Today',         text: 'Roughly 1,793 PHIs and Administrative PHIs serve as the front-line prevention team for 21.9 million citizens across all 26 districts.' },
+  { year: 'Today',         text: 'Roughly 1,793 PHIs and Administrative PHIs serve as the front-line prevention team for 21.9 million citizens across all 25 districts.' },
 ];
 
 const pillars = [
@@ -282,13 +303,23 @@ export default function AboutPage() {
         </div>
         <div className="grid gap-5 sm:grid-cols-3">
           {officeBearers.map((o) => (
-            <div key={o.role} className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div
+              key={o.role}
+              id={`officers-${o.slug}`}
+              className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm scroll-mt-24 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-500"
+            >
               <Image src="/phi-emblem.png" alt="" width={56} height={56} className="h-14 w-14" />
               <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-blue-700 dark:text-blue-400">{o.role}</p>
               <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{o.name}</p>
-              <a href={`tel:${o.tel.replace(/\s/g, '')}`} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-700 dark:text-slate-400 dark:hover:text-blue-300">
-                <Phone className="h-3 w-3" /> {o.tel}
-              </a>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{o.bio}</p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <a href={`tel:${o.tel.replace(/\s/g, '')}`} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  <Phone className="h-3 w-3" /> {o.tel}
+                </a>
+                <a href={`mailto:${o.email}`} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  {o.email}
+                </a>
+              </div>
             </div>
           ))}
         </div>
