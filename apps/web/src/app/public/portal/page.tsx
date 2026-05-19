@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
-  MessageSquare, CheckCircle, CreditCard, Search, AlertTriangle, MapPin, FileText,
+  MessageSquare, CheckCircle, CreditCard, Search, AlertTriangle, FileText,
   ArrowRight, ShieldCheck, Phone, BadgeCheck, Newspaper, Languages, Lock,
 } from 'lucide-react';
 
@@ -41,13 +41,6 @@ const primary = [
 
 const maps = [
   {
-    icon: Search,
-    title: 'Food hygiene grades',
-    desc: 'Interactive map of every PHI-PRO-graded food premises in your district. Grade A · B · C with last inspection date.',
-    href: '/public/food-grades',
-    accent: 'from-emerald-600 to-emerald-800',
-  },
-  {
     icon: AlertTriangle,
     title: 'Disease outbreak alerts',
     desc: 'Real-time dengue, cholera and typhoid hotspots reported live by field officers nationwide.',
@@ -55,18 +48,18 @@ const maps = [
     accent: 'from-red-600 to-rose-800',
   },
   {
-    icon: MapPin,
-    title: 'Find a PHI / MOH',
-    desc: 'Search the national register by district, MOH area or PHI Range — and call the officer directly.',
-    href: '/public/find-phi',
-    accent: 'from-blue-700 to-blue-950',
+    icon: Search,
+    title: 'Food hygiene grades',
+    desc: 'Interactive map of every PHI-PRO-graded food premises in your district. Grade A · B · C with last inspection date.',
+    href: '/public/food-grades',
+    accent: 'from-emerald-600 to-emerald-800',
   },
 ];
 
+// Citizen-only resources. Officer-only items (Public reports, Audit chain)
+// removed — those belong inside the authenticated dashboard, not the portal.
 const secondary = [
   { icon: Newspaper, label: 'News & press releases', href: '/public/news' },
-  { icon: FileText,  label: 'Public reports & audit log', href: '/public/reports' },
-  { icon: BadgeCheck, label: 'Public audit chain', href: '/public/audit' },
   { icon: FileText,  label: 'Downloads (forms, manuals)', href: '/public/downloads' },
 ];
 
@@ -133,7 +126,7 @@ export default function PublicPortalPage() {
             <h2 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">Map-driven services</h2>
           </div>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2">
           {maps.map((s) => (
             <Link
               key={s.href}
@@ -185,7 +178,7 @@ export default function PublicPortalPage() {
       <section className="border-t border-slate-200 bg-slate-50/70 py-12 dark:border-slate-800 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">More resources</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {secondary.map((s) => (
               <Link
                 key={s.href}

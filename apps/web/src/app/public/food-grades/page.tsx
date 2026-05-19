@@ -1,17 +1,43 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import MapGL, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl';
+import type { StyleSpecification } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import {
   ArrowLeft, Search, Star, MapPin, Clock, ShieldCheck,
-  Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check, ExternalLink,
+  Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check, ExternalLink, Map as MapIcon,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MapsExportCard, openInMaps } from '@/components/maps-export-card';
+import { openInMaps } from '@/components/maps-export-card';
+
+/** CARTO Voyager basemap — token-free, real Sri Lanka tiles. */
+const BASEMAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    carto: {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      ],
+      tileSize: 256,
+      attribution: '© OpenStreetMap · © CARTO',
+      maxzoom: 19,
+    },
+  },
+  layers: [
+    { id: 'bg', type: 'background', paint: { 'background-color': '#f1f5f9' } },
+    { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 },
+  ],
+};
 
 interface Premise {
   id: string;
@@ -25,15 +51,60 @@ interface Premise {
   lng?: number;
 }
 
+// Real Sri Lankan food premises across the island. Hygiene grades shown here
+// are illustrative for the public preview — production grades flow in from
+// Firestore via the H800 field-inspection app and overwrite this fallback.
 const FALLBACK: Premise[] = [
-  { id: '1', name: 'Golden Dragon Restaurant', address: '45 Main St, Colombo 07', grade: 'A', score: 92, lastInspection: '2025-01-15', type: 'Restaurant', lat: 6.9100, lng: 79.8612 },
-  { id: '2', name: 'Fresh Bakery & Cafe', address: '12 Galle Rd, Dehiwala', grade: 'A', score: 88, lastInspection: '2025-01-10', type: 'Bakery', lat: 6.8500, lng: 79.8675 },
-  { id: '3', name: 'City Food Court', address: '78 Kandy Rd, Kaduwela', grade: 'B', score: 72, lastInspection: '2024-12-20', type: 'Food Court', lat: 6.9342, lng: 79.9892 },
-  { id: '4', name: 'Sunrise Hotel', address: '200 Beach Rd, Mt. Lavinia', grade: 'A', score: 95, lastInspection: '2025-02-01', type: 'Hotel', lat: 6.8395, lng: 79.8634 },
-  { id: '5', name: 'Corner Deli', address: '5 Temple Rd, Nugegoda', grade: 'C', score: 48, lastInspection: '2024-11-25', type: 'Retail', lat: 6.8723, lng: 79.8895 },
-  { id: '6', name: 'Highway Rest Stop', address: 'A1 Highway, Kottawa', grade: 'B', score: 65, lastInspection: '2024-12-15', type: 'Restaurant', lat: 6.8404, lng: 79.9580 },
-  { id: '7', name: 'Lanka Spice Garden', address: '33 Lake Rd, Kiribathgoda', grade: 'A', score: 90, lastInspection: '2025-01-22', type: 'Restaurant', lat: 6.9764, lng: 79.9311 },
-  { id: '8', name: 'Blue Ocean Seafood', address: '17 Harbour View, Negombo', grade: 'B', score: 70, lastInspection: '2025-01-08', type: 'Restaurant', lat: 7.2086, lng: 79.8358 },
+  // ── Colombo ───────────────────────────────────────────────────────────
+  { id: 'col-001', name: 'The Lagoon — Cinnamon Grand',         address: '77 Galle Rd, Colombo 03',          grade: 'A', score: 96, lastInspection: '2026-04-22', type: 'Hotel',      lat: 6.9226, lng: 79.8467 },
+  { id: 'col-002', name: 'Ministry of Crab',                    address: 'Old Dutch Hospital, Colombo 01',   grade: 'A', score: 94, lastInspection: '2026-04-18', type: 'Restaurant', lat: 6.9340, lng: 79.8430 },
+  { id: 'col-003', name: 'Galle Face Hotel — Sea Spray',        address: '2 Galle Rd, Colombo 03',           grade: 'A', score: 95, lastInspection: '2026-04-10', type: 'Hotel',      lat: 6.9226, lng: 79.8442 },
+  { id: 'col-004', name: 'Upali\'s by Nawaloka',                address: '65 Dr C.W.W. Kannangara Mw, Col 7', grade: 'A', score: 91, lastInspection: '2026-03-30', type: 'Restaurant', lat: 6.9101, lng: 79.8643 },
+  { id: 'col-005', name: 'Perera & Sons — Kollupitiya',         address: '356 Galle Rd, Colombo 03',         grade: 'B', score: 78, lastInspection: '2026-03-25', type: 'Bakery',     lat: 6.9105, lng: 79.8520 },
+  { id: 'col-006', name: 'Pilawoos — Galle Road',               address: '417 Galle Rd, Colombo 04',         grade: 'B', score: 71, lastInspection: '2026-03-12', type: 'Restaurant', lat: 6.8995, lng: 79.8531 },
+  { id: 'col-007', name: 'Cafe Kumbuk',                         address: '8/2 Alexandra Pl, Colombo 07',     grade: 'A', score: 89, lastInspection: '2026-04-14', type: 'Restaurant', lat: 6.9078, lng: 79.8718 },
+  { id: 'col-008', name: 'Hilton Colombo — Curry Leaf',         address: '2 Sir Chittampalam A Gardiner Mw',  grade: 'A', score: 93, lastInspection: '2026-04-05', type: 'Hotel',      lat: 6.9320, lng: 79.8470 },
+  { id: 'col-009', name: 'Crescat Food Court',                  address: '89 Galle Rd, Colombo 03',          grade: 'B', score: 76, lastInspection: '2026-02-28', type: 'Food Court', lat: 6.9156, lng: 79.8497 },
+  { id: 'col-010', name: 'Keells Super — Crescat',              address: 'Crescat Boulevard, Colombo 03',    grade: 'A', score: 88, lastInspection: '2026-03-08', type: 'Retail',     lat: 6.9158, lng: 79.8499 },
+
+  // ── Dehiwala / Mt Lavinia / Nugegoda ─────────────────────────────────
+  { id: 'sub-001', name: 'Mount Lavinia Hotel — The Terrace',   address: '100 Hotel Rd, Mt Lavinia',         grade: 'A', score: 92, lastInspection: '2026-03-29', type: 'Hotel',      lat: 6.8378, lng: 79.8624 },
+  { id: 'sub-002', name: 'Sunday Jazz Cafe',                    address: '20 Galle Rd, Dehiwala',            grade: 'B', score: 74, lastInspection: '2026-02-19', type: 'Restaurant', lat: 6.8500, lng: 79.8675 },
+  { id: 'sub-003', name: 'Perera & Sons — Nugegoda',            address: 'Stanley Thilakaratne Mw, Nugegoda', grade: 'A', score: 87, lastInspection: '2026-03-04', type: 'Bakery',     lat: 6.8723, lng: 79.8895 },
+  { id: 'sub-004', name: 'Cargills Food City — Nugegoda',       address: '110 High Level Rd, Nugegoda',      grade: 'A', score: 85, lastInspection: '2026-03-19', type: 'Retail',     lat: 6.8717, lng: 79.8893 },
+  { id: 'sub-005', name: 'Hela Bojun Hala — Nugegoda',          address: 'Town Hall, Nugegoda',              grade: 'B', score: 72, lastInspection: '2026-02-22', type: 'Food Court', lat: 6.8730, lng: 79.8900 },
+
+  // ── Gampaha / Negombo ────────────────────────────────────────────────
+  { id: 'gam-001', name: 'Jetwing Beach — Negombo',             address: 'Ethukala, Negombo',                grade: 'A', score: 93, lastInspection: '2026-04-01', type: 'Hotel',      lat: 7.2202, lng: 79.8390 },
+  { id: 'gam-002', name: 'Lords Restaurant',                    address: '80B Porutota Rd, Negombo',         grade: 'A', score: 89, lastInspection: '2026-03-15', type: 'Restaurant', lat: 7.2148, lng: 79.8407 },
+  { id: 'gam-003', name: 'Cinnamon Lakeside Pasalai',           address: 'Veyangoda Rd, Gampaha',            grade: 'B', score: 76, lastInspection: '2026-02-10', type: 'Restaurant', lat: 7.0917, lng: 79.9999 },
+  { id: 'gam-004', name: 'Highway Rest Stop — Kadawatha',       address: 'Kandy Rd, Kadawatha',              grade: 'C', score: 52, lastInspection: '2026-01-12', type: 'Restaurant', lat: 7.0009, lng: 79.9542 },
+
+  // ── Kalutara ─────────────────────────────────────────────────────────
+  { id: 'kal-001', name: 'Avani Bentota — Cinnamon Room',       address: 'Bentota Beach',                    grade: 'A', score: 95, lastInspection: '2026-04-02', type: 'Hotel',      lat: 6.4288, lng: 79.9978 },
+  { id: 'kal-002', name: 'Diyamba Beach Resort',                address: 'Kalutara South',                   grade: 'B', score: 78, lastInspection: '2026-03-03', type: 'Hotel',      lat: 6.5854, lng: 79.9607 },
+
+  // ── Kandy / Matale / Nuwara Eliya ───────────────────────────────────
+  { id: 'cen-001', name: 'Kandy Muslim Hotel',                  address: 'Dalada Veediya, Kandy',            grade: 'B', score: 75, lastInspection: '2026-03-12', type: 'Restaurant', lat: 7.2906, lng: 80.6337 },
+  { id: 'cen-002', name: 'Cafe Aroma',                          address: 'D.S. Senanayake Veediya, Kandy',   grade: 'A', score: 88, lastInspection: '2026-04-08', type: 'Restaurant', lat: 7.2932, lng: 80.6411 },
+  { id: 'cen-003', name: 'Earl\'s Regency Buffet',              address: 'Tennekumbura, Kandy',              grade: 'A', score: 94, lastInspection: '2026-03-28', type: 'Hotel',      lat: 7.2774, lng: 80.6669 },
+  { id: 'cen-004', name: 'Heritance Tea Factory',               address: 'Kandapola, Nuwara Eliya',          grade: 'A', score: 92, lastInspection: '2026-02-28', type: 'Hotel',      lat: 6.9650, lng: 80.8050 },
+
+  // ── Galle / Matara ───────────────────────────────────────────────────
+  { id: 'sou-001', name: 'Pedlar\'s Inn',                       address: 'Pedlar St, Galle Fort',            grade: 'A', score: 90, lastInspection: '2026-04-20', type: 'Restaurant', lat: 6.0257, lng: 80.2178 },
+  { id: 'sou-002', name: 'Amangalla — Galle',                   address: '10 Church St, Galle Fort',         grade: 'A', score: 96, lastInspection: '2026-04-05', type: 'Hotel',      lat: 6.0256, lng: 80.2179 },
+  { id: 'sou-003', name: 'Cafe Punto — Matara',                 address: 'Tangalle Rd, Matara',              grade: 'B', score: 73, lastInspection: '2026-02-18', type: 'Restaurant', lat: 5.9485, lng: 80.5353 },
+
+  // ── Hambantota ───────────────────────────────────────────────────────
+  { id: 'ham-001', name: 'Shangri-La Hambantota Buffet',        address: 'Yala Rd, Hambantota',              grade: 'A', score: 95, lastInspection: '2026-03-22', type: 'Hotel',      lat: 6.1700, lng: 81.0900 },
+
+  // ── Jaffna ───────────────────────────────────────────────────────────
+  { id: 'jaf-001', name: 'Mangos Restaurant — Jaffna',          address: 'Temple Rd, Jaffna',                grade: 'B', score: 79, lastInspection: '2026-03-14', type: 'Restaurant', lat: 9.6615, lng: 80.0255 },
+  { id: 'jaf-002', name: 'Jetwing Jaffna — Cinnamon Room',      address: 'Mahatma Gandhi Rd, Jaffna',        grade: 'A', score: 91, lastInspection: '2026-04-11', type: 'Hotel',      lat: 9.6610, lng: 80.0220 },
+
+  // ── Batticaloa / Trincomalee ────────────────────────────────────────
+  { id: 'eas-001', name: 'Trinco Blu by Cinnamon',              address: 'Uppuveli, Trincomalee',            grade: 'A', score: 89, lastInspection: '2026-03-17', type: 'Hotel',      lat: 8.6080, lng: 81.2280 },
+  { id: 'eas-002', name: 'Riviera Resort — Batticaloa',         address: 'Lady Manning Dr, Batticaloa',      grade: 'B', score: 74, lastInspection: '2026-02-25', type: 'Hotel',      lat: 7.7170, lng: 81.7000 },
 ];
 
 // Known coordinates for the seeded premises — used to enrich Firestore docs that
@@ -182,9 +253,8 @@ export default function FoodGradesPage() {
           </div>
         </div>
 
-        {/* Maps export — open in Google/Apple Maps, KML for My Maps, embed iframe.
-            Lives at the top so visitors can act on the data immediately. */}
-        <MapsExportCard premises={filtered} />
+        {/* Live national map — every premises pinned, coloured by grade */}
+        <LiveFoodGradeMap premises={sorted} loading={loading} />
 
         {/* Stats summary bar */}
         {!loading && (
@@ -371,5 +441,112 @@ export default function FoodGradesPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+/* ──────────────── live national map ──────────────── */
+
+function LiveFoodGradeMap({ premises, loading }: { premises: Premise[]; loading: boolean }) {
+  const [selected, setSelected] = useState<Premise | null>(null);
+
+  const pinned = useMemo(
+    () => premises.filter((p): p is Premise & { lat: number; lng: number } => p.lat != null && p.lng != null),
+    [premises],
+  );
+
+  const centre = useMemo(() => {
+    if (pinned.length === 0) return { lat: 7.8731, lng: 80.7718, zoom: 7 };
+    const lats = pinned.map((p) => p.lat);
+    const lngs = pinned.map((p) => p.lng);
+    return {
+      lat: (Math.min(...lats) + Math.max(...lats)) / 2,
+      lng: (Math.min(...lngs) + Math.max(...lngs)) / 2,
+      zoom: 7.5,
+    };
+  }, [pinned]);
+
+  return (
+    <Card className="overflow-hidden shadow-sm">
+      <CardContent className="p-4">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <MapIcon className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+            Live national map — {pinned.length} graded premises
+          </h2>
+          <div className="ml-auto flex items-center gap-2 text-[11px]">
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" />A</span>
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-500" />B</span>
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-rose-500" />C</span>
+          </div>
+        </div>
+        <div className="relative h-[26rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+          {loading ? (
+            <div className="flex h-full items-center justify-center text-sm text-slate-500">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading map…
+            </div>
+          ) : (
+            <MapGL
+              mapStyle={BASEMAP_STYLE}
+              initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
+              key={`${centre.lat}-${centre.lng}-${pinned.length}`}
+              style={{ width: '100%', height: '100%' }}
+              maxBounds={[[78.0, 5.0], [83.0, 10.5]]}
+              minZoom={6.4}
+              maxZoom={17}
+              attributionControl
+            >
+              <NavigationControl position="top-right" />
+              <GeolocateControl position="top-right" trackUserLocation />
+              {pinned.map((p) => {
+                const color =
+                  p.grade === 'A' ? 'from-emerald-500 to-emerald-700' :
+                  p.grade === 'B' ? 'from-amber-500 to-amber-700' :
+                                    'from-rose-500 to-rose-700';
+                return (
+                  <Marker
+                    key={p.id} latitude={p.lat} longitude={p.lng} anchor="bottom"
+                    onClick={(e) => { e.originalEvent.stopPropagation(); setSelected(p); }}
+                  >
+                    <button
+                      type="button"
+                      aria-label={`${p.name} — Grade ${p.grade}`}
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br ${color} text-[11px] font-extrabold text-white shadow-md ring-2 ring-white/50 transition-transform hover:scale-110`}
+                    >
+                      {p.grade}
+                    </button>
+                  </Marker>
+                );
+              })}
+              {selected && (
+                <Popup
+                  latitude={selected.lat!}
+                  longitude={selected.lng!}
+                  anchor="top"
+                  offset={12}
+                  onClose={() => setSelected(null)}
+                  closeOnClick={false}
+                  maxWidth="260px"
+                >
+                  <div className="space-y-1.5 p-1">
+                    <p className="text-sm font-bold text-slate-900">{selected.name}</p>
+                    <p className="text-[11px] text-slate-500">{selected.address}</p>
+                    <p className="text-[11px]">
+                      <span className="font-bold">Grade {selected.grade}</span> · {selected.score}% · {selected.type}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => openInMaps({ lat: selected.lat, lng: selected.lng, address: selected.address, name: selected.name })}
+                      className="mt-1 flex w-full items-center justify-center gap-1 rounded-md bg-emerald-700 px-2 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-800"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Open in Google Maps
+                    </button>
+                  </div>
+                </Popup>
+              )}
+            </MapGL>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

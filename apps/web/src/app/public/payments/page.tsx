@@ -98,6 +98,9 @@ const FAQS = [
 interface PayForm {
   serviceType: string;
   referenceId: string;
+  brNumber: string;        // PV / GS / BR business registration
+  businessName: string;
+  businessAddress: string;
   payerName: string;
   phone: string;
   email: string;
@@ -105,8 +108,16 @@ interface PayForm {
 }
 
 const EMPTY_FORM: PayForm = {
-  serviceType: '', referenceId: '', payerName: '', phone: '', email: '', amount: '',
+  serviceType: '', referenceId: '', brNumber: '', businessName: '', businessAddress: '',
+  payerName: '', phone: '', email: '', amount: '',
 };
+
+/**
+ * Validate Sri Lankan business registration numbers. Accepts the common
+ * formats issued by the Department of the Registrar of Companies:
+ *   PV-12345 / PB-12345 / GS-12345 / SP-12345 (5–7 digit suffix)
+ */
+const BR_REGEX = /^(PV|PB|GS|SP)[-\s]?\d{4,7}$/i;
 
 const totalFeeItems = FEES.reduce((acc, s) => acc + s.items.length, 0);
 
@@ -170,6 +181,14 @@ export default function PaymentsPage() {
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.serviceType || !form.payerName || !form.phone || !form.amount) return;
+    if (!form.brNumber || !BR_REGEX.test(form.brNumber.trim())) {
+      setError('A valid Sri Lankan BR number is required (PV / PB / GS / SP prefix).');
+      return;
+    }
+    if (!form.businessName || !form.businessAddress) {
+      setError('Please fill in your business name and address.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
@@ -178,6 +197,13 @@ export default function PaymentsPage() {
         paymentRef: ref,
         serviceType: form.serviceType,
         referenceId: form.referenceId || null,
+        // Business details — the MOH office uses these to match the payment
+        // to the correct premises file and dispatch the inspector.
+        business: {
+          brNumber: form.brNumber.trim().toUpperCase(),
+          name: form.businessName,
+          address: form.businessAddress,
+        },
         payerName: form.payerName,
         phone: form.phone,
         email: form.email || null,
@@ -185,6 +211,9 @@ export default function PaymentsPage() {
         currency: 'LKR',
         status: 'pending_verification',
         channel: 'online_portal',
+        // Triggers a Cloud Function (deployed separately) that notifies the
+        // assigned MOH office for accept / decline.
+        notifyOnAcceptance: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -379,9 +408,56 @@ export default function PaymentsPage() {
                       {SERVICE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
+                </div>
+
+                {/* Business details — BR + shop lookup */}
+                <div className="space-y-3 rounded-lg border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-900 dark:bg-amber-950/10">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                    <Building2 className="h-3.5 w-3.5" /> Business details
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label>Business Registration (BR) No. <span className="text-red-500">*</span></Label>
+                      <Input
+                        placeholder="PV-12345 / PB-12345 / GS-12345"
+                        value={form.brNumber}
+                        onChange={(e) => setForm((p) => ({ ...p, brNumber: e.target.value.toUpperCase() }))}
+                        aria-invalid={form.brNumber.length > 0 && !BR_REGEX.test(form.brNumber.trim())}
+                        className="font-mono"
+                      />
+                      {form.brNumber.length > 0 && !BR_REGEX.test(form.brNumber.trim()) && (
+                        <p className="text-[11px] text-rose-600">Use the RoC format: PV-12345, PB-12345, GS-12345 or SP-12345.</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Business / Shop Name <span className="text-red-500">*</span></Label>
+                      <Input
+                        placeholder="As shown on the BR certificate"
+                        value={form.businessName}
+                        onChange={set('businessName')}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label>Business / Shop Address <span className="text-red-500">*</span></Label>
+                      <Input
+                        placeholder="No., street, district"
+                        value={form.businessAddress}
+                        onChange={set('businessAddress')}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
+                    The submitted BR is matched against your PHI&apos;s register. Once payment is captured the assigned
+                    MOH office is notified to accept / verify / dispatch the permit — you&apos;ll see the live status here.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label>Certificate / Permit Reference</Label>
-                    <Input placeholder="e.g. FP-20250001 (if renewing)" value={form.referenceId} onChange={set('referenceId')} className="font-mono uppercase" />
+                    <Label>Certificate / Permit Reference <span className="text-xs text-muted-foreground">(if renewing)</span></Label>
+                    <Input placeholder="e.g. FP-20250001" value={form.referenceId} onChange={set('referenceId')} className="font-mono uppercase" />
                   </div>
                   <div className="space-y-1.5">
                     <Label>Amount (LKR) <span className="text-red-500">*</span></Label>
@@ -401,6 +477,30 @@ export default function PaymentsPage() {
                   </div>
                 </div>
 
+                {/* Status pipeline (visual reassurance) */}
+                <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    Payment status pipeline
+                  </p>
+                  <div className="flex items-center justify-between text-[11px] font-semibold">
+                    {[
+                      { k: 'Submitted',  color: 'bg-slate-300' },
+                      { k: 'Charging',   color: 'bg-amber-400' },
+                      { k: 'Captured',   color: 'bg-blue-500' },
+                      { k: 'PHI accepted', color: 'bg-emerald-500' },
+                      { k: 'Certificate ready', color: 'bg-emerald-600' },
+                    ].map((s, i, arr) => (
+                      <div key={s.k} className="flex flex-1 items-center">
+                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-white ${s.color}`}>
+                          {i + 1}
+                        </span>
+                        <span className="ml-1.5 truncate text-slate-700 dark:text-slate-300">{s.k}</span>
+                        {i < arr.length - 1 && <span className="mx-2 h-px flex-1 bg-slate-200 dark:bg-slate-700" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {error && (
                   <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
                     {error}
@@ -411,7 +511,12 @@ export default function PaymentsPage() {
                   <Button variant="outline" type="button" onClick={() => setShowForm(false)}>Cancel</Button>
                   <Button
                     type="submit"
-                    disabled={submitting || !form.serviceType || !form.payerName || !form.phone || !form.amount}
+                    disabled={
+                      submitting ||
+                      !form.serviceType || !form.payerName || !form.phone || !form.amount ||
+                      !form.brNumber || !BR_REGEX.test(form.brNumber.trim()) ||
+                      !form.businessName || !form.businessAddress
+                    }
                     className="bg-amber-600 hover:bg-amber-700"
                   >
                     {submitting ? (
