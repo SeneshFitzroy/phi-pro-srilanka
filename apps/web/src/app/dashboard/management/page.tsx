@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp, ShieldCheck, Lock } from 'lucide-react';
+import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, ClipboardList, TrendingUp, ShieldCheck, Lock, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TeamWellbeingHeatmap } from '@/components/team-wellbeing-heatmap';
@@ -11,6 +11,7 @@ const QUICK_ACTIONS = [
   { title: 'Pending Approvals', desc: 'Review & approve PHI submissions', icon: FileCheck, href: '/dashboard/management/approvals', count: 12, color: 'text-orange-500' },
   { title: 'User Management', desc: 'Manage PHI & staff accounts', icon: Users, href: '/dashboard/management/users', count: 45, color: 'text-blue-500' },
   { title: 'Complaints', desc: 'Review public complaints', icon: AlertTriangle, href: '/dashboard/management/complaints', count: 8, color: 'text-red-500' },
+  { title: 'Citizen chat queue', desc: 'Live conversations from the public portal', icon: MessageCircle, href: '/dashboard/management/citizen-chat', count: null, color: 'text-violet-500' },
   { title: 'Permits & Licenses', desc: 'Issue & track permits', icon: ClipboardList, href: '/dashboard/management/permits', count: 15, color: 'text-green-500' },
   { title: 'Area Analytics', desc: 'Performance & trends', icon: BarChart3, href: '/dashboard/management/analytics', count: null, color: 'text-purple-500' },
   { title: 'Audit Chain Ledger', desc: 'Tamper-evident record of actions', icon: ShieldCheck, href: '/dashboard/management/audit', count: null, color: 'text-emerald-600' },

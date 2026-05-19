@@ -5,14 +5,15 @@ import Link from 'next/link';
 import { QRCodeCanvas } from 'qrcode.react';
 import {
   ArrowLeft, AlertCircle, Bell, Shield, Bug, Droplets,
-  Loader2, RefreshCw, MapPin, Clock, Share2, Check,
+  Loader2, RefreshCw, MapPin, Clock, Check,
   ChevronDown, ChevronUp, X, Mail, ExternalLink,
-  Copy, MessageCircle, Phone, Send,
+  MessageCircle, Phone,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ShareButton } from '@/components/share-button';
 import { collection, getDocs, query, orderBy, limit, where, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -102,7 +103,6 @@ export default function AlertsPage() {
   const [areaFilter, setAreaFilter] = useState('All Areas');
   const [lastFetch, setLastFetch] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [shareOpenId, setShareOpenId] = useState<string | null>(null);
   const [showSubModal, setShowSubModal] = useState(false);
 
   const fetchAlerts = useCallback(async () => {
@@ -325,14 +325,16 @@ export default function AlertsPage() {
                           <ExternalLink className="h-3 w-3" /> Read more
                         </a>
 
-                        {/* Share — opens a popover with WhatsApp / X / FB /
-                            email / copy actions (and the Web Share sheet on
-                            mobile if available). */}
-                        <ShareControl
-                          alert={alert}
-                          open={shareOpenId === alert.id}
-                          onToggle={() => setShareOpenId(shareOpenId === alert.id ? null : alert.id)}
-                          onClose={() => setShareOpenId(null)}
+                        {/* Share — unified ShareButton: Web Share API on
+                            mobile, WhatsApp/X/FB/LinkedIn/Email/Copy popover
+                            on desktop. */}
+                        <ShareButton
+                          data={{
+                            title: alert.title,
+                            text: `[PHI-PRO Alert] ${alert.title} — ${alert.area} (${alert.date})`,
+                            url: typeof window !== 'undefined' ? `${window.location.origin}/public/alerts#${alert.id}` : `https://phipro.lk/public/alerts#${alert.id}`,
+                          }}
+                          variant="outline"
                         />
                       </div>
                     </div>
@@ -368,101 +370,6 @@ export default function AlertsPage() {
 
       {/* Subscribe modal */}
       {showSubModal && <SubscribeModal onClose={() => setShowSubModal(false)} />}
-    </div>
-  );
-}
-
-/* ────────────────── share control ────────────────── */
-
-function ShareControl({ alert, open, onToggle, onClose }: {
-  alert: Alert;
-  open: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-}) {
-  const [copied, setCopied] = useState(false);
-  const url = typeof window !== 'undefined'
-    ? `${window.location.origin}/public/alerts#${alert.id}`
-    : `https://phipro.lk/public/alerts#${alert.id}`;
-  const text = `[PHI-PRO Alert] ${alert.title} — ${alert.area} (${alert.date})`;
-  const shareUrl = `${text}\n${url}`;
-
-  const canWebShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-
-  const tryWebShare = async () => {
-    try {
-      await navigator.share({ title: alert.title, text, url });
-      onClose();
-    } catch { /* user cancelled — ignore */ }
-  };
-
-  const copyAll = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => { setCopied(false); onClose(); }, 1200);
-    } catch { /* ignore */ }
-  };
-
-  return (
-    <div className="relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 px-2 text-xs text-muted-foreground"
-        onClick={canWebShare ? tryWebShare : onToggle}
-      >
-        <Share2 className="mr-1 h-3 w-3" /> Share
-      </Button>
-
-      {!canWebShare && open && (
-        <div className="absolute right-0 top-8 z-20 w-60 rounded-lg border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-          <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Share this alert</p>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <MessageCircle className="h-4 w-4 text-emerald-600" /> WhatsApp
-          </a>
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Send className="h-4 w-4 text-sky-500" /> X / Twitter
-          </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Share2 className="h-4 w-4 text-blue-600" /> Facebook
-          </a>
-          <a
-            href={`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(shareUrl)}`}
-            onClick={onClose}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Mail className="h-4 w-4 text-rose-500" /> Email
-          </a>
-          <button
-            type="button"
-            onClick={copyAll}
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            {copied
-              ? <><Check className="h-4 w-4 text-emerald-600" /> Copied!</>
-              : <><Copy className="h-4 w-4 text-slate-500" /> Copy link</>}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

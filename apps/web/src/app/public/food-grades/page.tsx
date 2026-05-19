@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import type { LeafletMarker } from '@/components/leaflet-map';
 import {
   ArrowLeft, Search, Star, MapPin, Clock, ShieldCheck,
-  Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check, ExternalLink,
+  Loader2, AlertCircle, Droplets, ArrowUpDown, ExternalLink,
   Phone, User as UserIcon,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { openInMaps } from '@/components/maps-export-card';
+import { ShareButton } from '@/components/share-button';
 import {
   ESTABLISHMENTS as SEED,
   DISTRICTS,
@@ -47,8 +48,6 @@ export default function FoodGradesPage() {
   const [districtFilter, setDistrictFilter] = useState('All');
   const [gradeFilter, setGradeFilter] = useState('All');
   const [sortMode, setSortMode] = useState<SortMode>('score_desc');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
   useEffect(() => {
     (async () => {
       try {
@@ -93,19 +92,6 @@ export default function FoodGradesPage() {
   }, [filtered, sortMode]);
 
   const gradeCount = (g: Grade) => data.filter((r) => r.grade === g).length;
-
-  const handleShare = useCallback(async (r: GradedEstablishment) => {
-    const text = `${r.name} — Grade ${r.grade} (${r.score}%) · ${r.address} · PHI-PRO Food Hygiene`;
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/public/food-grades#${r.id}` : '';
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      try { await navigator.share({ title: r.name, text, url }); return; } catch { /* user cancelled */ }
-    }
-    try {
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      setCopiedId(r.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch { /* ignore */ }
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
@@ -224,7 +210,6 @@ export default function FoodGradesPage() {
               sorted.map((r) => {
                 const cfg = gradeCfg[r.grade];
                 const stars = Math.round(r.score / 20);
-                const isCopied = copiedId === r.id;
                 return (
                   <Card id={r.id} key={r.id} className={`overflow-hidden shadow-sm border-l-4 ${cfg.cardBorder} transition-all hover:shadow-md scroll-mt-24`}>
                     {/* Score progress bar */}
@@ -283,11 +268,13 @@ export default function FoodGradesPage() {
                         <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-blue-700 dark:hover:text-blue-300" onClick={() => openInMaps({ lat: r.lat, lng: r.lng, address: r.address, name: r.name })}>
                           <ExternalLink className="h-3 w-3" /> Open in Maps
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground" onClick={() => handleShare(r)}>
-                          {isCopied
-                            ? <><Check className="mr-1.5 h-3 w-3 text-green-600" /><span className="text-green-600">Copied!</span></>
-                            : <><Share2 className="mr-1.5 h-3 w-3" />Share</>}
-                        </Button>
+                        <ShareButton
+                          data={{
+                            title: r.name,
+                            text: `${r.name} — Grade ${r.grade} (${r.score}%) · ${r.address} · PHI-PRO Food Hygiene`,
+                            url: typeof window !== 'undefined' ? `${window.location.origin}/public/food-grades#${r.id}` : `https://phipro.lk/public/food-grades#${r.id}`,
+                          }}
+                        />
                       </div>
                     </CardContent>
                   </Card>

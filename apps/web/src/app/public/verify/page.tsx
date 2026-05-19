@@ -16,7 +16,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import jsQR from 'jsqr';
 import {
   ArrowLeft, QrCode, Search, CheckCircle, XCircle, ShieldCheck,
-  Loader2, AlertCircle, Clock, History, Camera, X, Download,
+  Loader2, AlertCircle, Clock, Camera, X, Download,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,8 +37,6 @@ interface CertResult {
   issuedBy?: string;
 }
 
-const SESSION_KEY = 'phipro_recent_lookups';
-
 function daysUntil(d: string): number {
   try { return Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000); }
   catch { return 0; }
@@ -47,16 +45,6 @@ function formatDate(iso: string): string {
   try { return new Date(iso).toLocaleDateString('en-LK', { day: 'numeric', month: 'long', year: 'numeric' }); }
   catch { return iso; }
 }
-function loadRecent(): string[] {
-  try { const raw = sessionStorage.getItem(SESSION_KEY); return raw ? (JSON.parse(raw) as string[]) : []; }
-  catch { return []; }
-}
-function saveRecent(code: string, current: string[]): string[] {
-  const next = [code, ...current.filter((c) => c !== code)].slice(0, 5);
-  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(next)); } catch { /* */ }
-  return next;
-}
-
 /**
  * Normalise whatever the scanner returned. Accepts:
  *   - PHI-PRO URLs like https://phipro.lk/public/verify?ref=FP-2025-001
@@ -89,10 +77,6 @@ export default function VerifyPage() {
   const [result, setResult] = useState<CertResult | null>(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [recentLookups, setRecentLookups] = useState<string[]>([]);
-
-  useEffect(() => { setRecentLookups(loadRecent()); }, []);
-
   /* If the page is opened via a scanned URL like /public/verify?ref=XXX,
      auto-run the lookup so the citizen doesn't have to retype anything. */
   useEffect(() => {
@@ -149,7 +133,6 @@ export default function VerifyPage() {
       setResult(null);
     } finally {
       setLoading(false); setSearched(true);
-      setRecentLookups((p) => saveRecent(ref, p));
     }
   }, []);
 
@@ -238,28 +221,8 @@ export default function VerifyPage() {
         {/* QR generator — make a printable QR for any reference */}
         <ReferenceQrGenerator />
 
-        {/* Recent lookups */}
-        {recentLookups.length > 0 && (
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <History className="h-3.5 w-3.5" />Recent Lookups
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {recentLookups.map((rc) => (
-                  <button
-                    key={rc}
-                    onClick={() => { setCode(rc); void doVerify(rc); }}
-                    disabled={loading}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-xs text-slate-700 transition-all hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                  >
-                    <Clock className="h-3 w-3 text-muted-foreground" />{rc}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Recent lookups block removed per design — keeps the page focused
+            on the scan + manual reference lookup. */}
 
         {/* Result */}
         {searched && !loading && (result ? (
