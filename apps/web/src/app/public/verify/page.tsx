@@ -57,17 +57,30 @@ function saveRecent(code: string, current: string[]): string[] {
   return next;
 }
 
-/** Normalise whatever the scanner returned (full URL or bare code). */
+/**
+ * Normalise whatever the scanner returned. Accepts:
+ *   - PHI-PRO URLs like https://phipro.lk/public/verify?ref=FP-2025-001
+ *   - Bare references like FP-2025-001 or CMP-12345678
+ *   - Pure numeric codes (e.g. 8901234567890)
+ *   - Free-text QR payloads (returned as-is, upper-cased + trimmed)
+ *
+ * The lookup step further down treats anything it doesn't recognise as
+ * "Not found in registry — raw payload shown for cross-reference."
+ */
 function extractReference(raw: string): string {
   const trimmed = raw.trim();
-  // Try URL — last path segment / query param `ref`
+  if (!trimmed) return '';
+  // Try URL — query param `ref`/`code`, else last path segment
   try {
     const url = new URL(trimmed);
-    const ref = url.searchParams.get('ref') || url.searchParams.get('code');
+    const ref = url.searchParams.get('ref') || url.searchParams.get('code') || url.searchParams.get('q');
     if (ref) return ref.toUpperCase();
     const last = url.pathname.split('/').filter(Boolean).pop();
     if (last) return last.toUpperCase();
   } catch { /* not a URL */ }
+  // Leave pure-numeric codes alone (don't upper-case digits), upper-case the
+  // rest for case-insensitive matching against the registry.
+  if (/^\d+$/.test(trimmed)) return trimmed;
   return trimmed.toUpperCase();
 }
 
@@ -300,15 +313,21 @@ export default function VerifyPage() {
             </Card>
           </div>
         ) : (
-          <Card className="border-red-200 bg-red-50 shadow-sm dark:border-red-900 dark:bg-red-950/10">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
-                <XCircle className="h-8 w-8 text-red-600" />
+          <Card className="border-amber-200 bg-amber-50 shadow-sm dark:border-amber-900 dark:bg-amber-950/10">
+            <CardContent className="flex items-start gap-4 p-6">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+                <AlertCircle className="h-8 w-8 text-amber-600" />
               </div>
-              <div>
-                <p className="font-bold text-red-800 dark:text-red-200">Certificate Not Found</p>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-amber-900 dark:text-amber-200">No matching PHI-PRO certificate</p>
                 <p className="text-sm text-muted-foreground">
-                  No certificate found for <span className="font-mono font-medium">&quot;{code.toUpperCase()}&quot;</span>. Check the number and try again.
+                  Scanned payload:{' '}
+                  <span className="break-all font-mono font-medium text-slate-800 dark:text-slate-200">&quot;{code}&quot;</span>
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  This QR code is not registered in the PHI-PRO permit / complaint ledger. It may be a third-party QR,
+                  a product barcode, or a typo. If you believe it is genuine, contact the issuing MOH office and quote
+                  the payload above.
                 </p>
               </div>
             </CardContent>

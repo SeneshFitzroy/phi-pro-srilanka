@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   ArrowLeft, CreditCard, FileText, Clock, Building2,
   Info, Send, CheckCircle, Loader2, ChevronDown, ChevronUp,
   Calculator, HelpCircle, Layers, Download, Wallet, ShieldCheck, X,
+  Phone, MapPin, AlertTriangle, Sparkles,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +17,14 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { downloadPaymentReceipt, type ReceiptData } from '@/components/payment-receipt';
 import { isGatewayConfigured, PAYHERE_CHECKOUT_URL, payHereFormFields } from '@/lib/payments';
+import { ShopVerificationBundle, type ShopVerificationData } from '@/components/shop-verification-bundle';
+import { findKnownBusiness, SERVICE_DEFAULT_FEE, ESTABLISHMENT_FEE_RANGE, KNOWN_BUSINESSES, type ServiceType } from '@/data/known-businesses';
+import { MOH_OFFICES } from '@/data/moh-offices';
+
+// Map renders Google tiles when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set,
+// otherwise falls back to the Leaflet OSM stack. Dynamic-import so Leaflet
+// never reaches the server bundle.
+const LeafletMap = dynamic(() => import('@/components/leaflet-map'), { ssr: false });
 
 const FEES: {
   category: string;
@@ -53,32 +63,13 @@ const FEES: {
   },
 ];
 
-const SERVICE_TYPES = [
-  'Food Premises — New Registration (Small)',
-  'Food Premises — New Registration (Medium)',
-  'Food Premises — New Registration (Large)',
-  'Food Premises — Annual Renewal',
-  'Food Premises — Re-inspection Fee',
-  'Factory Health Certificate',
-  'Occupational Health Inspection',
-  'Building Plan Approval',
-  'Trade License Health Clearance',
-  'Certified Copy of Report',
-  'Food Handler Medical Certificate',
-  'Compliance Fine — Outstanding Notice',
-  'Other',
-];
+// All service types the citizen-facing payment form accepts. Each maps to a
+// default fee in SERVICE_DEFAULT_FEE which the form prefills on selection.
+const SERVICE_TYPES: ServiceType[] = (Object.keys(SERVICE_DEFAULT_FEE) as ServiceType[]);
 
-const FEE_ESTIMATOR: Record<string, string> = {
-  'Small Restaurant / Cafe (< 10 seats)': 'LKR 5,000 – 7,000',
-  'Medium Restaurant (10–50 seats)': 'LKR 10,000 – 12,000',
-  'Large Restaurant / Hotel (> 50 seats)': 'LKR 25,000 – 30,000',
-  'Bakery / Pastry Shop': 'LKR 5,000 – 8,000',
-  'Food Court Stall': 'LKR 4,000 – 6,000',
-  'Factory / Workplace': 'LKR 10,000 – 15,000',
-  'Trade Business': 'LKR 2,000 – 3,000',
-  'Other / Unsure': 'Contact MOH office for assessment',
-};
+// Full establishment catalogue for the Fee Estimator dropdown — covers
+// every premises category H801 issues a permit for, not just restaurants.
+const FEE_ESTIMATOR = ESTABLISHMENT_FEE_RANGE;
 
 const FAQS = [
   {
@@ -135,7 +126,52 @@ export default function PaymentsPage() {
   const [processing, setProcessing] = useState(false);
   const [paid, setPaid] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [verification, setVerification] = useState<ShopVerificationData>({ shopVideo: null, shopPhotos: [], nicPhoto: null, selfie: null });
+  const [autofillNote, setAutofillNote] = useState<string | null>(null);
   const gatewayLive = isGatewayConfigured();
+
+  const verificationComplete = Boolean(
+    verification.shopVideo &&
+    verification.shopPhotos.length > 0 &&
+    verification.nicPhoto &&
+    verification.selfie,
+  );
+
+  // ── BR auto-fill: when the citizen enters a registered BR, fill business
+  //    name + address + phone + suggested service + the correct fee/fine. ──
+  const handleBrChange = useCallback((raw: string) => {
+    const upper = raw.toUpperCase();
+    setForm((p) => ({ ...p, brNumber: upper }));
+    const match = findKnownBusiness(upper);
+    if (match) {
+      setForm((p) => ({
+        ...p,
+        brNumber: match.brNumber,
+        businessName: match.name,
+        businessAddress: match.address,
+        payerName: p.payerName || match.ownerName,
+        phone: p.phone || match.phone,
+        serviceType: match.suggestedService,
+        amount: String(match.outstandingFine),
+      }));
+      setAutofillNote(`Matched ${match.name} (${match.district}). Suggested service and fee filled.${match.reason ? ' ' + match.reason : ''}`);
+    } else {
+      setAutofillNote(null);
+    }
+  }, []);
+
+  // When service type changes (manually), prefill the default fee.
+  const handleServiceChange = useCallback((value: string) => {
+    setForm((p) => {
+      const next = { ...p, serviceType: value };
+      const fee = SERVICE_DEFAULT_FEE[value as ServiceType];
+      if (fee !== undefined && (!p.amount || Number(p.amount) === 0)) next.amount = String(fee);
+      return next;
+    });
+  }, []);
+
+  // Demo BR pickers — one-click fill for citizens trying the flow
+  const demoBrs = useMemo(() => KNOWN_BUSINESSES.slice(0, 4), []);
 
   const redirectToPayHere = async (rec: ReceiptData) => {
     try {
@@ -189,6 +225,10 @@ export default function PaymentsPage() {
       setError('Please fill in your business name and address.');
       return;
     }
+    if (!verificationComplete) {
+      setError('Shop verification bundle is incomplete: please attach a shop video, at least one shop photo, the owner\'s NIC card photo, and a live selfie.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
@@ -214,6 +254,21 @@ export default function PaymentsPage() {
         // Triggers a Cloud Function (deployed separately) that notifies the
         // assigned MOH office for accept / decline.
         notifyOnAcceptance: true,
+        // Shop + identity verification metadata. The actual media blobs are
+        // staged client-side and a separate worker uploads them to a signed
+        // bucket — what we record here is the filename + MB so the receiving
+        // PHI office can spot incomplete bundles before review.
+        verification: {
+          hasShopVideo: !!verification.shopVideo,
+          shopVideoName: verification.shopVideo?.name ?? null,
+          shopVideoMb:   verification.shopVideo?.sizeMb ?? null,
+          shopPhotoCount: verification.shopPhotos.length,
+          shopPhotoNames: verification.shopPhotos.map((p) => p.name),
+          hasNicPhoto: !!verification.nicPhoto,
+          nicPhotoName: verification.nicPhoto?.name ?? null,
+          hasSelfie: !!verification.selfie,
+          selfieName: verification.selfie?.name ?? null,
+        },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -402,11 +457,14 @@ export default function PaymentsPage() {
                     <Label>Service Type <span className="text-red-500">*</span></Label>
                     <select
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      value={form.serviceType} onChange={set('serviceType')} required
+                      value={form.serviceType}
+                      onChange={(e) => handleServiceChange(e.target.value)}
+                      required
                     >
                       <option value="">Select service…</option>
                       {SERVICE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
+                    <p className="text-[11px] text-muted-foreground">Selecting a service prefills the standard fee. You can override it below if the MOH office quoted a different amount.</p>
                   </div>
                 </div>
 
@@ -417,16 +475,44 @@ export default function PaymentsPage() {
                   </p>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label>Business Registration (BR) No. <span className="text-red-500">*</span></Label>
+                      <Label>
+                        Business Registration (BR) No. <span className="text-red-500">*</span>
+                        <span className="ml-2 text-[10px] font-normal text-muted-foreground">type to auto-fill the rest</span>
+                      </Label>
                       <Input
+                        list="known-br-list"
                         placeholder="PV-12345 / PB-12345 / GS-12345"
                         value={form.brNumber}
-                        onChange={(e) => setForm((p) => ({ ...p, brNumber: e.target.value.toUpperCase() }))}
+                        onChange={(e) => handleBrChange(e.target.value)}
                         aria-invalid={form.brNumber.length > 0 && !BR_REGEX.test(form.brNumber.trim())}
                         className="font-mono"
                       />
+                      <datalist id="known-br-list">
+                        {KNOWN_BUSINESSES.map((b) => (
+                          <option key={b.brNumber} value={b.brNumber}>{b.name} — {b.district}</option>
+                        ))}
+                      </datalist>
                       {form.brNumber.length > 0 && !BR_REGEX.test(form.brNumber.trim()) && (
                         <p className="text-[11px] text-rose-600">Use the RoC format: PV-12345, PB-12345, GS-12345 or SP-12345.</p>
+                      )}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        <span className="text-[10px] uppercase tracking-wider text-slate-400">Try:</span>
+                        {demoBrs.map((b) => (
+                          <button
+                            key={b.brNumber}
+                            type="button"
+                            onClick={() => handleBrChange(b.brNumber)}
+                            className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-700 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300"
+                          >
+                            {b.brNumber}
+                          </button>
+                        ))}
+                      </div>
+                      {autofillNote && (
+                        <p className="flex items-start gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-[11px] leading-snug text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
+                          <Sparkles className="mt-0.5 h-3 w-3 shrink-0" />
+                          <span>{autofillNote}</span>
+                        </p>
                       )}
                     </div>
                     <div className="space-y-1.5">
@@ -477,6 +563,9 @@ export default function PaymentsPage() {
                   </div>
                 </div>
 
+                {/* ── Shop + identity verification (required) ── */}
+                <ShopVerificationBundle onChange={setVerification} />
+
                 {/* Status pipeline (visual reassurance) */}
                 <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
                   <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
@@ -501,6 +590,13 @@ export default function PaymentsPage() {
                   </div>
                 </div>
 
+                {!verificationComplete && (
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-300">
+                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>Submit is locked until the shop video, at least one shop photo, the NIC card photo and a live selfie are attached above.</span>
+                  </div>
+                )}
+
                 {error && (
                   <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
                     {error}
@@ -515,7 +611,8 @@ export default function PaymentsPage() {
                       submitting ||
                       !form.serviceType || !form.payerName || !form.phone || !form.amount ||
                       !form.brNumber || !BR_REGEX.test(form.brNumber.trim()) ||
-                      !form.businessName || !form.businessAddress
+                      !form.businessName || !form.businessAddress ||
+                      !verificationComplete
                     }
                     className="bg-amber-600 hover:bg-amber-700"
                   >
@@ -598,23 +695,53 @@ export default function PaymentsPage() {
           })}
         </div>
 
-        {/* MOH offices */}
+        {/* MOH offices — live Google map with every counter pinned, plus a
+            click-to-call / open-in-Maps list. */}
         <div>
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
-            <Building2 className="h-5 w-5 text-amber-600" />MOH Office Locations
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              { name: 'MOH Office — Colombo', addr: '123 Hospital Rd, Colombo 08', phone: '011-2345678' },
-              { name: 'MOH Office — Kaduwela', addr: '45 MOH Lane, Kaduwela', phone: '011-9876543' },
-              { name: 'MOH Office — Dehiwala', addr: '78 Health St, Dehiwala', phone: '011-5551234' },
-            ].map(office => (
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-bold">
+              <Building2 className="h-5 w-5 text-amber-600" />MOH Office Locations
+            </h2>
+            <Link href="/public/find-phi" className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-white px-2.5 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:bg-slate-900 dark:text-amber-300">
+              See all 74 offices <MapPin className="h-3 w-3" />
+            </Link>
+          </div>
+          <Card className="overflow-hidden shadow-sm">
+            <LeafletMap
+              fitToMarkers
+              height="22rem"
+              markers={MOH_OFFICES.map((o, i) => ({
+                id: `moh-${i}`,
+                position: { lat: o.lat, lng: o.lng },
+                color: 'amber',
+                popup: (
+                  <div className="space-y-1 text-xs">
+                    <p className="font-bold text-slate-900">{o.name}</p>
+                    <p className="text-slate-600">{o.addr}</p>
+                    <div className="mt-1 flex gap-1.5">
+                      <a href={`tel:${o.phone.replace(/[^\d+]/g, '')}`} className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">Call</a>
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${o.name}, ${o.addr}`)}`} target="_blank" rel="noopener noreferrer" className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">Open in Maps</a>
+                    </div>
+                  </div>
+                ),
+              }))}
+            />
+          </Card>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {MOH_OFFICES.map((office) => (
               <Card key={office.name} className="shadow-sm">
-                <CardContent className="p-4">
-                  <p className="text-sm font-semibold">{office.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{office.addr}</p>
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{office.phone}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Mon–Fri, 8:30 AM – 4:15 PM</p>
+                <CardContent className="p-3">
+                  <p className="text-xs font-semibold leading-tight">{office.name}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{office.addr}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <a href={`tel:${office.phone.replace(/[^\d+]/g, '')}`} title={office.phone} className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-slate-900">
+                      <Phone className="h-2.5 w-2.5" /> {office.phone}
+                    </a>
+                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${office.name}, ${office.addr}, Sri Lanka`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:bg-slate-900">
+                      <MapPin className="h-2.5 w-2.5" /> Maps
+                    </a>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-muted-foreground">Mon–Fri, 8:30 AM – 4:15 PM</p>
                 </CardContent>
               </Card>
             ))}
