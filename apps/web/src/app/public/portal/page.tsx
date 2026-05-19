@@ -1,10 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   MessageSquare, CheckCircle, CreditCard, Search, AlertTriangle, FileText,
   ArrowRight, ShieldCheck, Phone, Newspaper,
 } from 'lucide-react';
+
+// Floating chatbot — only mounted on this page. Verifies the citizen's
+// identity (NIC + face) before opening chat, then talks to /api/ai/copilot
+// or hands off to a duty PHI via Firestore.
+const CitizenChatbot = dynamic(
+  () => import('@/components/citizen-chatbot').then((m) => ({ default: m.CitizenChatbot })),
+  { ssr: false },
+);
 
 export const metadata: Metadata = {
   title: 'Public Portal | PHI-PRO',
@@ -191,6 +200,9 @@ export default function PublicPortalPage() {
       </section>
 
       <PublicFooter />
+
+      {/* Floating verified chatbot — bottom-right */}
+      <CitizenChatbot />
     </div>
   );
 }

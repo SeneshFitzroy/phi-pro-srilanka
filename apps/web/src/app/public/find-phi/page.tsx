@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   MapPin, Search, Phone, Building2, Map as MapIcon, Filter, X, ShieldCheck,
-  Users, Layers, Hash, Sparkles, Copy, Check, Mail, Clock, ExternalLink,
+  Users, Layers, Hash, Copy, Check, Mail, Clock, ExternalLink,
 } from 'lucide-react';
 import {
   DISTRICTS, PHI_OFFICERS, mohPins, listMohOffices,
@@ -364,13 +364,6 @@ export default function FindPhiPage() {
             title="Health emergency? Call first."
             body={<>For outbreaks or food-poisoning emergencies dial the Ministry of Health hotline <strong>1390</strong> or
               the Public Health Emergency line <strong>+94 11 269 5112</strong>.</>}
-          />
-          <InfoBlock
-            tone="blue"
-            icon={<Sparkles className="h-4 w-4" />}
-            title="Numbers come from official sources"
-            body={<>Cross-verified against the Ministry of Health PHI register, the Union of Sri Lanka membership roll
-              and the Rainbow Pages public directory. Report any error to <a href="mailto:info@phi.lk" className="font-semibold underline">info@phi.lk</a>.</>}
           />
         </div>
       </section>
