@@ -1,6 +1,8 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
   UtensilsCrossed,
@@ -14,6 +16,8 @@ import {
   FileText,
   ArrowRight,
   Calendar,
+  Search,
+  CornerDownLeft,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { MentalHealthCheckin } from '@/components/mental-health-checkin';
@@ -118,9 +122,55 @@ const upcomingTasks = [
   { title: 'School medical camp — St. Joseph\'s', date: 'Wed, 18 Jun', priority: 'low' },
 ];
 
+/* ── Cross-page search index — every entry routable from the dashboard. ── */
+interface SearchEntry { label: string; href: string; group: string; keywords: string }
+const SEARCH_INDEX: SearchEntry[] = [
+  { label: 'Food Safety overview',           href: '/dashboard/food',                       group: 'Food Safety',  keywords: 'food premises restaurant kitchen hygiene grade h800' },
+  { label: 'New H800 food inspection',       href: '/dashboard/food/inspection/new',        group: 'Food Safety',  keywords: 'h800 inspection food premises new score' },
+  { label: 'Register food premises (H801)',  href: '/dashboard/food/registration',          group: 'Food Safety',  keywords: 'h801 registration premises new licence' },
+  { label: 'Submit food sample (H802)',      href: '/dashboard/food/sampling',              group: 'Food Safety',  keywords: 'h802 sample testing lab adulteration' },
+  { label: 'Food inspection calendar (H803)',href: '/dashboard/food/calendar',              group: 'Food Safety',  keywords: 'h803 schedule calendar followup' },
+  { label: 'School Health overview',         href: '/dashboard/school',                     group: 'School Health', keywords: 'school medical inspection grade students' },
+  { label: 'School monthly summary (H1214)', href: '/dashboard/school/monthly',             group: 'School Health', keywords: 'h1214 monthly summary report school' },
+  { label: 'Student defects (H1046)',        href: '/dashboard/school/defects',             group: 'School Health', keywords: 'h1046 defects students medical examination' },
+  { label: 'WASH school survey (H1015)',     href: '/dashboard/school/wash',                group: 'School Health', keywords: 'h1015 wash water sanitation hygiene' },
+  { label: 'School vaccine program (H1247)', href: '/dashboard/school/vaccine',             group: 'School Health', keywords: 'h1247 vaccine hpv apdt immunisation' },
+  { label: 'School activity log (H1014)',    href: '/dashboard/school/activity',            group: 'School Health', keywords: 'h1014 activity log school' },
+  { label: 'Epidemiology overview',          href: '/dashboard/epidemiology',               group: 'Epidemiology',  keywords: 'epidemiology dengue outbreak surveillance' },
+  { label: 'Contact tracing',                 href: '/dashboard/epidemiology/contact-tracing', group: 'Epidemiology', keywords: 'contact tracing outbreak case investigation' },
+  { label: 'Occupational Health overview',   href: '/dashboard/occupational',               group: 'Occupational',  keywords: 'occupational factory worker health safety' },
+  { label: 'Worker survey',                  href: '/dashboard/occupational/worker-survey', group: 'Occupational',  keywords: 'worker survey factory health' },
+  { label: 'Workplace safety checklist',     href: '/dashboard/occupational/checklist',     group: 'Occupational',  keywords: 'safety checklist workplace factory' },
+  { label: 'Factory health certificate',     href: '/dashboard/occupational/factory-health',group: 'Occupational',  keywords: 'factory health certificate h1203' },
+  { label: 'Administration overview',        href: '/dashboard/administration',             group: 'Administration', keywords: 'administration reports area survey monthly' },
+  { label: 'Monthly report',                 href: '/dashboard/administration/monthly-report', group: 'Administration', keywords: 'monthly report administration h399' },
+  { label: 'Area survey',                    href: '/dashboard/administration/area-survey', group: 'Administration', keywords: 'area survey administration' },
+  { label: 'Spot map',                       href: '/dashboard/administration/spot-map',    group: 'Administration', keywords: 'spot map gis cases administration' },
+  { label: 'AI Copilot',                     href: '/dashboard/copilot',                    group: 'Tools',         keywords: 'copilot ai assistant help' },
+  { label: 'Profile & settings',             href: '/dashboard/profile',                    group: 'Account',       keywords: 'profile account settings' },
+];
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const router = useRouter();
+  const [searchQ, setSearchQ] = useState('');
+  const [focused, setFocused] = useState(false);
+
+  const results = useMemo(() => {
+    const q = searchQ.trim().toLowerCase();
+    if (!q) return [] as SearchEntry[];
+    const tokens = q.split(/\s+/);
+    return SEARCH_INDEX
+      .map((entry) => {
+        const hay = (entry.label + ' ' + entry.group + ' ' + entry.keywords).toLowerCase();
+        const score = tokens.reduce((acc, t) => acc + (hay.includes(t) ? 1 : 0), 0);
+        return { entry, score };
+      })
+      .filter((r) => r.score === tokens.length)
+      .slice(0, 8)
+      .map((r) => r.entry);
+  }, [searchQ]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -145,6 +195,57 @@ export default function DashboardPage() {
           <Calendar className="h-4 w-4" />
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
+      </div>
+
+      {/* Cross-page search — keyboard-first, indexes every dashboard route */}
+      <div className="relative">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (results.length > 0) router.push(results[0].href);
+          }}
+          className="relative"
+        >
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 200)}
+            placeholder="Search dashboard — try 'H800', 'school vaccine', 'contact tracing', 'monthly report'…"
+            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-24 text-sm shadow-sm transition-shadow focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            aria-label="Search the dashboard"
+          />
+          <kbd className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-500 sm:inline-flex dark:border-slate-700 dark:bg-slate-800">
+            <CornerDownLeft className="h-3 w-3" /> open
+          </kbd>
+        </form>
+
+        {focused && searchQ.trim() && (
+          <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+            {results.length === 0 ? (
+              <p className="px-3 py-4 text-center text-xs text-slate-500">No matches. Try a different keyword.</p>
+            ) : (
+              results.map((entry, i) => (
+                <Link
+                  key={entry.href}
+                  href={entry.href}
+                  className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-slate-900 dark:text-white">{entry.label}</p>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-400">{entry.group}</p>
+                  </div>
+                  {i === 0 && (
+                    <span className="shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                      Enter
+                    </span>
+                  )}
+                </Link>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* Daily wellbeing check-in */}
@@ -185,9 +286,6 @@ export default function DashboardPage() {
 
       {/* Domain Quick Access */}
       <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">Five Core Domains</h2>
-        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {domainCards.map((domain) => (
             <Link

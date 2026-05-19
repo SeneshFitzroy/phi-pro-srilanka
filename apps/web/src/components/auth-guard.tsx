@@ -54,73 +54,95 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
 
   if (!mounted || isLoading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-gradient-to-br from-[#0a1f5c] via-[#0d2878] to-[#0f3080]">
+      <div className="relative flex h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#071233] via-[#0a1f5c] to-[#091a4a]">
+        {/* Industrial grid backdrop */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(147,197,253,.6) 1px,transparent 1px),linear-gradient(to right,rgba(147,197,253,.6) 1px,transparent 1px)',
+            backgroundSize: '56px 56px',
+          }}
+          aria-hidden
+        />
         {/* Radial glow */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-3xl" />
+          <div className="h-[520px] w-[520px] rounded-full bg-blue-400/10 blur-3xl" />
+        </div>
+        {/* Concentric pulse rings */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+          <div className="absolute h-64 w-64 rounded-full border border-blue-300/15 animate-[pulse-ring_3.5s_ease-out_infinite]" />
+          <div className="absolute h-80 w-80 rounded-full border border-blue-300/10 animate-[pulse-ring_3.5s_ease-out_infinite] [animation-delay:1.2s]" />
         </div>
 
-        <div className="relative flex flex-col items-center gap-6">
+        <div className="relative flex flex-col items-center gap-7">
           {/* Logo + spinner ring */}
           <div className="relative flex items-center justify-center">
-            {/* Outer decorative ring */}
-            <div className="absolute h-36 w-36 rounded-full border border-white/10" />
+            {/* Outer decorative double-ring */}
+            <div className="absolute h-44 w-44 rounded-full border border-blue-200/15" />
+            <div className="absolute h-36 w-36 rounded-full border border-blue-200/25" />
             {/* Spinning progress arc */}
-            <svg
-              className="absolute h-36 w-36 -rotate-90 animate-[spin_1.4s_linear_infinite]"
-              viewBox="0 0 144 144"
-            >
-              <circle
-                cx="72" cy="72" r="68"
-                fill="none"
-                stroke="url(#grad)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeDasharray="100 330"
-              />
+            <svg className="absolute h-44 w-44 -rotate-90 animate-[spin_1.6s_linear_infinite]" viewBox="0 0 176 176">
+              <circle cx="88" cy="88" r="84" fill="none" stroke="url(#grad)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="130 400" />
               <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#60a5fa" stopOpacity="0" />
-                  <stop offset="100%" stopColor="#93c5fd" />
+                  <stop offset="100%" stopColor="#bfdbfe" />
                 </linearGradient>
               </defs>
             </svg>
-            {/* Logo */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/phi-emblem.png"
-              alt="PHI-PRO"
-              width={80}
-              height={80}
-              className="relative z-10 drop-shadow-2xl"
-            />
+            {/* Logo card */}
+            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-3xl bg-white/95 p-3 shadow-2xl ring-1 ring-white/40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/phi-emblem.png" alt="PHI-PRO" width={72} height={72} className="drop-shadow-sm" />
+            </div>
           </div>
 
           {/* Wordmark */}
           <div className="text-center">
-            <p className="text-2xl font-extrabold tracking-widest text-white">PHI-PRO</p>
-            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-blue-300/80">
+            <p className="text-3xl font-extrabold tracking-[0.25em] text-white">PHI&nbsp;-&nbsp;PRO</p>
+            <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-blue-200/90">
               Digital Health Enforcement
+            </p>
+            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-blue-300/60">
+              Officer workspace &middot; secured
             </p>
           </div>
 
-          {/* Loading bar */}
-          <div className="relative h-0.5 w-48 overflow-hidden rounded-full bg-white/10">
-            <div className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-blue-400 to-blue-200 animate-[loading_1.4s_ease-in-out_infinite]" />
+          {/* Status chips */}
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-semibold text-blue-100/80">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300/20 bg-white/5 px-2.5 py-1 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> Auth check
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300/20 bg-white/5 px-2.5 py-1 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-300 [animation-delay:0.3s]" /> Loading modules
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300/20 bg-white/5 px-2.5 py-1 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300 [animation-delay:0.6s]" /> Syncing audit chain
+            </span>
           </div>
 
-          <p className="text-[11px] font-medium text-blue-300/60">Loading system…</p>
+          {/* Loading bar */}
+          <div className="relative h-0.5 w-56 overflow-hidden rounded-full bg-white/10">
+            <div className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-blue-400 via-blue-200 to-blue-400 animate-[loading_1.4s_ease-in-out_infinite]" />
+          </div>
         </div>
 
         {/* Bottom branding */}
-        <div className="absolute bottom-8 text-center">
-          <p className="text-[10px] text-blue-400/40">Ministry of Health · Sri Lanka</p>
+        <div className="absolute bottom-6 flex flex-col items-center gap-1 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-blue-200/70">Ministry of Health</p>
+          <p className="text-[10px] text-blue-300/40">Democratic Socialist Republic of Sri Lanka</p>
         </div>
 
         <style>{`
           @keyframes loading {
             0%   { left: -33%; }
             100% { left: 100%; }
+          }
+          @keyframes pulse-ring {
+            0%   { transform: scale(0.85); opacity: .45; }
+            70%  { transform: scale(1.12); opacity: 0; }
+            100% { transform: scale(1.12); opacity: 0; }
           }
         `}</style>
       </div>
