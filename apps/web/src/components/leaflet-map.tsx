@@ -17,13 +17,37 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 /**
- * Tile-source pool. We try Carto Voyager first (fast CDN, anti-block-list
- * friendly), then fall back to plain OpenStreetMap with subdomain rotation
- * if Carto's CDN is unreachable from the user's network.
+ * Tile-source pool, ordered by how reliably the host clears ad-block lists
+ * and reaches Sri Lankan ISPs:
+ *   1. ESRI World Street Map — single CDN host, not on common block lists,
+ *      no API key, works in regions where openstreetmap.org / cartocdn.com
+ *      are blocked or throttled.
+ *   2. OpenFreeMap (Positron) — community-funded, CDN-backed, key-free.
+ *   3. Wikimedia maps — global, hosted by the WMF, rarely blocked.
+ *   4. CARTO Voyager — usually fast but flagged by some trackers blockers.
+ *   5. OSM raw tiles — last resort, throttles non-browser User-Agents.
+ *
+ * The TileLayer below auto-fails over to the next entry if more than 3
+ * tileerror events fire within 1.5s on the active source.
  */
 const TILE_SOURCES = [
   {
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    subdomains: [],
+    attribution: 'Tiles © <a href="https://www.esri.com/">Esri</a> · Sources: HERE · Garmin · OpenStreetMap contributors',
+  },
+  {
+    url: 'https://tiles.openfreemap.org/styles/positron/raster/{z}/{x}/{y}.png',
+    subdomains: [],
+    attribution: '© <a href="https://openfreemap.org/">OpenFreeMap</a> · © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
+  {
+    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+    subdomains: [],
+    attribution: '© <a href="https://wikimediafoundation.org/">Wikimedia</a> · © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
+  {
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
     subdomains: ['a', 'b', 'c', 'd'],
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
   },
