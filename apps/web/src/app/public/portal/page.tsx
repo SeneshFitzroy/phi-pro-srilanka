@@ -16,9 +16,9 @@ const primary = [
   {
     icon: MessageSquare,
     title: 'Submit a complaint',
-    desc: 'Report unsafe food, hygiene risks or suspected outbreaks. Anonymous option available.',
+    desc: 'Report unsafe food, hygiene risks or suspected outbreaks. Verified citizen submissions.',
     href: '/public/complaints',
-    tag: 'Anonymous OK',
+    tag: 'Verified',
     accent: 'from-blue-700 to-blue-900',
   },
   {

@@ -21,10 +21,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import MapGL, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl';
-import type { StyleSpecification, MapLayerMouseEvent } from 'mapbox-gl';
-import type { GeolocateResultEvent } from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import dynamicImport from 'next/dynamic';
+import type { LeafletMarker } from '@/components/leaflet-map';
 import {
   ArrowLeft, Send, AlertTriangle, CheckCircle, Loader2, Phone, MapPin, FileText,
   User, Check, Camera, Upload, Crosshair, Video, X, ShieldCheck, IdCard, Trash2,
@@ -75,28 +73,8 @@ const NIC_REGEX = /^(?:\d{9}[VXvx]|\d{12})$/;
 
 const SL_CENTER = { lat: 7.8731, lng: 80.7718, zoom: 7 };
 
-/** CARTO Voyager basemap — token-free, same one used on /public/find-phi. */
-const BASEMAP_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '© OpenStreetMap · © CARTO',
-      maxzoom: 19,
-    },
-  },
-  layers: [
-    { id: 'bg', type: 'background', paint: { 'background-color': '#f1f5f9' } },
-    { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 },
-  ],
-};
+/** Leaflet map rendered client-side only (Leaflet touches `window`). */
+const LeafletMap = dynamicImport(() => import('@/components/leaflet-map'), { ssr: false });
 
 /* ── types ──────────────────────────────────────────────────────────────── */
 
@@ -527,38 +505,25 @@ export default function ComplaintsPage() {
                       </button>
                     )}
                   </Label>
-                  <div className="relative h-72 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-                    <MapGL
-                      mapStyle={BASEMAP_STYLE}
-                      initialViewState={{ latitude: mapCentre.lat, longitude: mapCentre.lng, zoom: form.pin ? 16 : SL_CENTER.zoom }}
-                      key={`${mapCentre.lat}-${mapCentre.lng}`}
-                      style={{ width: '100%', height: '100%' }}
-                      maxBounds={[[78.0, 5.0], [83.0, 10.5]]}
-                      onClick={(e: MapLayerMouseEvent) => {
-                        const { lng, lat } = e.lngLat;
-                        setForm((p) => ({ ...p, pin: { lat, lng } }));
-                      }}
-                    >
-                      <NavigationControl position="top-right" />
-                      <GeolocateControl
-                        position="top-right"
-                        trackUserLocation
-                        onGeolocate={(e: GeolocateResultEvent) => {
-                          const { latitude: lat, longitude: lng } = e.coords;
-                          setForm((p) => ({ ...p, pin: { lat, lng } }));
-                        }}
-                      />
-                      {form.pin && (
-                        <Marker latitude={form.pin.lat} longitude={form.pin.lng} anchor="bottom" draggable
-                          onDragEnd={(e) => setForm((p) => ({ ...p, pin: { lat: e.lngLat.lat, lng: e.lngLat.lng } }))}
-                        >
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-rose-600 text-white shadow-lg ring-4 ring-rose-300/60">
-                            <MapPin className="h-4 w-4" />
-                          </div>
-                        </Marker>
-                      )}
-                    </MapGL>
-                  </div>
+                  <LeafletMap
+                    height="18rem"
+                    centre={mapCentre}
+                    zoom={form.pin ? 16 : SL_CENTER.zoom}
+                    onMapClick={(pos) => setForm((p) => ({ ...p, pin: pos }))}
+                    markers={
+                      form.pin
+                        ? ([
+                            {
+                              id: 'complaint-pin',
+                              position: form.pin,
+                              color: 'rose',
+                              draggable: true,
+                              onDragEnd: (pos) => setForm((p) => ({ ...p, pin: pos })),
+                            },
+                          ] satisfies LeafletMarker[])
+                        : []
+                    }
+                  />
                   {form.pin && (
                     <p className="text-[11px] text-slate-500">
                       Pinned at {form.pin.lat.toFixed(5)}, {form.pin.lng.toFixed(5)} · drag the pin to refine.

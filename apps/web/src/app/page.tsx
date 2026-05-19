@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowRight, Shield, Activity, Globe2, Users, Phone, Newspaper,
+  ArrowRight, Shield, Globe2, Users, Phone, Newspaper,
   UserCheck, Store, ChevronDown, ChevronRight, Microscope, Stethoscope,
   HeartPulse, Briefcase, BookOpen, Sparkles, ShieldCheck, BadgeCheck, MapPin,
-  AlertTriangle, CheckCircle, Megaphone, LineChart,
+  AlertTriangle, CheckCircle, Megaphone, Activity,
 } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
@@ -15,32 +15,32 @@ import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 // generic feature list.
 const pillars = [
   {
-    icon: Stethoscope, name: 'Communicable disease',
-    scope: 'Notifiable-disease surveillance, contact tracing, outbreak containment.',
+    icon: Stethoscope, name: 'Epidemiology & Communicable Disease Control',
+    scope: 'Notifiable-disease surveillance, contact tracing, outbreak containment, weekly / monthly reporting.',
     statute: 'Quarantine and Prevention of Diseases Ordinance',
     tone: 'rose', grad: 'from-rose-600 to-rose-800',
   },
   {
-    icon: Microscope, name: 'Food safety',
-    scope: 'Routine premises inspection, sampling, prosecution of unsafe operators.',
+    icon: Microscope, name: 'Food Safety & Hygiene Enforcement',
+    scope: 'Routine premises inspection, sampling, A / B / C grading, prosecution of unsafe operators.',
     statute: 'Food Act No. 26 of 1980',
     tone: 'emerald', grad: 'from-emerald-600 to-emerald-800',
   },
   {
-    icon: Activity, name: 'Environment & vector',
-    scope: 'Premises checks, water-quality surveillance, waste & vector control.',
+    icon: Activity, name: 'Environmental Sanitation & Vector Control',
+    scope: 'Premises checks, water-quality surveillance, solid-waste oversight, mosquito source reduction.',
     statute: 'National Environmental Act',
     tone: 'blue', grad: 'from-blue-600 to-blue-900',
   },
   {
-    icon: HeartPulse, name: 'Maternal, child & school',
-    scope: 'Immunisation defaulter tracking, school medical inspection support.',
+    icon: HeartPulse, name: 'School Health & Medical Inspections',
+    scope: 'School medical inspection coordination, immunisation defaulter tracking, adolescent health.',
     statute: 'Public Health Service Circulars',
     tone: 'pink', grad: 'from-pink-600 to-fuchsia-700',
   },
   {
-    icon: Briefcase, name: 'Occupational & disaster',
-    scope: 'Workplace hazard surveys, flood / chemical / mass-gathering response.',
+    icon: Briefcase, name: 'Occupational Health & Industrial Safety',
+    scope: 'Workplace hazard surveys, factory health certificates, flood / chemical / mass-gathering response.',
     statute: 'Factories Ordinance + DMC Act',
     tone: 'amber', grad: 'from-amber-500 to-orange-700',
   },
@@ -127,89 +127,49 @@ export default function HomePage() {
         />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-12 sm:px-6 sm:pt-16 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-12">
-            {/* Editorial copy */}
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-blue-700 shadow-sm dark:border-blue-800/60 dark:bg-slate-900 dark:text-blue-300">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                Live &middot; National Health Enforcement Grid
-              </div>
-
-              <h1 className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-6xl lg:text-[4.2rem] dark:text-white">
-                The digital{' '}
-                <span className="relative inline-block">
-                  <span className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-900 bg-clip-text text-transparent">
-                    frontline
-                  </span>
-                </span>{' '}
-                of Sri Lanka&rsquo;s public health.
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
-                PHI-PRO is the audit-grade ecosystem powering the daily operations of Public Health Inspectors
-                nationwide. From rural food stalls to international transit hubs, we ensure public safety is
-                transparent, secure, and accessible to every citizen.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/public/portal"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-7 text-[15px] font-bold text-white shadow-lg shadow-blue-900/20 transition-all hover:brightness-110 hover:shadow-xl"
-                >
-                  Open public portal <ChevronRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-7 text-[15px] font-bold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  Officer login <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Trust ribbon */}
-              <ul className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-medium text-slate-500 dark:text-slate-400">
-                <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WCAG 2.1 AA</li>
-                <li className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WebAuthn passkeys</li>
-                <li className="flex items-center gap-1.5"><Globe2 className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Sinhala &middot; Tamil &middot; English</li>
-                <li className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Tamper-evident audit chain</li>
-              </ul>
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-blue-700 shadow-sm dark:border-blue-800/60 dark:bg-slate-900 dark:text-blue-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+              Live &middot; National Health Enforcement Grid
             </div>
 
-            {/* Editorial side panel — what the workspace gives a PHI officer */}
-            <aside className="lg:col-span-5">
-              <div className="relative rounded-3xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-                <div className="rounded-[1.4rem] bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-blue-100 ring-1 ring-white/20">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />
-                      Officer workspace
-                    </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80">What ships day one</span>
-                  </div>
+            <h1 className="mx-auto mt-5 max-w-3xl text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-6xl lg:text-[4.2rem] dark:text-white">
+              The digital{' '}
+              <span className="relative inline-block">
+                <span className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-900 bg-clip-text text-transparent">
+                  frontline
+                </span>
+              </span>{' '}
+              of Sri Lanka&rsquo;s public health.
+            </h1>
 
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <PanelStat icon={<Activity className="h-4 w-4" />}      k="H800"    v="Food inspection form" />
-                    <PanelStat icon={<LineChart className="h-4 w-4" />}     k="A · B · C" v="Hygiene grading engine" />
-                    <PanelStat icon={<AlertTriangle className="h-4 w-4" />} k="SIR · GIS" v="Outbreak modelling" />
-                    <PanelStat icon={<CheckCircle className="h-4 w-4" />}   k="QR + PDF" v="Signed certificates" />
-                  </div>
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
+              PHI-PRO is the audit-grade ecosystem powering the daily operations of Public Health Inspectors
+              nationwide. From rural food stalls to international transit hubs, we ensure public safety is
+              transparent, secure, and accessible to every citizen.
+            </p>
 
-                  <div className="mt-5 rounded-xl bg-white/5 p-3 ring-1 ring-white/10 backdrop-blur">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">National field map</p>
-                    <p className="mt-1 text-xs leading-relaxed text-blue-100/90">
-                      74 MOH offices, 354 PHI divisions and 1,793 listed officers are pinned on the
-                      <Link href="/public/find-phi" className="underline-offset-2 hover:underline"> Find PHI</Link> map.
-                    </p>
-                  </div>
-                </div>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/public/portal"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 px-7 text-[15px] font-bold text-white shadow-lg shadow-blue-900/20 transition-all hover:brightness-110 hover:shadow-xl"
+              >
+                Open public portal <ChevronRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-7 text-[15px] font-bold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Officer login <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-                {/* Small footer tag */}
-                <div className="flex items-center justify-between gap-3 px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1"><Shield className="h-3 w-3" />Built for the field</span>
-                  <span>Audit-grade · MoH-signed</span>
-                </div>
-              </div>
-            </aside>
+            <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] font-medium text-slate-500 dark:text-slate-400">
+              <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WCAG 2.1 AA</li>
+              <li className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />WebAuthn passkeys</li>
+              <li className="flex items-center gap-1.5"><Globe2 className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Sinhala &middot; Tamil &middot; English</li>
+              <li className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />Tamper-evident audit chain</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -532,15 +492,3 @@ export default function HomePage() {
   );
 }
 
-/* ───── helpers ───── */
-
-function PanelStat({ icon, k, v }: { icon: React.ReactNode; k: string; v: string }) {
-  return (
-    <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-      <div className="flex items-center gap-1.5 text-blue-200">
-        {icon}<span className="text-[10px] font-bold uppercase tracking-wider">{v}</span>
-      </div>
-      <p className="mt-1 font-mono text-2xl font-extrabold text-white">{k}</p>
-    </div>
-  );
-}

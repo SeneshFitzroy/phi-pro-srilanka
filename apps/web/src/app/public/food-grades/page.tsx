@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import MapGL, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl';
-import type { StyleSpecification } from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import dynamic from 'next/dynamic';
+import type { LeafletMarker } from '@/components/leaflet-map';
 import {
   ArrowLeft, Search, Star, MapPin, Clock, ShieldCheck,
   Loader2, AlertCircle, Droplets, Share2, ArrowUpDown, Check, ExternalLink, Map as MapIcon,
@@ -16,28 +15,8 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { openInMaps } from '@/components/maps-export-card';
 
-/** CARTO Voyager basemap — token-free, real Sri Lanka tiles. */
-const BASEMAP_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '© OpenStreetMap · © CARTO',
-      maxzoom: 19,
-    },
-  },
-  layers: [
-    { id: 'bg', type: 'background', paint: { 'background-color': '#f1f5f9' } },
-    { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 },
-  ],
-};
+/** Leaflet rendered client-side only. */
+const LeafletMap = dynamic(() => import('@/components/leaflet-map'), { ssr: false });
 
 interface Premise {
   id: string;
@@ -447,23 +426,36 @@ export default function FoodGradesPage() {
 /* ──────────────── live national map ──────────────── */
 
 function LiveFoodGradeMap({ premises, loading }: { premises: Premise[]; loading: boolean }) {
-  const [selected, setSelected] = useState<Premise | null>(null);
-
   const pinned = useMemo(
     () => premises.filter((p): p is Premise & { lat: number; lng: number } => p.lat != null && p.lng != null),
     [premises],
   );
 
-  const centre = useMemo(() => {
-    if (pinned.length === 0) return { lat: 7.8731, lng: 80.7718, zoom: 7 };
-    const lats = pinned.map((p) => p.lat);
-    const lngs = pinned.map((p) => p.lng);
-    return {
-      lat: (Math.min(...lats) + Math.max(...lats)) / 2,
-      lng: (Math.min(...lngs) + Math.max(...lngs)) / 2,
-      zoom: 7.5,
-    };
-  }, [pinned]);
+  const markers: LeafletMarker[] = useMemo(
+    () => pinned.map((p) => ({
+      id: p.id,
+      position: { lat: p.lat, lng: p.lng },
+      color: p.grade === 'A' ? 'emerald' : p.grade === 'B' ? 'amber' : 'rose',
+      label: p.grade,
+      popup: (
+        <div className="space-y-1.5">
+          <p className="text-sm font-bold text-slate-900">{p.name}</p>
+          <p className="text-[11px] text-slate-500">{p.address}</p>
+          <p className="text-[11px]">
+            <span className="font-bold">Grade {p.grade}</span> · {p.score}% · {p.type}
+          </p>
+          <button
+            type="button"
+            onClick={() => openInMaps({ lat: p.lat, lng: p.lng, address: p.address, name: p.name })}
+            className="mt-1 flex w-full items-center justify-center gap-1 rounded-md bg-emerald-700 px-2 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-800"
+          >
+            <ExternalLink className="h-3 w-3" /> Open in Google Maps
+          </button>
+        </div>
+      ),
+    })),
+    [pinned],
+  );
 
   return (
     <Card className="overflow-hidden shadow-sm">
@@ -479,73 +471,13 @@ function LiveFoodGradeMap({ premises, loading }: { premises: Premise[]; loading:
             <span className="inline-flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-rose-500" />C</span>
           </div>
         </div>
-        <div className="relative h-[26rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-          {loading ? (
-            <div className="flex h-full items-center justify-center text-sm text-slate-500">
+        {loading
+          ? (
+            <div className="flex h-[26rem] items-center justify-center rounded-xl border border-slate-200 text-sm text-slate-500 dark:border-slate-700">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading map…
             </div>
-          ) : (
-            <MapGL
-              mapStyle={BASEMAP_STYLE}
-              initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
-              key={`${centre.lat}-${centre.lng}-${pinned.length}`}
-              style={{ width: '100%', height: '100%' }}
-              maxBounds={[[78.0, 5.0], [83.0, 10.5]]}
-              minZoom={6.4}
-              maxZoom={17}
-              attributionControl
-            >
-              <NavigationControl position="top-right" />
-              <GeolocateControl position="top-right" trackUserLocation />
-              {pinned.map((p) => {
-                const color =
-                  p.grade === 'A' ? 'from-emerald-500 to-emerald-700' :
-                  p.grade === 'B' ? 'from-amber-500 to-amber-700' :
-                                    'from-rose-500 to-rose-700';
-                return (
-                  <Marker
-                    key={p.id} latitude={p.lat} longitude={p.lng} anchor="bottom"
-                    onClick={(e) => { e.originalEvent.stopPropagation(); setSelected(p); }}
-                  >
-                    <button
-                      type="button"
-                      aria-label={`${p.name} — Grade ${p.grade}`}
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br ${color} text-[11px] font-extrabold text-white shadow-md ring-2 ring-white/50 transition-transform hover:scale-110`}
-                    >
-                      {p.grade}
-                    </button>
-                  </Marker>
-                );
-              })}
-              {selected && (
-                <Popup
-                  latitude={selected.lat!}
-                  longitude={selected.lng!}
-                  anchor="top"
-                  offset={12}
-                  onClose={() => setSelected(null)}
-                  closeOnClick={false}
-                  maxWidth="260px"
-                >
-                  <div className="space-y-1.5 p-1">
-                    <p className="text-sm font-bold text-slate-900">{selected.name}</p>
-                    <p className="text-[11px] text-slate-500">{selected.address}</p>
-                    <p className="text-[11px]">
-                      <span className="font-bold">Grade {selected.grade}</span> · {selected.score}% · {selected.type}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => openInMaps({ lat: selected.lat, lng: selected.lng, address: selected.address, name: selected.name })}
-                      className="mt-1 flex w-full items-center justify-center gap-1 rounded-md bg-emerald-700 px-2 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-800"
-                    >
-                      <ExternalLink className="h-3 w-3" /> Open in Google Maps
-                    </button>
-                  </div>
-                </Popup>
-              )}
-            </MapGL>
-          )}
-        </div>
+          )
+          : <LeafletMap markers={markers} fitToMarkers height="26rem" />}
       </CardContent>
     </Card>
   );

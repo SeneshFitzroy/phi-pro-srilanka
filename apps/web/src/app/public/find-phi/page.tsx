@@ -1,63 +1,32 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import MapGL, { Marker, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
-import type { StyleSpecification } from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import dynamic from 'next/dynamic';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 import {
   MapPin, Search, Phone, Building2, Map as MapIcon, Filter, X, ShieldCheck,
-  Users, Layers, Hash, Sparkles, Copy, Check, ArrowUpRight, Mail, Clock, ExternalLink,
+  Users, Layers, Hash, Sparkles, Copy, Check, Mail, Clock, ExternalLink,
 } from 'lucide-react';
 import {
   DISTRICTS, PHI_OFFICERS, mohPins, listMohOffices,
-  type PhiOfficer, type MohPin, type Province,
+  type PhiOfficer, type Province,
 } from '@/data/phi-officers';
+import type { LeafletMarker } from '@/components/leaflet-map';
 
 /**
  * Public "Find a PHI" directory.
  *
  * Three coordinated views over the same dataset:
- *   1. Live Mapbox map of every MOH office (auto-zooms to filter selection).
- *   2. District + MOH filter chips with full-text search.
- *   3. Officer cards with PHI name, range / station, MOH parent, district, phone.
+ *   1. Live OSM/Leaflet map of every MOH office (auto-zooms to selection).
+ *   2. District + MOH dropdown filters with full-text search.
+ *   3. Officer cards with PHI name, range/station, MOH parent, district, phone.
  */
 
 const ALL_MOHS = listMohOffices();
 const ALL_PINS = mohPins();
 
-/**
- * Mapbox-GL-compatible raster style that points at Carto's free OpenStreetMap
- * basemaps. Carto's CDN is token-free, allows hot-linking and isn't subject
- * to the same per-domain throttling as tile.openstreetmap.org — which was
- * returning blank tiles for phipro.lk before. Voyager carries a balanced set
- * of labels and road colours that render Sri Lanka cleanly at every zoom.
- */
-const BASEMAP_STYLE: StyleSpecification = {
-  version: 8,
-  glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &middot; © <a href="https://carto.com/attributions">CARTO</a>',
-      maxzoom: 19,
-    },
-  },
-  layers: [
-    { id: 'bg', type: 'background', paint: { 'background-color': '#f1f5f9' } },
-    { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 },
-  ],
-};
-
-/** Sri Lanka bounding box — keeps the initial map view centred on the island. */
-const SL_BOUNDS = { lat: 7.8731, lng: 80.7718, zoom: 6.8 };
+// Leaflet uses `window`, so we render it client-side only.
+const LeafletMap = dynamic(() => import('@/components/leaflet-map'), { ssr: false });
 
 const PROVINCE_BADGE: Record<Province, string> = {
   'Western':       'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
@@ -76,7 +45,6 @@ export default function FindPhiPage() {
   const [districtFilter, setDistrictFilter] = useState<string | null>(null);
   const [mohFilter, setMohFilter] = useState<string | null>(null);
   const [view, setView] = useState<'officers' | 'mohs'>('officers');
-  const [selected, setSelected] = useState<MohPin | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
   // Reset MOH filter when district changes so it does not silently filter out matches.
@@ -105,18 +73,7 @@ export default function FindPhiPage() {
     return ALL_PINS.filter((p) => officerKeys.has(`${p.district}::${p.moh}`));
   }, [officers]);
 
-  /** Auto-fit centre / zoom for the currently filtered pin-set. */
-  const centre = useMemo(() => {
-    if (pins.length === 0) return SL_BOUNDS;
-    if (pins.length === 1) return { lat: pins[0].lat, lng: pins[0].lng, zoom: 12 };
-    const lats = pins.map((p) => p.lat);
-    const lngs = pins.map((p) => p.lng);
-    const lat = (Math.min(...lats) + Math.max(...lats)) / 2;
-    const lng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-    const span = Math.max(Math.max(...lats) - Math.min(...lats), Math.max(...lngs) - Math.min(...lngs));
-    const zoom = span < 0.05 ? 13 : span < 0.2 ? 11 : span < 0.6 ? 9.5 : span < 1.5 ? 8.5 : 6.8;
-    return { lat, lng, zoom };
-  }, [pins]);
+
 
   const officersByDistrict = useMemo(() => {
     const map = new Map<string, PhiOfficer[]>();
@@ -134,6 +91,42 @@ export default function FindPhiPage() {
 
   const filtersActive = Boolean(q || districtFilter || mohFilter);
   const clearFilters = () => { setQ(''); setDistrictFilter(null); setMohFilter(null); };
+
+  /* ── Leaflet markers (memoised so the map doesn't re-render on unrelated state) ── */
+  const leafletMarkers: LeafletMarker[] = useMemo(
+    () => pins.map((p): LeafletMarker => ({
+      id: `${p.district}::${p.moh}`,
+      position: { lat: p.lat, lng: p.lng },
+      color: 'blue',
+      label: p.officers.length > 1 ? String(p.officers.length) : undefined,
+      popup: (
+        <div className="space-y-1.5">
+          <p className="text-sm font-bold text-slate-900">{p.moh} MOH</p>
+          <p className="text-[11px] uppercase tracking-wider text-slate-400">
+            {p.district} District &middot; {p.province} Province
+          </p>
+          <div className="max-h-36 space-y-1.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/70 p-2">
+            {p.officers.map((o) => (
+              <div key={o.phone + o.range} className="text-[11px]">
+                <p className="font-semibold text-slate-900">{o.name ?? 'PHI Officer'}</p>
+                <p className="text-slate-500">PHI {o.range}</p>
+                <a href={`tel:${o.phone}`} className="font-semibold text-blue-700 hover:underline">{o.phone}</a>
+              </div>
+            ))}
+          </div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${p.moh}, ${p.district}, Sri Lanka`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-md bg-blue-700 px-2 py-1.5 text-center text-[11px] font-bold text-white hover:bg-blue-800"
+          >
+            Open in Google Maps
+          </a>
+        </div>
+      ),
+    })),
+    [pins],
+  );
 
   const copyPhone = async (phone: string) => {
     try {
@@ -198,37 +191,47 @@ export default function FindPhiPage() {
               </button>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <FilterChip active={!districtFilter} onClick={() => setDistrictFilter(null)}>All districts</FilterChip>
-            {DISTRICTS.map((d) => (
-              <FilterChip
-                key={d.district}
-                active={districtFilter === d.district}
-                onClick={() => setDistrictFilter(districtFilter === d.district ? null : d.district)}
-              >
-                {d.district}
-              </FilterChip>
-            ))}
-          </div>
+          {/* Professional dropdowns — replaces the chip flood. Real selects so it
+              works with keyboard, screen readers and tiny screens. */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">District</span>
+              <div className="relative">
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={districtFilter ?? ''}
+                  onChange={(e) => setDistrictFilter(e.target.value || null)}
+                  className="w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-9 text-sm font-medium text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  aria-label="Filter by district"
+                >
+                  <option value="">All 26 districts</option>
+                  {DISTRICTS.map((d) => (
+                    <option key={d.district} value={d.district}>{d.district} &nbsp;·&nbsp; {d.province}</option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 011.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/></svg>
+              </div>
+            </label>
 
-          {visibleMohs.length > 0 && (
-            <>
-              <div className="mt-5 mb-3 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-900 dark:text-white">
-                  Filter by MOH Area {districtFilter && <span className="text-slate-400">(in {districtFilter})</span>}
-                </h2>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                MOH Area {districtFilter && <span className="text-slate-400">(in {districtFilter})</span>}
+              </span>
+              <div className="relative">
+                <Layers className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={mohFilter ?? ''}
+                  onChange={(e) => setMohFilter(e.target.value || null)}
+                  className="w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-9 text-sm font-medium text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  aria-label="Filter by MOH area"
+                >
+                  <option value="">All MOH areas ({visibleMohs.length})</option>
+                  {visibleMohs.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 011.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/></svg>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip small active={!mohFilter} onClick={() => setMohFilter(null)}>All MOH areas</FilterChip>
-                {visibleMohs.map((m) => (
-                  <FilterChip key={m} small active={mohFilter === m} onClick={() => setMohFilter(mohFilter === m ? null : m)}>
-                    {m}
-                  </FilterChip>
-                ))}
-              </div>
-            </>
-          )}
+            </label>
+          </div>
 
           {/* View toggle */}
           <div className="mt-5 flex items-center gap-2">
@@ -258,86 +261,7 @@ export default function FindPhiPage() {
             </span>
           </div>
 
-          <div className="relative h-[28rem] w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-            <MapGL
-              mapStyle={BASEMAP_STYLE}
-              initialViewState={{ latitude: centre.lat, longitude: centre.lng, zoom: centre.zoom }}
-              key={`${centre.lat}-${centre.lng}-${centre.zoom}-${pins.length}`}
-              style={{ width: '100%', height: '100%' }}
-              maxBounds={[[78.0, 5.0], [83.0, 10.5]]}
-              minZoom={6.4}
-              maxZoom={17}
-              attributionControl
-            >
-              <NavigationControl position="top-right" />
-              <FullscreenControl position="top-right" />
-              <GeolocateControl position="top-right" trackUserLocation />
-              <ScaleControl position="bottom-left" />
-              {pins.map((p) => (
-                <Marker
-                  key={`${p.district}-${p.moh}`}
-                  latitude={p.lat}
-                  longitude={p.lng}
-                  anchor="bottom"
-                  onClick={(e) => { e.originalEvent.stopPropagation(); setSelected(p); }}
-                >
-                  <button
-                    type="button"
-                    aria-label={`${p.moh} MOH — ${p.district} District (${p.officers.length} officers)`}
-                    className="group relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-600 to-blue-900 text-white shadow-lg ring-4 ring-blue-300/60 transition-transform hover:scale-110"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    {p.officers.length > 1 && (
-                      <span className="absolute -right-1 -top-1 rounded-full bg-amber-400 px-1.5 text-[10px] font-extrabold leading-4 text-slate-900 shadow ring-2 ring-white">
-                        {p.officers.length}
-                      </span>
-                    )}
-                  </button>
-                </Marker>
-              ))}
-              {selected && (
-                <Popup
-                  latitude={selected.lat}
-                  longitude={selected.lng}
-                  anchor="top"
-                  offset={12}
-                  onClose={() => setSelected(null)}
-                  closeOnClick={false}
-                  maxWidth="320px"
-                >
-                  <div className="space-y-2 p-1">
-                    <div>
-                      <p className="text-sm font-bold text-slate-900">{selected.moh} MOH</p>
-                      <p className="text-[11px] uppercase tracking-wider text-slate-400">
-                        {selected.district} District &middot; {selected.province} Province
-                      </p>
-                    </div>
-                    <div className="max-h-44 space-y-1.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/70 p-2">
-                      {selected.officers.map((o) => (
-                        <div key={o.phone + o.range} className="text-[11px]">
-                          <p className="font-semibold text-slate-900">{o.name ?? 'PHI Officer'}</p>
-                          <p className="text-slate-500">PHI {o.range}</p>
-                          <a href={`tel:${o.phone}`} className="font-semibold text-blue-700 hover:underline">{o.phone}</a>
-                        </div>
-                      ))}
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${selected.moh}, ${selected.district}, Sri Lanka`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-md bg-blue-700 px-2 py-1.5 text-center text-[11px] font-bold text-white hover:bg-blue-800"
-                    >
-                      Open in Google Maps <ArrowUpRight className="ml-0.5 inline h-3 w-3" />
-                    </a>
-                  </div>
-                </Popup>
-              )}
-            </MapGL>
-
-            <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 shadow dark:bg-slate-900/90 dark:text-slate-300">
-              Basemap: CARTO · © OpenStreetMap contributors
-            </p>
-          </div>
+          <LeafletMap markers={leafletMarkers} height="28rem" fitToMarkers />
         </div>
       </section>
 
@@ -418,24 +342,15 @@ export default function FindPhiPage() {
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PROVINCE_BADGE[p.province]}`}>{p.province}</span>
                 </div>
                 <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">{p.officers.length} listed PHI officer{p.officers.length === 1 ? '' : 's'}</p>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelected(p)}
-                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[12px] font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
-                  >
-                    <MapIcon className="h-3.5 w-3.5" /> Show on map
-                  </button>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${p.moh}, ${p.district}, Sri Lanka`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Open ${p.moh} MOH in Google Maps`}
-                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-bold text-slate-600 hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`MOH Office ${p.moh}, ${p.district}, Sri Lanka`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${p.moh} MOH in Google Maps`}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[12px] font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Open in Google Maps
+                </a>
               </article>
             ))}
           </div>
@@ -517,24 +432,6 @@ function KpiCard({ icon, label, value, small }: { icon: React.ReactNode; label: 
       </div>
       <p className={`mt-1 font-extrabold text-slate-900 dark:text-white ${small ? 'text-sm' : 'text-xl'}`}>{value}</p>
     </div>
-  );
-}
-
-function FilterChip({ children, active, onClick, small }: { children: React.ReactNode; active: boolean; onClick: () => void; small?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`whitespace-nowrap rounded-full border px-3 py-1.5 font-semibold transition-colors ${
-        small ? 'text-[11px]' : 'text-xs'
-      } ${
-        active
-          ? 'border-blue-700 bg-blue-700 text-white shadow-sm'
-          : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-700 dark:hover:bg-blue-950/40'
-      }`}
-    >
-      {children}
-    </button>
   );
 }
 
