@@ -9,12 +9,10 @@ import {
   School,
   Activity,
   HardHat,
-  ClipboardList,
   CheckCircle,
   Clock,
   AlertTriangle,
   FileText,
-  ArrowRight,
   Calendar,
   Search,
   CornerDownLeft,
@@ -62,49 +60,6 @@ const statsCards = [
     icon: FileText,
     iconBg: 'bg-blue-50 dark:bg-blue-950/50',
     iconColor: 'text-blue-500',
-  },
-];
-
-const domainCards = [
-  {
-    titleKey: 'nav.food', fallback: 'Food Safety', icon: UtensilsCrossed, href: '/dashboard/food',
-    stats: '45 inspections • 12 pending',
-    accent: 'from-emerald-500 to-green-600',
-    accentLight: 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800',
-    textColor: 'text-emerald-700 dark:text-emerald-400',
-    hoverShadow: 'hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20',
-  },
-  {
-    titleKey: 'nav.school', fallback: 'School Health', icon: School, href: '/dashboard/school',
-    stats: '12 schools visited • 3 pending',
-    accent: 'from-blue-500 to-indigo-600',
-    accentLight: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
-    textColor: 'text-blue-700 dark:text-blue-400',
-    hoverShadow: 'hover:shadow-blue-100 dark:hover:shadow-blue-900/20',
-  },
-  {
-    titleKey: 'nav.epidemiology', fallback: 'Epidemiology', icon: Activity, href: '/dashboard/epidemiology',
-    stats: '3 active investigations',
-    accent: 'from-red-500 to-rose-600',
-    accentLight: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800',
-    textColor: 'text-red-700 dark:text-red-400',
-    hoverShadow: 'hover:shadow-red-100 dark:hover:shadow-red-900/20',
-  },
-  {
-    titleKey: 'nav.occupational', fallback: 'Occupational Health', icon: HardHat, href: '/dashboard/occupational',
-    stats: '8 factories inspected',
-    accent: 'from-amber-500 to-orange-600',
-    accentLight: 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800',
-    textColor: 'text-amber-700 dark:text-amber-400',
-    hoverShadow: 'hover:shadow-amber-100 dark:hover:shadow-amber-900/20',
-  },
-  {
-    titleKey: 'nav.administration', fallback: 'Administration', icon: ClipboardList, href: '/dashboard/administration',
-    stats: 'Monthly report due',
-    accent: 'from-violet-500 to-purple-600',
-    accentLight: 'bg-violet-50 border-violet-200 dark:bg-violet-950/30 dark:border-violet-800',
-    textColor: 'text-violet-700 dark:text-violet-400',
-    hoverShadow: 'hover:shadow-violet-100 dark:hover:shadow-violet-900/20',
   },
 ];
 
@@ -284,28 +239,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Domain Quick Access */}
-      <div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {domainCards.map((domain) => (
-            <Link
-              key={domain.titleKey}
-              href={domain.href}
-              className={`group relative overflow-hidden rounded-xl border p-4 transition-all duration-200 hover:shadow-lg ${domain.accentLight} ${domain.hoverShadow}`}
-            >
-              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${domain.accent}`} />
-              <div className={`mt-1 inline-flex rounded-lg p-2 ${domain.accentLight}`}>
-                <domain.icon className={`h-6 w-6 ${domain.textColor}`} />
-              </div>
-              <h3 className={`mt-3 text-sm font-semibold ${domain.textColor}`}>
-                {t(domain.titleKey) || domain.fallback}
-              </h3>
-              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{domain.stats}</p>
-              <ArrowRight className="mt-2 h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-slate-500 dark:text-slate-600 dark:group-hover:text-slate-400" />
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* Domain Quick Access — coloured stat tiles removed; the sidebar +
+          dashboard search are now the primary way into the five modules. */}
 
       {/* Bottom Grid: Activity + Tasks */}
       <div className="grid gap-6 lg:grid-cols-3">

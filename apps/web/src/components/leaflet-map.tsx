@@ -11,10 +11,28 @@
 // dependency never reaches the server bundle.
 // ============================================================================
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+/**
+ * Tile-source pool. We try Carto Voyager first (fast CDN, anti-block-list
+ * friendly), then fall back to plain OpenStreetMap with subdomain rotation
+ * if Carto's CDN is unreachable from the user's network.
+ */
+const TILE_SOURCES = [
+  {
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    subdomains: ['a', 'b', 'c', 'd'],
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    subdomains: ['a', 'b', 'c'],
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+] as const;
 
 /* ── leaflet default marker shim (Next/Webpack mangles the asset paths) ── */
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -118,6 +136,22 @@ export default function LeafletMap({
   showZoomControl = true,
   className = '',
 }: Props) {
+  // Tile source with auto-failover. If the active source errors more than 3
+  // tiles in 4 seconds (usually a CDN block or DNS failure on the user's
+  // network), we transparently fall through to the next entry in TILE_SOURCES.
+  const [tileIdx, setTileIdx] = useState(0);
+  const [tileErrCount, setTileErrCount] = useState(0);
+  useEffect(() => {
+    if (tileErrCount < 3) return;
+    if (tileIdx >= TILE_SOURCES.length - 1) return;
+    const t = setTimeout(() => {
+      setTileIdx((i) => i + 1);
+      setTileErrCount(0);
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [tileErrCount, tileIdx]);
+  const tile = TILE_SOURCES[tileIdx];
+
   return (
     <div className={`overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 ${className}`} style={{ height }}>
       <MapContainer
@@ -125,13 +159,16 @@ export default function LeafletMap({
         zoom={zoom}
         scrollWheelZoom
         zoomControl={showZoomControl}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', background: '#e5e7eb' }}
         attributionControl
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={tile.url}
+          attribution={tile.attribution}
+          url={tile.url}
+          subdomains={tile.subdomains as unknown as string[]}
           maxZoom={19}
+          eventHandlers={{ tileerror: () => setTileErrCount((n) => n + 1) }}
         />
 
         {fitToMarkers && <FitBounds markers={markers} />}
