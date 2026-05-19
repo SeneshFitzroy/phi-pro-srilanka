@@ -138,8 +138,86 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Five enforcement domains section removed — full mandate lives on
-          /public/about for citizens who want the deep dive. */}
+      {/* ═══════════════════ THREE AUDIENCES — moved up so visitors see
+           which front door to use BEFORE the editorial content scrolls past.
+           Industrial card layout — same data, same audit chain, three
+           purpose-built entry points. ═══════════════════ */}
+      <section className="border-t border-slate-200 bg-white py-20 dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">Choose your front door</p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+              One audit-grade platform. Three purpose-built workspaces.
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-300">
+              Officers enforce. Operators comply. Citizens stay informed. Every action lands on the same
+              tamper-evident chain — so the record never breaks.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {audiences.map((a, i) => (
+              <article
+                key={a.title}
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+              >
+                {/* Industrial top band */}
+                <div className={`relative overflow-hidden bg-gradient-to-br ${a.accent} px-6 py-7 text-white`}>
+                  <div
+                    className="absolute inset-0 opacity-[0.08]"
+                    style={{
+                      backgroundImage:
+                        'linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(to right,rgba(255,255,255,.6) 1px,transparent 1px)',
+                      backgroundSize: '28px 28px',
+                    }}
+                    aria-hidden
+                  />
+                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl" aria-hidden />
+                  <div className="relative flex items-start justify-between">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
+                      <a.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/90 ring-1 ring-white/20">
+                        {a.badge}
+                      </span>
+                      <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/60">
+                        Audience &middot; 0{i + 1}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="relative mt-5 text-[10px] font-bold uppercase tracking-widest text-white/80">{a.tag}</p>
+                  <h3 className="relative mt-1 text-2xl font-extrabold leading-tight">{a.title}</h3>
+                </div>
+
+                {/* Body */}
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">{a.summary}</p>
+
+                  <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-slate-700" />
+
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">What you get</p>
+                  <ul className="flex-1 space-y-2">
+                    {a.bullets.map((b) => (
+                      <li key={b} className="flex items-start gap-2 text-[13px] text-slate-700 dark:text-slate-300">
+                        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href={a.href}
+                    className={`mt-6 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r ${a.accent} px-4 py-3 text-sm font-bold text-white shadow-md transition-all hover:brightness-110 hover:shadow-lg`}
+                  >
+                    {a.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════════ TODAY (newsroom layout) ═══════════════════ */}
       <section className="py-16">
@@ -221,83 +299,6 @@ export default function HomePage() {
                 </div>
                 <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════ THREE AUDIENCES — industrial card layout ═══════════════════ */}
-      <section className="border-t border-slate-200 bg-white py-20 dark:border-slate-800 dark:bg-slate-950">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">Who PHI-PRO serves</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-              Three audiences. One secure platform.
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-300">
-              Same audit chain, same data, three purpose-built front doors.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {audiences.map((a, i) => (
-              <article
-                key={a.title}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900"
-              >
-                {/* Industrial top band */}
-                <div className={`relative overflow-hidden bg-gradient-to-br ${a.accent} px-6 py-7 text-white`}>
-                  <div
-                    className="absolute inset-0 opacity-[0.08]"
-                    style={{
-                      backgroundImage:
-                        'linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(to right,rgba(255,255,255,.6) 1px,transparent 1px)',
-                      backgroundSize: '28px 28px',
-                    }}
-                    aria-hidden
-                  />
-                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl" aria-hidden />
-                  <div className="relative flex items-start justify-between">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
-                      <a.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/90 ring-1 ring-white/20">
-                        {a.badge}
-                      </span>
-                      <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/60">
-                        Audience &middot; 0{i + 1}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="relative mt-5 text-[10px] font-bold uppercase tracking-widest text-white/80">{a.tag}</p>
-                  <h3 className="relative mt-1 text-2xl font-extrabold leading-tight">{a.title}</h3>
-                </div>
-
-                {/* Body */}
-                <div className="flex flex-1 flex-col p-6">
-                  <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">{a.summary}</p>
-
-                  <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-slate-700" />
-
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">What you get</p>
-                  <ul className="flex-1 space-y-2">
-                    {a.bullets.map((b) => (
-                      <li key={b} className="flex items-start gap-2 text-[13px] text-slate-700 dark:text-slate-300">
-                        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={a.href}
-                    className={`mt-6 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r ${a.accent} px-4 py-3 text-sm font-bold text-white shadow-md transition-all hover:brightness-110 hover:shadow-lg`}
-                  >
-                    {a.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
-              </article>
             ))}
           </div>
         </div>

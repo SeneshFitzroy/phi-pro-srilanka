@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/modal';
 
 const foodStats = [
   { label: 'Total Inspections', value: '45', icon: ClipboardCheck, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300', change: '+8 this month' },
@@ -67,6 +68,7 @@ export default function FoodModulePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [gradeFilter, setGradeFilter] = useState<GradeFilter>('All');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
+  const [viewItem, setViewItem] = useState<RecentInspection | null>(null);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -254,7 +256,12 @@ export default function FoodModulePage() {
                           >
                             <MapPin className="h-3.5 w-3.5" />
                           </a>
-                          <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 gap-1 text-xs"
+                            onClick={() => setViewItem(item)}
+                          >
                             <Eye className="h-3 w-3" /> View
                           </Button>
                         </div>
@@ -267,6 +274,78 @@ export default function FoodModulePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Inspection detail modal — fires from every row's View button ── */}
+      <Modal
+        open={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title={viewItem?.premises ?? 'Inspection'}
+        subtitle={viewItem ? `${viewItem.id} · ${viewItem.district}` : undefined}
+        size="md"
+        footer={
+          viewItem ? (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <a
+                href={`tel:${viewItem.phone.replace(/\s/g, '')}`}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-emerald-200 bg-white px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-50"
+              >
+                <Phone className="h-3.5 w-3.5" /> Call {viewItem.phone}
+              </a>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${viewItem.premises}, ${viewItem.address}, Sri Lanka`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-blue-200 bg-white px-3 text-xs font-bold text-blue-700 hover:bg-blue-50"
+              >
+                <MapPin className="h-3.5 w-3.5" /> Open in Maps
+              </a>
+              <Link
+                href={`/dashboard/food/inspection/new?premises=${encodeURIComponent(viewItem.premises)}`}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700"
+              >
+                Open H800 form <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          ) : null
+        }
+      >
+        {viewItem && (
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Reference</dt>
+              <dd className="font-mono text-sm">{viewItem.id}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Inspection date</dt>
+              <dd>{viewItem.date}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Address</dt>
+              <dd>{viewItem.address}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Grade</dt>
+              <dd><GradeBadge grade={viewItem.grade} /></dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Score</dt>
+              <dd className="font-mono">{viewItem.score} / 100</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Status</dt>
+              <dd>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${viewItem.status === 'Approved' ? 'bg-green-100 text-green-700' : viewItem.status === 'Follow-up Required' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {viewItem.status}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Premises phone</dt>
+              <dd>{viewItem.phone}</dd>
+            </div>
+          </dl>
+        )}
+      </Modal>
     </div>
   );
 }

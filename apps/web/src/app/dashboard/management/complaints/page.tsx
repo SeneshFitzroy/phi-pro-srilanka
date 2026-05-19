@@ -6,6 +6,7 @@ import { ArrowLeft, AlertTriangle, Search, Clock, MapPin, Eye, Sparkles, ArrowUp
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/modal';
 import { analyseComplaint, priorityRank, type TriagePriority } from '@/lib/sentiment';
 
 const COMPLAINTS = [
@@ -35,10 +36,14 @@ const triageBadge: Record<TriagePriority, string> = {
   low: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
 };
 
+type Complaint = (typeof COMPLAINTS)[number];
+type ComplaintWithTriage = Complaint & { triage: ReturnType<typeof analyseComplaint> };
+
 export default function ComplaintsManagementPage() {
   const [filter, setFilter] = useState('all');
   const [searchQ, setSearchQ] = useState('');
   const [sortBy, setSortBy] = useState<'triage' | 'date' | 'status'>('triage');
+  const [viewItem, setViewItem] = useState<ComplaintWithTriage | null>(null);
 
   // AI triage: negativity + urgency of the wording → suggested queue priority.
   const withTriage = useMemo(
@@ -126,12 +131,96 @@ export default function ComplaintsManagementPage() {
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{complaint.date}</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm"><Eye className="mr-1 h-3 w-3" />View</Button>
+                <Button variant="outline" size="sm" onClick={() => setViewItem(complaint)}>
+                  <Eye className="mr-1 h-3 w-3" />View
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* ── Complaint detail modal — fires from every row's View button ── */}
+      <Modal
+        open={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title={viewItem?.type ?? 'Complaint'}
+        subtitle={viewItem ? `${viewItem.id} · ${viewItem.area}` : undefined}
+        size="md"
+        footer={
+          viewItem ? (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {/^[A-Za-z]/.test(viewItem.reporter) && viewItem.reporter.includes(' — ') && (() => {
+                const contact = viewItem.reporter.split(' — ')[1] ?? '';
+                const href = contact.includes('@') ? `mailto:${contact}` : `tel:${contact.replace(/[^\d+]/g, '')}`;
+                return (
+                  <a href={href} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-blue-200 bg-white px-3 text-xs font-bold text-blue-700 hover:bg-blue-50">
+                    Contact reporter
+                  </a>
+                );
+              })()}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${viewItem.location}, Sri Lanka`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50"
+              >
+                <MapPin className="h-3.5 w-3.5" /> Open location
+              </a>
+            </div>
+          ) : null
+        }
+      >
+        {viewItem && (
+          <div className="space-y-4 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[viewItem.status]}`}>{viewItem.status}</span>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColors[viewItem.priority]}`}>{viewItem.priority} priority</span>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${triageBadge[viewItem.triage.priority]}`}>
+                <Sparkles className="h-3 w-3" /> AI triage: {viewItem.triage.priority}
+              </span>
+            </div>
+
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Description</p>
+              <p className="mt-1">{viewItem.desc}</p>
+            </div>
+
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+              <div>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Reported by</dt>
+                <dd>{viewItem.reporter}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Date filed</dt>
+                <dd>{viewItem.date}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Assigned officer</dt>
+                <dd>{viewItem.assigned === '-' ? <span className="text-slate-400 italic">Not assigned</span> : viewItem.assigned}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Location</dt>
+                <dd>{viewItem.location}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-slate-400">AI triage detail</dt>
+                <dd className="mt-1 rounded-md border border-violet-100 bg-violet-50/60 px-3 py-2 text-xs text-violet-900 dark:border-violet-900/40 dark:bg-violet-950/30 dark:text-violet-200">
+                  Negativity score {viewItem.triage.score} · urgency {viewItem.triage.urgency}
+                  {viewItem.triage.terms.length > 0 && (
+                    <>
+                      {' · '}cues:{' '}
+                      {viewItem.triage.terms.map((t) => (
+                        <span key={t} className="mr-1 rounded bg-white/70 px-1.5 py-0.5 dark:bg-violet-900/40">{t}</span>
+                      ))}
+                    </>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

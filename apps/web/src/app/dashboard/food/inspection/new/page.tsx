@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -39,6 +39,7 @@ import { PremisesPhotoAnalyzer } from '@/components/premises-photo-analyzer';
 import { VoiceInput } from '@/components/voice-input';
 import { SignaturePad } from '@/components/signature-pad';
 import { LiveObjectDetector } from '@/components/live-object-detector';
+import { KNOWN_PREMISES, findKnownPremises, type KnownPremises } from '@/data/food-premises';
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -156,6 +157,7 @@ function perfBadge(level: string) {
 // ============================================================================
 export default function NewFoodInspectionPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
 
   const [scores, setScores] = useState<SectionScores>(buildEmptyScores());
@@ -176,6 +178,94 @@ export default function NewFoodInspectionPage() {
   const [criticalViolationsText, setCriticalViolationsText] = useState('');
   const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
   const [detectorOpen, setDetectorOpen] = useState(false);
+
+  // GPS + photo state — used by the Capture GPS / Add Photo buttons below.
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; accuracy: number } | null>(null);
+  const [gpsBusy, setGpsBusy] = useState(false);
+  const [photos, setPhotos] = useState<{ id: string; name: string; dataUrl: string }[]>([]);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Auto-complete: when the user picks one of the known premises, every
+  // downstream field fills in — owner, address, GN division, food type,
+  // risk, registration number AND a tentative GPS location.
+  const applyKnownPremises = useCallback((p: KnownPremises) => {
+    const TYPE_MAP: Record<KnownPremises['type'], string> = {
+      Restaurant: 'restaurant', Bakery: 'bakery', Hotel: 'hotel',
+      Grocery: 'grocery', 'Meat/Fish': 'meat_fish', 'Tea Shop': 'tea_shop',
+      'Street Vendor': 'street_vendor', 'Food Factory': 'food_factory',
+    };
+    setPremisesInfo({
+      premisesName: p.premisesName,
+      ownerName: p.ownerName,
+      address: p.address,
+      gnDivision: p.gnDivision,
+      registrationNo: p.registrationNo,
+      riskLevel: p.riskLevel,
+      foodType: TYPE_MAP[p.type] ?? '',
+    });
+    setGpsCoords({ lat: p.lat, lng: p.lng, accuracy: 0 });
+    toast.success(`Auto-filled from registry: ${p.premisesName}`);
+  }, []);
+
+  // Hydrate from ?premises=... in the URL — set when arriving here from the
+  // food parent page's View modal "Open H800 form" button.
+  useEffect(() => {
+    const fromQuery = searchParams.get('premises');
+    if (fromQuery) {
+      const match = findKnownPremises(fromQuery);
+      if (match) applyKnownPremises(match);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePremisesNameChange = useCallback((value: string) => {
+    setPremisesInfo((p) => ({ ...p, premisesName: value }));
+    // Exact-match on a known premises (datalist auto-completed) → autofill all.
+    const exact = KNOWN_PREMISES.find((kp) => kp.premisesName === value);
+    if (exact) applyKnownPremises(exact);
+  }, [applyKnownPremises]);
+
+  // ── Real GPS capture (navigator.geolocation) ─────────────────────────────
+  const captureGps = useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      toast.error('Geolocation is not supported on this device');
+      return;
+    }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy });
+        setGpsBusy(false);
+        toast.success(`GPS captured (±${Math.round(pos.coords.accuracy)} m)`);
+      },
+      (err) => {
+        setGpsBusy(false);
+        const msg = err.code === err.PERMISSION_DENIED ? 'Location permission denied — enable it in browser settings.' : 'Could not get GPS fix. Try outside or near a window.';
+        toast.error(msg);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
+    );
+  }, []);
+
+  // ── Add Photo — file picker + camera (mobile uses rear camera) ──────────
+  const onPhotoSelected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhotos((prev) => [...prev, { id: crypto.randomUUID(), name: file.name, dataUrl: String(reader.result) }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    // Reset input so the same file can be picked again later.
+    e.target.value = '';
+    toast.success(`${files.length} photo${files.length === 1 ? '' : 's'} attached`);
+  }, []);
+
+  const removePhoto = useCallback((id: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== id));
+  }, []);
 
   // ── The H800 grading algorithm runs live on every keystroke ──────────────
   const grading: H800GradingResult = useMemo(
@@ -286,6 +376,8 @@ export default function NewFoodInspectionPage() {
       criticalViolationsText,
       notes,
       inspectorSignature,
+      gpsCoords,
+      photos: photos.map((p) => ({ name: p.name, dataUrl: p.dataUrl })),
     };
   }
 
@@ -527,13 +619,24 @@ export default function NewFoodInspectionPage() {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="premisesName">Premises Name *</Label>
+              <Label htmlFor="premisesName">
+                Premises Name *
+                <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+                  type to search — auto-fills the rest
+                </span>
+              </Label>
               <Input
                 id="premisesName"
+                list="known-premises-list"
                 value={premisesInfo.premisesName}
-                onChange={(e) => setPremisesInfo((p) => ({ ...p, premisesName: e.target.value }))}
-                placeholder="e.g., Saman Hotel"
+                onChange={(e) => handlePremisesNameChange(e.target.value)}
+                placeholder="e.g., Cinnamon Grand Colombo"
               />
+              <datalist id="known-premises-list">
+                {KNOWN_PREMISES.map((p) => (
+                  <option key={p.registrationNo} value={p.premisesName}>{p.address}</option>
+                ))}
+              </datalist>
             </div>
             <div className="space-y-2">
               <Label htmlFor="ownerName">Owner Name *</Label>
@@ -603,13 +706,55 @@ export default function NewFoodInspectionPage() {
                 <option value="LOW">Low Risk (Annual)</option>
               </select>
             </div>
-            <div className="flex items-end gap-2">
-              <Button variant="outline" className="gap-2" type="button">
-                <MapPin className="h-4 w-4" /> Capture GPS
-              </Button>
-              <Button variant="outline" className="gap-2" type="button">
-                <Camera className="h-4 w-4" /> Add Photo
-              </Button>
+            <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" className="gap-2" type="button" onClick={captureGps} disabled={gpsBusy}>
+                  <MapPin className="h-4 w-4" /> {gpsBusy ? 'Getting GPS fix…' : gpsCoords ? 'Recapture GPS' : 'Capture GPS'}
+                </Button>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  multiple
+                  onChange={onPhotoSelected}
+                  className="hidden"
+                />
+                <Button variant="outline" className="gap-2" type="button" onClick={() => photoInputRef.current?.click()}>
+                  <Camera className="h-4 w-4" /> Add Photo
+                </Button>
+                {gpsCoords && (
+                  <a
+                    href={`https://www.google.com/maps?q=${gpsCoords.lat},${gpsCoords.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300"
+                    title="Open captured location in Google Maps"
+                  >
+                    <MapPin className="h-3 w-3" />
+                    {gpsCoords.lat.toFixed(5)}, {gpsCoords.lng.toFixed(5)}
+                    {gpsCoords.accuracy > 0 && <span className="ml-1 text-emerald-600/70">±{Math.round(gpsCoords.accuracy)}m</span>}
+                  </a>
+                )}
+              </div>
+              {photos.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {photos.map((p) => (
+                    <div key={p.id} className="group relative h-20 w-20 overflow-hidden rounded-md border border-slate-200 dark:border-slate-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.dataUrl} alt={p.name} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(p.id)}
+                        className="absolute right-0.5 top-0.5 hidden h-5 w-5 items-center justify-center rounded-full bg-black/70 text-[10px] font-bold text-white group-hover:flex"
+                        aria-label={`Remove ${p.name}`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
