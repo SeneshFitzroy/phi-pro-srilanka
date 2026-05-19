@@ -78,18 +78,9 @@ export function CitizenChatbot() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState<'idle' | 'getting' | 'ok' | 'denied'>('idle');
 
-  // chat state
-  const [messages, setMessages] = useState<UiMessage[]>([WELCOME]);
-  const [input, setInput] = useState('');
-  const [sending, setSending] = useState(false);
-  const [escalating, setEscalating] = useState(false);
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [officerOnline, setOfficerOnline] = useState(false);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-
-  /* Try to capture geolocation immediately when the modal opens (best-effort) */
-  useEffect(() => {
-    if (!open || step !== 'verify' || coords || locStatus === 'getting') return;
+  /* Manual one-tap location detect — works even after the user denied the
+     first auto-prompt, or if they want to refresh their position. */
+  const detectLocation = useCallback(() => {
     if (!('geolocation' in navigator)) { setLocStatus('denied'); return; }
     setLocStatus('getting');
     navigator.geolocation.getCurrentPosition(
@@ -104,14 +95,36 @@ export function CitizenChatbot() {
           const j = await res.json() as { address?: Record<string, string> };
           const raw = (j.address?.county || j.address?.state_district || j.address?.region || '').toLowerCase();
           const matched = DISTRICTS.find((d) => raw.includes(d.district.toLowerCase()));
-          if (matched) setDistrict(matched.district);
-        } catch { /* non-fatal */ }
+          if (matched) {
+            setDistrict(matched.district);
+            toast.success(`Detected: ${matched.district}`);
+          } else {
+            toast.message('Location captured — please pick your district below.');
+          }
+        } catch { toast.message('Location captured. Reverse geocode unavailable — pick district below.'); }
         setLocStatus('ok');
       },
-      () => setLocStatus('denied'),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 },
+      () => { setLocStatus('denied'); toast.error('Location permission denied. Pick your district below.'); },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 },
     );
-  }, [open, step, coords, locStatus]);
+  }, []);
+
+  // chat state
+  const [messages, setMessages] = useState<UiMessage[]>([WELCOME]);
+  const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
+  const [escalating, setEscalating] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [officerOnline, setOfficerOnline] = useState(false);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  /* Auto-detect on first open — silent. Users can still tap the dedicated
+     button below to re-run if they originally denied or want to refresh. */
+  useEffect(() => {
+    if (!open || step !== 'verify' || coords || locStatus !== 'idle') return;
+    detectLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, step]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -205,9 +218,6 @@ export function CitizenChatbot() {
         selfieName: identity.selfie.name,
         district: identity.district ?? null,
         coords: identity.coords ?? null,
-        priorTranscript: messages.map((m) => ({
-          role: m.role, content: m.content, at: m.at.toISOString(),
-        })),
         status: 'queued',           // queued -> active -> closed
         channel: 'public_portal_chatbot',
         createdAt: serverTimestamp(),
@@ -216,15 +226,18 @@ export function CitizenChatbot() {
       });
       setChatId(docRef.id);
 
-      // Seed the messages subcollection with the prior transcript so the
-      // officer has full context.
+      // Seed the messages subcollection with the prior AI transcript so
+      // the officer has full context. Failures here are non-fatal — the
+      // chat itself is created already.
       for (const m of messages.filter((mm) => mm.role === 'user' || mm.role === 'assistant')) {
-        await addDoc(collection(db, 'citizen_chats', docRef.id, 'messages'), {
-          role: m.role,
-          content: m.content,
-          createdAt: serverTimestamp(),
-          seed: true,
-        });
+        try {
+          await addDoc(collection(db, 'citizen_chats', docRef.id, 'messages'), {
+            role: m.role,
+            content: m.content,
+            createdAt: serverTimestamp(),
+            seed: true,
+          });
+        } catch { /* seed failure is non-fatal */ }
       }
 
       setMessages((prev) => [...prev, {
@@ -233,8 +246,22 @@ export function CitizenChatbot() {
           ? `Connecting you to a PHI officer in ${identity.district}… you'll see their replies here as soon as they pick up.`
           : 'Connecting you to the next available PHI officer… you\'ll see their replies here as soon as they pick up.',
       }]);
-    } catch {
-      toast.error('Could not reach the PHI queue. Please call 1390 instead.');
+      toast.success('Connected to the PHI queue.');
+    } catch (err) {
+      // Surface the actual error so the user (and us in DevTools) know why
+      // it failed — usually Firestore rules denying anonymous writes, or
+      // the network being offline.
+      const msg = err instanceof Error ? err.message : String(err);
+      const friendly = /permission|insufficient|missing/i.test(msg)
+        ? 'The PHI chat queue is temporarily unavailable. Please call 1390 instead.'
+        : /network|offline|failed to fetch/i.test(msg)
+        ? 'Network error. Check your connection and try again, or call 1390.'
+        : `Could not reach the PHI queue: ${msg.slice(0, 120)}`;
+      toast.error(friendly);
+      setMessages((prev) => [...prev, {
+        id: crypto.randomUUID(), role: 'system', at: new Date(),
+        content: `${friendly}\n\nFor urgent help dial 1390 (Ministry of Health, 24 / 7).`,
+      }]);
     } finally {
       setEscalating(false);
     }
@@ -349,17 +376,30 @@ export function CitizenChatbot() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cb-district">Your district <span className="text-xs text-muted-foreground">(auto-detected)</span></Label>
+              <Label htmlFor="cb-district">Your district <span className="text-xs text-muted-foreground">(used to route you to the nearest PHI)</span></Label>
               <div className="flex items-center gap-2">
                 <select id="cb-district" className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={district} onChange={(e) => setDistrict(e.target.value)}>
                   <option value="">Select…</option>
                   {DISTRICTS.map((d) => <option key={d.district} value={d.district}>{d.district}</option>)}
                 </select>
-                <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] text-slate-600 dark:border-slate-700 dark:bg-slate-800">
-                  <MapPin className="h-3 w-3" />
-                  {locStatus === 'ok' ? 'GPS' : locStatus === 'getting' ? '…' : locStatus === 'denied' ? 'denied' : 'idle'}
-                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={detectLocation}
+                  disabled={locStatus === 'getting'}
+                  className="h-10 shrink-0 gap-1 text-xs"
+                  title="Detect your district from GPS"
+                >
+                  {locStatus === 'getting'
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <MapPin className="h-3.5 w-3.5" />}
+                  {locStatus === 'getting' ? '…' : locStatus === 'ok' ? 'Refresh GPS' : 'Use GPS'}
+                </Button>
               </div>
+              {locStatus === 'denied' && (
+                <p className="text-[10px] text-amber-600">Location permission denied. Pick your district manually above.</p>
+              )}
             </div>
 
             <NicSlot value={nic} onSelect={onNicSelected} onClear={() => { if (nic) URL.revokeObjectURL(nic.url); setNic(null); }} />

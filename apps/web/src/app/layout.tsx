@@ -59,10 +59,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             for iOS compatibility, so we add the standards-track equivalent
             here for Android / Chrome). */}
         <meta name="mobile-web-app-capable" content="yes" />
-        {/* Zero-flicker language init: runs before React hydration */}
+        {/* Zero-flicker language + theme init: runs before React hydration so
+            the user never sees a light-mode flash when their saved
+            preference is dark. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem('i18nextLng');if(l&&['en','si','ta'].includes(l)){document.documentElement.setAttribute('lang',l==='si'?'si':l==='ta'?'ta':'en');}}catch(e){}})();`,
+            __html: `(function(){try{var l=localStorage.getItem('i18nextLng');if(l&&['en','si','ta'].includes(l)){document.documentElement.setAttribute('lang',l==='si'?'si':l==='ta'?'ta':'en');}var t=localStorage.getItem('phi-pro-theme')||'system';var wantDark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',wantDark);}catch(e){}})();`,
           }}
         />
       </head>

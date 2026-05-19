@@ -2,10 +2,25 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Biohazard, FileText, AlertTriangle, Search as SearchIcon, MapPin, Activity, TrendingUp, Clock, Bell, Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Biohazard, FileText, AlertTriangle, Search as SearchIcon, MapPin, Activity, TrendingUp, Clock, Bell, Plus, GitMerge, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+// H399 Collab uses Yjs + IndexedDB on the client. Dynamic-imported with
+// ssr:false so the Y.Doc constructor never runs on the server bundle.
+const H399Collab = dynamic(
+  () => import('@/components/h399-collab').then((m) => ({ default: m.H399Collab })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-muted-foreground dark:border-slate-700">
+        Loading H399 collaborative editor…
+      </div>
+    ),
+  },
+);
 
 const quickActions = [
   { title: 'Weekly Return', subtitle: 'H399', icon: FileText, href: '/dashboard/epidemiology/weekly', color: 'bg-red-50 text-epidemiology border-red-200' },
@@ -116,6 +131,33 @@ export default function EpidemiologyPage() {
             ))}
             <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-500">+30 more</span>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ── H399 Collaborative Weekly Return (CRDT) — embedded so the cases
+            entered here flow into Disease Trend, Notifiable Diseases and
+            Cluster panels above without dual-entry. Edits sync across
+            concurrent tabs via Yjs + IndexedDB. ── */}
+      <Card className="border-l-4 border-l-violet-500">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GitMerge className="h-4 w-4 text-violet-600" />
+            H399 Weekly Return — collaborative ingest
+            <span className="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
+              CRDT · live
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-3 flex items-start gap-2 rounded-md border border-violet-100 bg-violet-50/60 px-3 py-2 text-[11px] text-violet-900 dark:border-violet-900 dark:bg-violet-950/30 dark:text-violet-200">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <p>
+              Rows entered here are the live data source for the metrics, the disease trend bars,
+              the cluster radar (150 m radius alerts) and the Notifiable Diseases reference above.
+              Open in two browser tabs to see the conflict-free merge in action.
+            </p>
+          </div>
+          <H399Collab />
         </CardContent>
       </Card>
 

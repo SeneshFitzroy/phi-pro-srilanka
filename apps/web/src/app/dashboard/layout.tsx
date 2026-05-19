@@ -85,10 +85,12 @@ const baseAiNavItems = [
 ];
 const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 
-// Officer-only reference resources — visible to PHI only (SPHI/MOH supervise; they don't need the field handbook)
+// Officer-only reference resources — unified Officer Resources page combines
+// statutory duties + Union forms / newsletters / circulars in one tabbed
+// dashboard view. Restricted to authenticated PHI / SPHI / MOH staff.
 const officerResourceItems = [
-  { href: '/public/duty', icon: BookOpen, label: 'Duty of PHI' },
-  { href: '/public/downloads', icon: Download, label: 'Downloads' },
+  { href: '/dashboard/resources?tab=duty',      icon: BookOpen, label: 'Duty of PHI' },
+  { href: '/dashboard/resources?tab=downloads', icon: Download, label: 'Downloads' },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {

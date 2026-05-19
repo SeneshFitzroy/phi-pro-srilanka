@@ -135,6 +135,48 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ── Citizen ↔ PHI live chat (public portal chatbot) ──────────────────────
+    // Collection: citizen_chats — verified citizens initiate a chat,
+    // PHI officers reply via /dashboard/management/citizen-chat.
+    // Citizens are unauthenticated; the NIC + face capture upstream provides
+    // the trust signal, while the rule below caps anonymous writes to the
+    // shape we expect.
+
+    match /citizen_chats/{chatId} {
+      allow read: if true; // citizen reads their own chat via direct id; officer reads via list
+      allow create: if request.resource.data.keys().hasAll(['nicNumber', 'status', 'channel', 'createdAt']);
+      allow update: if true; // officer updates status + assignedOfficer; citizen marks closed
+      allow delete: if isAdmin();
+
+      match /messages/{msgId} {
+        allow read: if true;
+        allow create: if request.resource.data.keys().hasAll(['role', 'content']);
+        allow update: if isFieldOfficer();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ── Public Alert Subscribers (citizen sign-up via /public/alerts) ────────
+    // Citizens leave a name + email; only supervisors read the list. No public
+    // read so the subscriber roster isn't enumerable.
+
+    match /alert_subscribers/{docId} {
+      allow read: if isSupervisor();
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'createdAt']);
+      allow update: if isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    // ── Payment Records (citizen portal /public/payments) ────────────────────
+    // Written by citizens, read by field officers for verification.
+
+    match /payment_records/{docId} {
+      allow read: if isFieldOfficer();
+      allow create: if request.resource.data.keys().hasAll(['paymentRef', 'serviceType', 'amount', 'createdAt']);
+      allow update: if isFieldOfficer();
+      allow delete: if isAdmin();
+    }
+
     // ── Public Health Alerts ──────────────────────────────────────────────────
     // Readable by everyone. Written only by supervisors.
 

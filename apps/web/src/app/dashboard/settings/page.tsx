@@ -69,12 +69,17 @@ export default function SettingsPage() {
     return () => mql.removeEventListener?.('change', onChange);
   }, []);
 
-  /* Apply + persist on each change so the user sees immediate feedback */
+  /* Apply + persist on each change so the user sees immediate feedback.
+     Google Translate only kicks in after a page reload (it injects its DOM
+     observers at boot), so we apply i18n in-place AND schedule a soft
+     reload — that gives the user the snappy in-place i18n change AND the
+     full Google Translate pass on the next paint. */
   const onPickLang = (next: string) => {
     setLang(next);
     setLanguage(next);
     if (next === 'en' || next === 'si' || next === 'ta') applyGoogleTranslate(next);
-    toast.success(`Language set to ${next.toUpperCase()}`);
+    toast.success(`Language set to ${next.toUpperCase()} — reloading…`);
+    setTimeout(() => window.location.reload(), 350);
   };
 
   const onPickTheme = (next: 'light' | 'dark' | 'system') => {
