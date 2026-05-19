@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Save, Printer } from 'lucide-react';
+import { Save, Printer, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SubpageHeader } from '@/components/dashboard-subpage-header';
 
 // H1214 — School Health Monthly Summary
 const defectCategories = [
@@ -44,19 +44,21 @@ export default function SchoolMonthlyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold">Monthly Summary Report (H1214)</h1>
-            <p className="text-sm text-muted-foreground">Summarize student health findings for the month</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
-        </div>
-      </div>
+      <SubpageHeader
+        backHref="/dashboard/school"
+        module="Module 04 · School Health"
+        code="H1214"
+        icon={FileText}
+        title="Monthly summary report"
+        subtitle="Aggregate student-health findings across all schools visited this month"
+        tone="blue"
+        actions={
+          <>
+            <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+            <Button className="bg-blue-700 hover:bg-blue-800"><Save className="mr-2 h-4 w-4" />Submit</Button>
+          </>
+        }
+      />
 
       {/* Header Info */}
       <Card>

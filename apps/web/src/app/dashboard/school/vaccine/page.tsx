@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Save, Syringe, Plus, Trash2 } from 'lucide-react';
+import { Save, Syringe, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SubpageHeader } from '@/components/dashboard-subpage-header';
 
 interface VaccineRecord {
   id: number;
@@ -42,16 +42,18 @@ export default function SchoolVaccinePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><Syringe className="h-6 w-6 text-purple-600" />Vaccination Program (H1247)</h1>
-            <p className="text-sm text-muted-foreground">HPV (Grade 6, Girls, 2 doses) & aP/dT (Grade 7, All, 1 dose)</p>
-          </div>
-        </div>
-        <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Save Records</Button>
-      </div>
+      <SubpageHeader
+        backHref="/dashboard/school"
+        module="Module 04 · School Health"
+        code="H1247"
+        icon={Syringe}
+        title="Vaccination program"
+        subtitle="HPV (Grade 6 girls · 2 doses) and aP / dT (Grade 7 · 1 dose) campaign tracker"
+        tone="purple"
+        actions={
+          <Button className="bg-purple-700 hover:bg-purple-800"><Save className="mr-2 h-4 w-4" />Save records</Button>
+        }
+      />
 
       {/* Info Cards */}
       <div className="grid gap-4 sm:grid-cols-2">

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Save, Droplets, Printer } from 'lucide-react';
+import { Save, Droplets, Printer } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SubpageHeader } from '@/components/dashboard-subpage-header';
 
 const washSections = [
   {
@@ -65,19 +65,21 @@ export default function SchoolWASHPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><Droplets className="h-6 w-6 text-cyan-500" />WASH Survey (H1015)</h1>
-            <p className="text-sm text-muted-foreground">Water, Sanitation & Hygiene assessment for schools</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Submit Survey</Button>
-        </div>
-      </div>
+      <SubpageHeader
+        backHref="/dashboard/school"
+        module="Module 04 · School Health"
+        code="H1015"
+        icon={Droplets}
+        title="WASH school survey"
+        subtitle="Water, sanitation and hygiene assessment for a single school"
+        tone="cyan"
+        actions={
+          <>
+            <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
+            <Button className="bg-cyan-700 hover:bg-cyan-800"><Save className="mr-2 h-4 w-4" />Submit survey</Button>
+          </>
+        }
+      />
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">

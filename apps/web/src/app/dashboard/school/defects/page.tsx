@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { Save, Plus, Trash2, ClipboardList } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { IcdAutocomplete } from '@/components/icd-autocomplete';
+import { SubpageHeader } from '@/components/dashboard-subpage-header';
 
 interface StudentRecord {
   id: number;
@@ -36,16 +36,18 @@ export default function SchoolDefectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/school"><Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button></Link>
-          <div>
-            <h1 className="text-2xl font-bold">Student Defect Record (H1046)</h1>
-            <p className="text-sm text-muted-foreground">Record individual student health defects found during medical inspections</p>
-          </div>
-        </div>
-        <Button className="bg-school hover:bg-school/90"><Save className="mr-2 h-4 w-4" />Save Records</Button>
-      </div>
+      <SubpageHeader
+        backHref="/dashboard/school"
+        module="Module 04 · School Health"
+        code="H1046"
+        icon={ClipboardList}
+        title="Student defect record"
+        subtitle="Individual student health defects found at the grade-level medical exam"
+        tone="rose"
+        actions={
+          <Button className="bg-rose-700 hover:bg-rose-800"><Save className="mr-2 h-4 w-4" />Save records</Button>
+        }
+      />
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
