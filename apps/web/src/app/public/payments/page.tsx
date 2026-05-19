@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   ArrowLeft, CreditCard, FileText, Clock, Building2,
   Info, Send, CheckCircle, Loader2, ChevronDown, ChevronUp,
   Calculator, HelpCircle, Layers, Download, Wallet, ShieldCheck, X,
-  Phone, MapPin, AlertTriangle, Sparkles,
+  MapPin, AlertTriangle, Sparkles,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,12 +18,6 @@ import { downloadPaymentReceipt, type ReceiptData } from '@/components/payment-r
 import { isGatewayConfigured, PAYHERE_CHECKOUT_URL, payHereFormFields } from '@/lib/payments';
 import { ShopVerificationBundle, type ShopVerificationData } from '@/components/shop-verification-bundle';
 import { findKnownBusiness, SERVICE_DEFAULT_FEE, ESTABLISHMENT_FEE_RANGE, KNOWN_BUSINESSES, type ServiceType } from '@/data/known-businesses';
-import { MOH_OFFICES } from '@/data/moh-offices';
-
-// Map renders Google tiles when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set,
-// otherwise falls back to the Leaflet OSM stack. Dynamic-import so Leaflet
-// never reaches the server bundle.
-const LeafletMap = dynamic(() => import('@/components/leaflet-map'), { ssr: false });
 
 const FEES: {
   category: string;
@@ -695,58 +688,25 @@ export default function PaymentsPage() {
           })}
         </div>
 
-        {/* MOH offices — live Google map with every counter pinned, plus a
-            click-to-call / open-in-Maps list. */}
-        <div>
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-lg font-bold">
-              <Building2 className="h-5 w-5 text-amber-600" />MOH Office Locations
-            </h2>
-            <Link href="/public/find-phi" className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-white px-2.5 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:bg-slate-900 dark:text-amber-300">
-              See all 74 offices <MapPin className="h-3 w-3" />
-            </Link>
+        {/* MOH offices section moved to /public/find-phi — keeps this page
+            focused on payment. A single CTA below sends citizens there. */}
+        <Link
+          href="/public/find-phi"
+          className="group flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 transition-colors hover:bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-600 shadow-sm">
+            <Building2 className="h-5 w-5 text-white" />
           </div>
-          <Card className="overflow-hidden shadow-sm">
-            <LeafletMap
-              fitToMarkers
-              height="22rem"
-              markers={MOH_OFFICES.map((o, i) => ({
-                id: `moh-${i}`,
-                position: { lat: o.lat, lng: o.lng },
-                color: 'amber',
-                popup: (
-                  <div className="space-y-1 text-xs">
-                    <p className="font-bold text-slate-900">{o.name}</p>
-                    <p className="text-slate-600">{o.addr}</p>
-                    <div className="mt-1 flex gap-1.5">
-                      <a href={`tel:${o.phone.replace(/[^\d+]/g, '')}`} className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">Call</a>
-                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${o.name}, ${o.addr}`)}`} target="_blank" rel="noopener noreferrer" className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">Open in Maps</a>
-                    </div>
-                  </div>
-                ),
-              }))}
-            />
-          </Card>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {MOH_OFFICES.map((office) => (
-              <Card key={office.name} className="shadow-sm">
-                <CardContent className="p-3">
-                  <p className="text-xs font-semibold leading-tight">{office.name}</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">{office.addr}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <a href={`tel:${office.phone.replace(/[^\d+]/g, '')}`} title={office.phone} className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-slate-900">
-                      <Phone className="h-2.5 w-2.5" /> {office.phone}
-                    </a>
-                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${office.name}, ${office.addr}, Sri Lanka`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:bg-slate-900">
-                      <MapPin className="h-2.5 w-2.5" /> Maps
-                    </a>
-                  </div>
-                  <p className="mt-1.5 text-[10px] text-muted-foreground">Mon–Fri, 8:30 AM – 4:15 PM</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-slate-900 dark:text-white">Want to pay in cash?</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Find your nearest MOH counter — every office in the country with phone, address and a tap-to-navigate map.
+            </p>
           </div>
-        </div>
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 group-hover:translate-x-0.5 transition-transform">
+            Find PHI <MapPin className="h-3.5 w-3.5" />
+          </span>
+        </Link>
 
         {/* FAQ Accordion */}
         <div className="space-y-3">
