@@ -67,6 +67,12 @@ interface Props {
   onMapClick?: (pos: LatLng) => void;
   showZoomControl?: boolean;
   className?: string;
+  /**
+   * Called when the Google Maps script fails to load (ad-blocker, CSP,
+   * Brave Shields, missing billing, etc.). Parent components use this to
+   * fall back to the OSM Leaflet renderer so the user still sees a map.
+   */
+  onLoadFailure?: () => void;
 }
 
 export default function GoogleMap({
@@ -78,6 +84,7 @@ export default function GoogleMap({
   onMapClick,
   showZoomControl = true,
   className = '',
+  onLoadFailure,
 }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -88,31 +95,55 @@ export default function GoogleMap({
   /* Initialise map once. */
   useEffect(() => {
     let cancelled = false;
+    // Hard timeout — if the script hasn't loaded in 6s (almost always means
+    // the user's ad-blocker / Brave Shields blocked maps.googleapis.com with
+    // ERR_BLOCKED_BY_CLIENT) we surrender and let the parent swap in the
+    // OSM Leaflet renderer.
+    const loadDeadline = window.setTimeout(() => {
+      if (cancelled || isMapsReady()) return;
+      console.warn('[google-map] script never loaded — falling back to OSM tiles');
+      onLoadFailure?.();
+    }, 6000);
+
     loadGoogleMaps()
       .then(() => {
-        if (cancelled || !ref.current || !isMapsReady()) return;
-        if (!mapRef.current) {
-          mapRef.current = new google.maps.Map(ref.current, {
-            center: centre,
-            zoom,
-            zoomControl: showZoomControl,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true,
-            gestureHandling: 'greedy',
-          });
-          if (onMapClick) {
-            mapRef.current.addListener('click', (e: google.maps.MapMouseEvent) => {
-              if (e.latLng) onMapClick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+        clearTimeout(loadDeadline);
+        if (cancelled || !ref.current) return;
+        if (!isMapsReady()) { onLoadFailure?.(); return; }
+        try {
+          if (!mapRef.current) {
+            mapRef.current = new google.maps.Map(ref.current, {
+              center: centre,
+              zoom,
+              zoomControl: showZoomControl,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: true,
+              gestureHandling: 'greedy',
             });
+            if (onMapClick) {
+              mapRef.current.addListener('click', (e: google.maps.MapMouseEvent) => {
+                if (e.latLng) onMapClick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+              });
+            }
           }
+        } catch (err) {
+          // google.maps.Map constructor exists but threw — treat as failure.
+          console.warn('[google-map] constructor failed:', err);
+          onLoadFailure?.();
         }
       })
       .catch((err) => {
+        clearTimeout(loadDeadline);
         // eslint-disable-next-line no-console
         console.warn('[google-map] init failed:', err);
+        onLoadFailure?.();
       });
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+      clearTimeout(loadDeadline);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

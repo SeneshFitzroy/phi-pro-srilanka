@@ -11,7 +11,7 @@
 // dependency never reaches the server bundle.
 // ============================================================================
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -161,9 +161,15 @@ function FitBounds({ markers }: { markers: LeafletMarker[] }) {
 
 export default function LeafletMap(props: Props) {
   // Prefer Google Maps when a key is configured — far more reliable than
-  // hot-linked raster tile providers on Sri Lankan networks. Branch BEFORE
-  // any hooks fire so React's hook-order invariant is preserved.
-  if (HAS_GOOGLE_KEY) return <GoogleMap {...props} />;
+  // hot-linked raster tile providers on Sri Lankan networks. If the Google
+  // Maps script fails to load (CSP, ad-blocker, Brave Shields, ERR_BLOCKED_BY_CLIENT,
+  // billing not enabled, referrer not whitelisted, etc.) we *transparently*
+  // drop back to the OSM Leaflet stack so the citizen still sees a real map.
+  const [googleFailed, setGoogleFailed] = useState(false);
+  const onGoogleFail = useCallback(() => setGoogleFailed(true), []);
+  if (HAS_GOOGLE_KEY && !googleFailed) {
+    return <GoogleMap {...props} onLoadFailure={onGoogleFail} />;
+  }
   return <LeafletRenderer {...props} />;
 }
 
