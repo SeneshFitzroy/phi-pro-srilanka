@@ -145,26 +145,28 @@ export default function AlertsPage() {
     <div className="relative min-h-screen bg-gradient-to-b from-red-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-8 pb-24">
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Link href="/">
+        {/* Header — stacks on mobile so the title doesn't collide with the
+            Subscribe/Refresh buttons. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/" className="shrink-0">
               <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
             </Link>
-            <div>
-              <h1 className="flex items-center gap-2 text-2xl font-bold">
-                <AlertCircle className="h-6 w-6 text-red-500" />Disease &amp; Health Alerts
+            <div className="min-w-0">
+              <h1 className="flex items-center gap-2 text-xl font-bold leading-tight sm:text-2xl">
+                <AlertCircle className="h-5 w-5 shrink-0 text-red-500 sm:h-6 sm:w-6" />
+                <span className="truncate">Disease &amp; Health Alerts</span>
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground sm:text-sm">
                 Official advisories from PHI officers across Sri Lanka
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm" onClick={() => setShowSubModal(true)}>
+          <div className="flex items-center gap-2 sm:shrink-0">
+            <Button variant="outline" size="sm" onClick={() => setShowSubModal(true)} className="flex-1 sm:flex-none">
               <Mail className="h-3.5 w-3.5 mr-1.5" />Subscribe
             </Button>
-            <Button variant="outline" size="sm" onClick={fetchAlerts} disabled={loading}>
+            <Button variant="outline" size="sm" onClick={fetchAlerts} disabled={loading} className="flex-1 sm:flex-none">
               <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
