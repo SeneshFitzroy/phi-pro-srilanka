@@ -40,6 +40,14 @@ import { VoiceInput } from '@/components/voice-input';
 import { SignaturePad } from '@/components/signature-pad';
 import { LiveObjectDetector } from '@/components/live-object-detector';
 import { KNOWN_PREMISES, findKnownPremises, type KnownPremises } from '@/data/food-premises';
+import dynamic from 'next/dynamic';
+
+// Edge AI risk copilot — @xenova/transformers is client-only (WASM). Dynamic
+// import with ssr:false so the ONNX runtime never reaches the server bundle.
+const EdgeRiskCopilot = dynamic(
+  () => import('@/components/edge-risk-copilot').then((m) => ({ default: m.EdgeRiskCopilot })),
+  { ssr: false },
+);
 
 // ============================================================================
 // H800 Section Definitions (Food Act Schedule 2011)
@@ -176,6 +184,7 @@ export default function NewFoodInspectionPage() {
   const [enforceNotice, setEnforceNotice] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [criticalViolationsText, setCriticalViolationsText] = useState('');
+  const [aiSuggestedGrade, setAiSuggestedGrade] = useState<'A' | 'B' | 'C' | null>(null);
   const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
   const [detectorOpen, setDetectorOpen] = useState(false);
 
@@ -378,6 +387,7 @@ export default function NewFoodInspectionPage() {
       inspectorSignature,
       gpsCoords,
       photos: photos.map((p) => ({ name: p.name, dataUrl: p.dataUrl })),
+      aiSuggestedGrade,
     };
   }
 
@@ -950,6 +960,12 @@ export default function NewFoodInspectionPage() {
                 onChange={(e) => setCriticalViolationsText(e.target.value)}
                 placeholder="List critical violations requiring immediate action..."
                 className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+              />
+              {/* Edge AI copilot reads the violation notes + every section
+                  observation and classifies overall risk live, in-browser. */}
+              <EdgeRiskCopilot
+                text={`${criticalViolationsText} ${Object.values(notes).join(' ')}`.trim()}
+                onRisk={(_risk, suggestedGrade) => setAiSuggestedGrade(suggestedGrade)}
               />
             </div>
           </div>

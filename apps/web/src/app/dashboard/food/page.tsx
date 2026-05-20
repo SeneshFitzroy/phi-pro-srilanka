@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/modal';
+import { ZKPModal } from '@/components/zkp-modal';
+import { ShieldCheck } from 'lucide-react';
 
 const foodStats = [
   { label: 'Total Inspections', value: '45', icon: ClipboardCheck, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300', change: '+8 this month' },
@@ -69,6 +71,7 @@ export default function FoodModulePage() {
   const [gradeFilter, setGradeFilter] = useState<GradeFilter>('All');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
   const [viewItem, setViewItem] = useState<RecentInspection | null>(null);
+  const [zkpItem, setZkpItem] = useState<RecentInspection | null>(null);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -264,6 +267,17 @@ export default function FoodModulePage() {
                           >
                             <Eye className="h-3 w-3" /> View
                           </Button>
+                          {item.status === 'Approved' && item.grade === 'A' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 gap-1 text-xs text-violet-700 hover:bg-violet-50 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-950/30"
+                              title="Generate a Zero-Knowledge Grade-A certificate (score stays private)"
+                              onClick={() => setZkpItem(item)}
+                            >
+                              <ShieldCheck className="h-3 w-3" /> ZKP
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -346,6 +360,14 @@ export default function FoodModulePage() {
           </dl>
         )}
       </Modal>
+
+      {/* ── ZKP certificate modal — opens for Approved Grade-A rows. The
+            row's score is bound automatically into the secp256k1 engine. ── */}
+      <ZKPModal
+        open={!!zkpItem}
+        onClose={() => setZkpItem(null)}
+        establishment={zkpItem ? { id: zkpItem.id, name: zkpItem.premises, score: zkpItem.score, grade: zkpItem.grade } : null}
+      />
     </div>
   );
 }

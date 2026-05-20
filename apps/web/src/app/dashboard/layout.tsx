@@ -25,8 +25,6 @@ import {
   Thermometer,
   TrendingUp,
   HeartPulse,
-  Cpu,
-  Lock,
   Network,
   BookOpen,
 } from 'lucide-react';
@@ -77,10 +75,10 @@ const baseAiNavItems = [
   { href: '/dashboard/epidemiology/sir-model', icon: TrendingUp, label: 'SIR Epidemic Model' },
   { href: '/dashboard/epidemiology/contact-tracing', icon: Network, label: 'Contact Tracing Graph' },
   { href: '/dashboard/iot', icon: Thermometer, label: 'IoT Cold Chain' },
-  { href: '/dashboard/ai/edge', icon: Cpu, label: 'Edge AI Classifier' },
-  { href: '/dashboard/ai/zkp', icon: Lock, label: 'ZKP Grade Proof' },
-  // H399 Collaborative is now embedded inside /dashboard/epidemiology — no
-  // standalone nav item (the route was removed to avoid duplication).
+  // Edge AI Classifier is now embedded in the H800 inspection form, and the
+  // ZKP Grade Proof is embedded in the Food Safety inspections table.
+  // H399 Collaborative lives inside Epidemiology. None have standalone nav
+  // items anymore — the engines run where the officer already works.
 ];
 const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 
