@@ -28,9 +28,7 @@ import {
   Cpu,
   Lock,
   Network,
-  GitMerge,
   BookOpen,
-  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -81,16 +79,16 @@ const baseAiNavItems = [
   { href: '/dashboard/iot', icon: Thermometer, label: 'IoT Cold Chain' },
   { href: '/dashboard/ai/edge', icon: Cpu, label: 'Edge AI Classifier' },
   { href: '/dashboard/ai/zkp', icon: Lock, label: 'ZKP Grade Proof' },
-  { href: '/dashboard/administration/h399-collab', icon: GitMerge, label: 'H399 Collaborative' },
+  // H399 Collaborative is now embedded inside /dashboard/epidemiology — no
+  // standalone nav item (the route was removed to avoid duplication).
 ];
 const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 
-// Officer-only reference resources — unified Officer Resources page combines
-// statutory duties + Union forms / newsletters / circulars in one tabbed
-// dashboard view. Restricted to authenticated PHI / SPHI / MOH staff.
+// Officer-only reference resources — ONE sidebar entry. The single
+// /dashboard/resources page has internal Duty of PHI | Downloads tabs, so
+// the sidebar stays clean. Restricted to authenticated PHI / SPHI / MOH.
 const officerResourceItems = [
-  { href: '/dashboard/resources?tab=duty',      icon: BookOpen, label: 'Duty of PHI' },
-  { href: '/dashboard/resources?tab=downloads', icon: Download, label: 'Downloads' },
+  { href: '/dashboard/resources', icon: BookOpen, label: 'Officer Resources' },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {

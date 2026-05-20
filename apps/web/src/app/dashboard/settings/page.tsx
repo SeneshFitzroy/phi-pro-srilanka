@@ -2,18 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings as SettingsIcon, Globe, Moon, Sun, Bell, Database, Save, Shield } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Moon, Sun, Bell, Database, Save, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PasskeySetup } from '@/components/passkey-setup';
 import { SyncStatusBadge } from '@/components/sync-status-badge';
 import { useSync } from '@/contexts/sync-context';
-import { useLanguage } from '@/contexts/i18n-context';
 import { toast } from 'sonner';
 
 const THEME_KEY  = 'phi-pro-theme';
 const NOTIFY_KEY = 'phi-pro-notify';
-const GT_KEY     = 'phi-pro-gt-lang';
 
 function applyTheme(theme: string) {
   const root = document.documentElement;
@@ -23,37 +21,17 @@ function applyTheme(theme: string) {
   root.classList.toggle('dark', wantDark);
 }
 
-function applyGoogleTranslate(target: 'en' | 'si' | 'ta') {
-  // Mirrors LangPicker3 — set cookie + sessionStorage + reload to keep the
-  // Google Translate banner state in sync with i18n.
-  try {
-    if (target === 'en') {
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      try { document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`; } catch { /* */ }
-    } else {
-      document.cookie = `googtrans=/auto/${target}; path=/`;
-      try { document.cookie = `googtrans=/auto/${target}; path=/; domain=${window.location.hostname}`; } catch { /* */ }
-    }
-    localStorage.setItem(GT_KEY, target);
-  } catch { /* ignore */ }
-}
-
 export default function SettingsPage() {
-  const [lang, setLang] = useState('en');
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const { isOnline, pendingCount, failedCount, triggerSync } = useSync();
-  const { setLanguage } = useLanguage();
   const [notifications, setNotifications] = useState({ email: true, push: true, sms: false });
 
-  /* Hydrate from localStorage on mount + apply theme/lang to the document */
+  /* Hydrate from localStorage on mount + apply theme to the document */
   useEffect(() => {
     try {
       const savedTheme = (localStorage.getItem(THEME_KEY) as 'light' | 'dark' | 'system' | null) ?? 'system';
       setTheme(savedTheme);
       applyTheme(savedTheme);
-
-      const savedLang = localStorage.getItem('i18nextLng') ?? 'en';
-      if (['en', 'si', 'ta'].includes(savedLang)) setLang(savedLang);
 
       const savedNotify = localStorage.getItem(NOTIFY_KEY);
       if (savedNotify) setNotifications(JSON.parse(savedNotify));
@@ -68,19 +46,6 @@ export default function SettingsPage() {
     mql.addEventListener?.('change', onChange);
     return () => mql.removeEventListener?.('change', onChange);
   }, []);
-
-  /* Apply + persist on each change so the user sees immediate feedback.
-     Google Translate only kicks in after a page reload (it injects its DOM
-     observers at boot), so we apply i18n in-place AND schedule a soft
-     reload — that gives the user the snappy in-place i18n change AND the
-     full Google Translate pass on the next paint. */
-  const onPickLang = (next: string) => {
-    setLang(next);
-    setLanguage(next);
-    if (next === 'en' || next === 'si' || next === 'ta') applyGoogleTranslate(next);
-    toast.success(`Language set to ${next.toUpperCase()} — reloading…`);
-    setTimeout(() => window.location.reload(), 350);
-  };
 
   const onPickTheme = (next: 'light' | 'dark' | 'system') => {
     setTheme(next);
@@ -144,22 +109,8 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Language */}
-        <Card>
-          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Globe className="h-4 w-4" />Language / භාෂාව / மொழி</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              { code: 'en', label: 'English', native: 'English' },
-              { code: 'si', label: 'Sinhala', native: 'සිංහල' },
-              { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
-            ].map(l => (
-              <label key={l.code} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${lang === l.code ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
-                <input type="radio" name="lang" value={l.code} checked={lang === l.code} onChange={() => onPickLang(l.code)} className="h-4 w-4" />
-                <div><p className="text-sm font-medium">{l.label}</p><p className="text-xs text-muted-foreground">{l.native}</p></div>
-              </label>
-            ))}
-          </CardContent>
-        </Card>
+        {/* Language card removed — site-wide language is controlled by the
+            Google Translate picker in the public header / mobile drawer. */}
 
         {/* Theme */}
         <Card>
@@ -252,15 +203,7 @@ export default function SettingsPage() {
       <div className="flex justify-end">
         <Button
           className="bg-[#0066cc] hover:bg-[#0055aa] text-white"
-          onClick={() => {
-            // Each setting is already applied immediately on change; this
-            // button just gives the user a 'commit' moment + reloads so the
-            // Google Translate banner reflects the chosen language across
-            // every page.
-            setLanguage(lang);
-            toast.success('Settings saved.');
-            setTimeout(() => window.location.reload(), 400);
-          }}
+          onClick={() => toast.success('Settings saved.')}
         >
           <Save className="mr-2 h-4 w-4" />Save Settings
         </Button>

@@ -248,19 +248,53 @@ export function CitizenChatbot() {
       }]);
       toast.success('Connected to the PHI queue.');
     } catch (err) {
-      // Surface the actual error so the user (and us in DevTools) know why
-      // it failed — usually Firestore rules denying anonymous writes, or
-      // the network being offline.
       const msg = err instanceof Error ? err.message : String(err);
-      const friendly = /permission|insufficient|missing/i.test(msg)
-        ? 'The PHI chat queue is temporarily unavailable. Please call 1390 instead.'
-        : /network|offline|failed to fetch/i.test(msg)
+      // The live two-way queue (citizen_chats) needs its Firestore rules
+      // deployed. If it's denied/unavailable we DON'T dead-end the citizen —
+      // we fall back to filing a one-way "live chat request" into the
+      // public_complaints inbox (whose rules are already in production), so
+      // a duty officer still receives it. The citizen gets a tracking ref.
+      const isPermission = /permission|insufficient|missing|denied/i.test(msg);
+      const isNetwork = /network|offline|failed to fetch/i.test(msg);
+
+      if (!isNetwork) {
+        try {
+          const trackingId = `CHAT-${Date.now().toString(36).toUpperCase()}`;
+          const transcript = messages
+            .filter((m) => m.role === 'user' || m.role === 'assistant')
+            .map((m) => `${m.role === 'user' ? 'Citizen' : 'AI'}: ${m.content}`)
+            .join('\n');
+          await addDoc(collection(db, 'public_complaints'), {
+            trackingId,
+            type: 'Live chat request',
+            description: `Citizen requested a live PHI chat from the portal assistant.\n\nNIC: ${nicNumber.trim().toUpperCase()}\nName: ${name || 'Anonymous'}\n\n--- Conversation so far ---\n${transcript || '(no prior messages)'}`,
+            location: identity.district ?? 'Not specified',
+            district: identity.district ?? 'Not specified',
+            status: 'new',
+            priority: 'medium',
+            channel: 'public_portal_chatbot',
+            nicNumber: nicNumber.trim().toUpperCase(),
+            createdAt: serverTimestamp(),
+          });
+          setMessages((prev) => [...prev, {
+            id: crypto.randomUUID(), role: 'system', at: new Date(),
+            content: `Your request has been logged with the PHI office${identity.district ? ` for ${identity.district}` : ''}. Reference: ${trackingId}. An officer will follow up using the details you provided. For urgent help dial 1390.`,
+          }]);
+          toast.success('Request logged with the PHI office.');
+          setEscalating(false);
+          return;
+        } catch { /* fall through to the friendly error below */ }
+      }
+
+      const friendly = isPermission
+        ? 'The live chat queue isn\'t enabled yet, and we couldn\'t log your request automatically. Please call 1390 (Ministry of Health, 24 / 7).'
+        : isNetwork
         ? 'Network error. Check your connection and try again, or call 1390.'
-        : `Could not reach the PHI queue: ${msg.slice(0, 120)}`;
+        : `Could not reach the PHI queue. Please call 1390. (${msg.slice(0, 80)})`;
       toast.error(friendly);
       setMessages((prev) => [...prev, {
         id: crypto.randomUUID(), role: 'system', at: new Date(),
-        content: `${friendly}\n\nFor urgent help dial 1390 (Ministry of Health, 24 / 7).`,
+        content: `${friendly}`,
       }]);
     } finally {
       setEscalating(false);

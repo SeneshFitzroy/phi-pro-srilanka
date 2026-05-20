@@ -13,7 +13,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
-import { Users, Database, GitMerge, RefreshCw, CheckCircle, AlertTriangle, Trash2, Plus, Clock } from 'lucide-react';
+import { Users, Database, GitMerge, CheckCircle, AlertTriangle, Trash2, Plus, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -47,7 +47,6 @@ function makeRow(i: number): WeeklyRow {
 }
 
 const DOC_NAME = 'phi-pro:h399-weekly-return';
-const CLIENT_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
