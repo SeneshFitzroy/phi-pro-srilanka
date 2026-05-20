@@ -59,12 +59,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             for iOS compatibility, so we add the standards-track equivalent
             here for Android / Chrome). */}
         <meta name="mobile-web-app-capable" content="yes" />
-        {/* Zero-flicker language + theme init: runs before React hydration so
-            the user never sees a light-mode flash when their saved
-            preference is dark. */}
+        {/* Zero-flicker theme init: runs before React hydration so the user
+            never sees a light-mode flash when their saved preference is dark.
+            We also proactively clear any stale i18next language key so the
+            dashboard can't get frozen in a language the user can't switch
+            out of (site-wide language is the Google Translate header picker). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem('i18nextLng');if(l&&['en','si','ta'].includes(l)){document.documentElement.setAttribute('lang',l==='si'?'si':l==='ta'?'ta':'en');}var t=localStorage.getItem('phi-pro-theme')||'system';var wantDark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',wantDark);}catch(e){}})();`,
+            __html: `(function(){try{localStorage.removeItem('i18nextLng');document.documentElement.setAttribute('lang','en');var t=localStorage.getItem('phi-pro-theme')||'system';var wantDark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',wantDark);}catch(e){}})();`,
           }}
         />
       </head>

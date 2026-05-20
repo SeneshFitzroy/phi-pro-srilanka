@@ -36,27 +36,31 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState('en');
   const initialized = useRef(false);
 
-  // Detect saved language on client only (after hydration completes)
+  // The app always boots in English. We deliberately DON'T auto-restore a
+  // persisted i18next language: the only place that used to set it (the
+  // dashboard Settings "Language" card) has been removed, so a stale value
+  // (e.g. 'ta') would otherwise freeze the whole dashboard in a language the
+  // user can no longer switch out of. Site-wide multilingual is handled by
+  // the Google Translate picker in the public header instead. Any leftover
+  // key is cleared here so the <head> lang bootstrap also resets to English.
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
       try {
-        const saved = localStorage.getItem('i18nextLng') || 'en';
-        const lang = ['en', 'si', 'ta'].includes(saved) ? saved : 'en';
-        if (lang !== 'en') {
-          i18n.changeLanguage(lang);
-          setLanguageState(lang);
-        }
+        localStorage.removeItem('i18nextLng');
+        document.documentElement.setAttribute('lang', 'en');
       } catch {
         // localStorage not available
       }
     }
   }, []);
 
+  // In-session language switch (used by the voice commands "switch to
+  // Sinhala/Tamil"). NOT persisted — resets to English on the next load so
+  // the user can never get permanently stuck again.
   const setLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     setLanguageState(lang);
-    try { localStorage.setItem('i18nextLng', lang); } catch { /* noop */ }
   };
 
   useEffect(() => {
