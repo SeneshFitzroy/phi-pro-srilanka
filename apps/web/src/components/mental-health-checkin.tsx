@@ -9,7 +9,9 @@
 // ============================================================================
 
 import { useEffect, useState } from 'react';
-import { HeartPulse, Check, X, Phone, ChevronDown, ChevronUp } from 'lucide-react';
+import { HeartPulse, Check, X, Phone, ChevronDown, ChevronUp, LifeBuoy } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface DayEntry { score: number; band: Band; q: [number, number, number]; at: string }
 type Band = 'Good' | 'Watch' | 'High strain';
@@ -34,6 +36,17 @@ function loadAll(): Record<string, DayEntry> {
   try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; }
 }
 
+// No improvement = the last 3 consecutive days (incl. today) are all logged
+// and all land in High strain. That's the cue to offer an SPHI escalation.
+function noImprovement(all: Record<string, DayEntry>): boolean {
+  for (let i = 0; i < 3; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const e = all[d.toISOString().slice(0, 10)];
+    if (!e || e.band !== 'High strain') return false;
+  }
+  return true;
+}
+
 export function MentalHealthCheckin() {
   const [all, setAll] = useState<Record<string, DayEntry>>({});
   const [answers, setAnswers] = useState<(number | null)[]>([null, null, null]);
@@ -56,6 +69,21 @@ export function MentalHealthCheckin() {
     try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* */ }
     setAll(next);
     setEditing(false);
+
+    // 3 consecutive high-strain days → send an ANONYMOUS flag to the SPHI
+    // wellbeing dashboard (no identity, no answers — just the band). Fired
+    // once per day; resilient so a rules/network error never breaks the form.
+    if (noImprovement(next)) {
+      const flagKey = `phi-wellbeing-flagged-${todayKey()}`;
+      let alreadyFlagged = false;
+      try { alreadyFlagged = !!localStorage.getItem(flagKey); } catch { /* */ }
+      if (!alreadyFlagged) {
+        addDoc(collection(db, 'wellbeing_flags'), {
+          band: entry.band, score: entry.score, daysHigh: 3, anonymous: true, createdAt: serverTimestamp(),
+        }).catch((err) => console.warn('[wellbeing] SPHI flag failed (non-fatal):', err));
+        try { localStorage.setItem(flagKey, '1'); } catch { /* */ }
+      }
+    }
   };
 
   // last 7 days for the sparkline
@@ -126,11 +154,23 @@ export function MentalHealthCheckin() {
             </div>
           )}
 
-          {/* High-strain support */}
-          {done && today.band === 'High strain' && (
-            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
-              <p className="font-semibold">You&apos;ve logged high strain today.</p>
-              <p className="mt-1">It&apos;s OK to ask for support. National Mental Health Helpline (NIMH): <a href="tel:1926" className="inline-flex items-center gap-1 font-bold underline"><Phone className="h-3 w-3" /> 1926</a> · 24/7, confidential. Consider flagging your workload to your SPHI.</p>
+          {/* Support — offered after any submit that lands in Watch / High */}
+          {done && (today.band === 'Watch' || today.band === 'High strain') && (
+            <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3 text-xs dark:border-violet-900/40 dark:bg-violet-950/20">
+              <p className="font-semibold text-violet-900 dark:text-violet-200">Talk it through — you don&apos;t have to wait.</p>
+              <p className="mt-1 text-violet-800/80 dark:text-violet-300/80">Confidential counselling is one tap away.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <a href="tel:0112696666" className="inline-flex items-center gap-1.5 rounded-md bg-violet-600 px-2.5 py-1.5 font-semibold text-white hover:bg-violet-700"><LifeBuoy className="h-3.5 w-3.5" /> Talk to a counsellor (Sumithrayo)</a>
+                <a href="tel:1926" className="inline-flex items-center gap-1.5 rounded-md border border-violet-300 px-2.5 py-1.5 font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:text-violet-300"><Phone className="h-3.5 w-3.5" /> NIMH helpline 1926</a>
+              </div>
+            </div>
+          )}
+
+          {/* 3-day no-improvement escalation → anonymous SPHI flag */}
+          {done && noImprovement(all) && (
+            <div className="mt-3 rounded-lg border border-red-300 bg-red-100 p-3 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
+              <p className="font-bold">High strain for 3 days running.</p>
+              <p className="mt-1">An <strong>anonymous</strong> flag has been sent to your SPHI&apos;s wellbeing dashboard so support can be offered — your individual answers stay private to this device. Please consider talking to a counsellor above.</p>
             </div>
           )}
           <p className="mt-3 text-[10px] text-muted-foreground">Confidential — stored only on this device. Ref: Wanninayake &amp; Razik (2025) on PHI occupational stress.</p>
