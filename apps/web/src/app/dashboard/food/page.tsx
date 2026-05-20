@@ -16,6 +16,9 @@ import { Modal } from '@/components/modal';
 import { ZKPModal } from '@/components/zkp-modal';
 import { QrGenerator } from '@/components/qr-generator';
 import { ShieldCheck } from 'lucide-react';
+// Single source of truth for food-premises grades — shared with
+// /public/food-grades so the public and PHI sides show identical data.
+import { ESTABLISHMENTS } from '@/data/food-grade-establishments';
 
 // IoT Cold Chain telemetry — MQTT/WS engine is client-only. Dynamic import
 // (ssr:false) so the mqtt client never reaches the server bundle. Filtered
@@ -25,11 +28,17 @@ const IoTColdChain = dynamic(
   { ssr: false, loading: () => <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-muted-foreground dark:border-slate-700">Connecting live HACCP telemetry…</div> },
 );
 
+// Stats derived from the shared dataset so the headline counts always match
+// the grades shown in the table and on /public/food-grades.
+const gradeCount = (g: 'A' | 'B' | 'C') => ESTABLISHMENTS.filter((e) => e.grade === g).length;
+const totalGraded = ESTABLISHMENTS.length;
+const pct = (n: number) => `${Math.round((n / totalGraded) * 100)}%`;
+
 const foodStats = [
-  { label: 'Total Inspections', value: '45', icon: ClipboardCheck, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300', change: '+8 this month' },
-  { label: 'Grade A',          value: '28', icon: CheckCircle,    color: 'text-green-700  bg-green-50  dark:bg-green-950/40  dark:text-green-300',  change: '62%' },
-  { label: 'Grade B',          value: '12', icon: TrendingUp,     color: 'text-amber-700  bg-amber-50  dark:bg-amber-950/40  dark:text-amber-300',  change: '27%' },
-  { label: 'Grade C',          value:  '5', icon: AlertTriangle,  color: 'text-red-700    bg-red-50    dark:bg-red-950/40    dark:text-red-300',    change: '11% · follow-up' },
+  { label: 'Total Inspections', value: String(totalGraded),     icon: ClipboardCheck, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300', change: 'graded premises' },
+  { label: 'Grade A',          value: String(gradeCount('A')), icon: CheckCircle,    color: 'text-green-700  bg-green-50  dark:bg-green-950/40  dark:text-green-300',  change: pct(gradeCount('A')) },
+  { label: 'Grade B',          value: String(gradeCount('B')), icon: TrendingUp,     color: 'text-amber-700  bg-amber-50  dark:bg-amber-950/40  dark:text-amber-300',  change: pct(gradeCount('B')) },
+  { label: 'Grade C',          value: String(gradeCount('C')), icon: AlertTriangle,  color: 'text-red-700    bg-red-50    dark:bg-red-950/40    dark:text-red-300',    change: `${pct(gradeCount('C'))} · follow-up` },
 ];
 
 const quickActions = [
@@ -45,20 +54,22 @@ interface RecentInspection {
   phone: string;
 }
 
-// Real Sri Lankan premises with real published landlines and street addresses
-// so the action buttons drop the officer on the actual building / dial the
-// real switchboard.
-const recentInspections: RecentInspection[] = [
-  { id: 'FI-2026-001', premises: 'Cinnamon Grand Colombo',  address: '77 Galle Rd, Colombo 03',           district: 'Colombo',     grade: 'A', score: 94, date: '2026-02-27', status: 'Approved',           phone: '+94 11 243 7437' },
-  { id: 'FI-2026-002', premises: 'Perera & Sons Bakery',    address: '356 Galle Rd, Colombo 03',          district: 'Colombo',     grade: 'B', score: 82, date: '2026-02-26', status: 'Submitted',          phone: '+94 11 250 0500' },
-  { id: 'FI-2026-003', premises: 'Cargills Food City',      address: '110 High Level Rd, Nugegoda',       district: 'Colombo',     grade: 'A', score: 91, date: '2026-02-25', status: 'Approved',           phone: '+94 11 244 8888' },
-  { id: 'FI-2026-004', premises: 'Pilawoos Express',        address: '417 Galle Rd, Colombo 04',          district: 'Colombo',     grade: 'C', score: 68, date: '2026-02-24', status: 'Follow-up Required', phone: '+94 11 250 5050' },
-  { id: 'FI-2026-005', premises: 'Pedlar\'s Inn Cafe',      address: 'Pedlar St, Galle Fort',             district: 'Galle',       grade: 'B', score: 78, date: '2026-02-23', status: 'Under Review',       phone: '+94 91 222 5333' },
-  { id: 'FI-2026-006', premises: 'Mount Lavinia Hotel',     address: '100 Hotel Rd, Mt Lavinia',          district: 'Colombo',     grade: 'A', score: 93, date: '2026-02-22', status: 'Approved',           phone: '+94 11 271 1711' },
-  { id: 'FI-2026-007', premises: 'Jetwing Beach Negombo',   address: 'Ethukala, Negombo',                 district: 'Gampaha',     grade: 'B', score: 79, date: '2026-02-20', status: 'Approved',           phone: '+94 31 227 3500' },
-  { id: 'FI-2026-008', premises: 'Cafe Aroma',              address: 'D.S. Senanayake Veediya, Kandy',    district: 'Kandy',       grade: 'A', score: 88, date: '2026-02-19', status: 'Approved',           phone: '+94 81 223 0030' },
-  { id: 'FI-2026-009', premises: 'Highway Rest — Kadawatha', address: 'Kandy Rd, Kadawatha',              district: 'Gampaha',     grade: 'C', score: 52, date: '2026-01-12', status: 'Follow-up Required', phone: '+94 11 292 5555' },
-];
+// Inspection records are projected from the SAME shared dataset that powers
+// /public/food-grades, so a premises shows the identical grade + score on both
+// the public site and the officer's table. Status is derived from the grade.
+const recentInspections: RecentInspection[] = [...ESTABLISHMENTS]
+  .sort((a, b) => b.inspectedAt.localeCompare(a.inspectedAt))
+  .map((e) => ({
+    id: e.id.replace(/^FP-/, 'FI-'),
+    premises: e.name,
+    address: e.address,
+    district: e.district,
+    grade: e.grade,
+    score: e.score,
+    date: e.inspectedAt,
+    status: e.grade === 'A' ? 'Approved' : e.grade === 'B' ? 'Under Review' : 'Follow-up Required',
+    phone: e.phone,
+  }));
 
 function GradeBadge({ grade }: { grade: string }) {
   const colors = {
