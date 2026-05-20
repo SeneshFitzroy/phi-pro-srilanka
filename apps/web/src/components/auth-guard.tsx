@@ -80,10 +80,10 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
           {/* Logo + spinner ring */}
           <div className="relative flex items-center justify-center">
             {/* Outer decorative double-ring */}
-            <div className="absolute h-44 w-44 rounded-full border border-blue-200/15" />
-            <div className="absolute h-36 w-36 rounded-full border border-blue-200/25" />
+            <div className="absolute h-52 w-52 rounded-full border border-blue-200/15" />
+            <div className="absolute h-44 w-44 rounded-full border border-blue-200/25" />
             {/* Spinning progress arc */}
-            <svg className="absolute h-44 w-44 -rotate-90 animate-[spin_1.6s_linear_infinite]" viewBox="0 0 176 176">
+            <svg className="absolute h-52 w-52 -rotate-90 animate-[spin_1.6s_linear_infinite]" viewBox="0 0 176 176">
               <circle cx="88" cy="88" r="84" fill="none" stroke="url(#grad)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="130 400" />
               <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -95,7 +95,7 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
             {/* Logo card — inline SVG monogram paints on first frame so the
                 splash never shows a blank white square while the PNG is in
                 flight. The Image overlays the SVG once the asset has decoded. */}
-            <div className="relative z-10 flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white/95 shadow-2xl ring-1 ring-white/40">
+            <div className="relative z-10 flex h-28 w-28 items-center justify-center overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
               {/* Instant SVG monogram (rendered with HTML, zero network cost) */}
               <svg
                 viewBox="0 0 72 72"
@@ -124,8 +124,8 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
               <Image
                 src="/phi-emblem.png"
                 alt="PHI-PRO"
-                width={72}
-                height={72}
+                width={92}
+                height={92}
                 priority
                 className="relative z-10 drop-shadow-sm"
               />
