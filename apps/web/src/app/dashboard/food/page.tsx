@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/modal';
 import { ZKPModal } from '@/components/zkp-modal';
+import { QrGenerator } from '@/components/qr-generator';
 import { ShieldCheck } from 'lucide-react';
 
 // IoT Cold Chain telemetry — MQTT/WS engine is client-only. Dynamic import
@@ -180,6 +181,11 @@ export default function FoodModulePage() {
           <IoTColdChain embedded foodSafetyOnly />
         </CardContent>
       </Card>
+
+      {/* Printable QR generator — officers generate a scannable QR for any
+          permit / certificate / premises reference. Citizens verify these on
+          the public /verify page; this is the issuing side. */}
+      <QrGenerator />
 
       {/* Recent Inspections Table */}
       <Card>
