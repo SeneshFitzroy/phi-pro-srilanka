@@ -46,7 +46,10 @@ function makeRow(i: number): WeeklyRow {
   return { id: `row-${i}`, disease: DISEASES[i % DISEASES.length], cases: '0', deaths: '0', area: AREAS[i % AREAS.length], remarks: '' };
 }
 
-const DOC_NAME = 'phi-pro:h399-weekly-return';
+// v2 — bumped to abandon the corrupted IndexedDB store that accumulated
+// duplicate rows under the old seed-before-sync logic. Demo data only, so a
+// clean reset for every browser is safe.
+const DOC_NAME = 'phi-pro:h399-weekly-return-v2';
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -99,9 +102,14 @@ export function H399Collab() {
     const ymeta = ydoc.getMap<string>('meta');
     metaRef.current = ymeta;
 
-    // Seed initial rows if empty
-    ydoc.transact(() => {
-      if (yrows.length === 0) {
+    // Seed the 5 starter rows only AFTER IndexedDB has restored — otherwise
+    // the seed runs against an empty (not-yet-loaded) doc, then the persisted
+    // rows merge on top, so the table grows by 5 every reload (the bug that
+    // produced 75 duplicate rows). Seeding inside the synced callback, gated
+    // on a still-empty doc, guarantees exactly one set of 5 rows ever exists.
+    const seedIfEmpty = () => {
+      if (yrows.length > 0) return;
+      ydoc.transact(() => {
         for (let i = 0; i < 5; i++) {
           const ymap = new Y.Map<string>();
           const row = makeRow(i);
@@ -111,8 +119,8 @@ export function H399Collab() {
         ymeta.set('week',   `W${new Date().getFullYear()}-${String(Math.ceil((new Date().getMonth() + 1) / 4)).padStart(2, '0')}`);
         ymeta.set('officer', cid);
         ymeta.set('district', 'Colombo');
-      }
-    }, cid);
+      }, cid);
+    };
 
     // Observe changes
     yrows.observeDeep(() => {
@@ -120,11 +128,12 @@ export function H399Collab() {
       pushLog('remote', 'rows', `${yrows.length} rows`, cid);
     });
 
-    // IndexedDB persistence
+    // IndexedDB persistence — seed once the persisted state has loaded.
     const persistence = new IndexeddbPersistence(DOC_NAME, ydoc);
     persistRef.current = persistence;
     persistence.on('synced', () => {
       setSynced(true);
+      seedIfEmpty();
       readRows();
       pushLog('persist', 'IndexedDB', 'restored', cid);
     });
