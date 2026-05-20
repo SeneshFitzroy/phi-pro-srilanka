@@ -53,10 +53,11 @@ export function initPostHog() {
     api_host: host,
     capture_pageview: true,
     capture_pageleave: true,
-    session_recording: {
-      maskAllInputs: true,       // never record sensitive form inputs
-      maskInputOptions: { password: true },
-    },
+    // Skip the /decide feature-flag round-trip — we don't use PostHog flags,
+    // and the call is the noisiest one when an ad-blocker blocks the host.
+    advanced_disable_decide: true,
+    autocapture: false,          // explicit capture() calls only; less network chatter
+    disable_session_recording: true,
     loaded: (ph) => {
       if (process.env.NODE_ENV !== 'production') ph.opt_out_capturing();
     },

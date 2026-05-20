@@ -33,6 +33,13 @@ let appCheck: ReturnType<typeof initializeAppCheck> | null = null;
 if (typeof window !== 'undefined') {
   const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   const debugToken = process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN;
+  // App Check is OPT-IN. It only does anything useful once the reCAPTCHA v3
+  // site key has been whitelisted for the live domain in the Firebase
+  // console. Until then Google returns 403 and throttles for 24h, which
+  // floods the console with errors on every page. So we keep it OFF unless
+  // NEXT_PUBLIC_ENABLE_APPCHECK is explicitly set to 'true'. Firestore + Auth
+  // work fine without it; flip the flag on once the key is whitelisted.
+  const appCheckEnabled = process.env.NEXT_PUBLIC_ENABLE_APPCHECK === 'true';
 
   // Enable debug token in development
   if (debugToken && process.env.NODE_ENV !== 'production') {
@@ -40,11 +47,7 @@ if (typeof window !== 'undefined') {
     window.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
   }
 
-  // App Check is best-effort. If the reCAPTCHA site key isn't whitelisted for
-  // this domain Google will return 403 and throttle further requests for 24h —
-  // we must not let that block sign-in or Firestore listens, so any
-  // initialisation error is swallowed here.
-  if (recaptchaSiteKey) {
+  if (appCheckEnabled && recaptchaSiteKey) {
     try {
       appCheck = initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(recaptchaSiteKey),
