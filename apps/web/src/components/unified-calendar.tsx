@@ -80,15 +80,18 @@ export function UnifiedCalendar() {
   const [cursor, setCursor] = useState(() => startOfMonth(today));
   const [selectedDate, setSelectedDate] = useState<string>(iso(today));
   const [filter, setFilter] = useState<Filter>('all');
+  const [domainFilter, setDomainFilter] = useState<Domain | 'all'>('all');
 
   const byDate = useMemo(() => {
     const m = new Map<string, CalEvent[]>();
-    SAMPLE_EVENTS.filter((e) => filter === 'all' || e.kind === filter).forEach((e) => {
-      const arr = m.get(e.date) ?? [];
-      arr.push(e); m.set(e.date, arr);
-    });
+    SAMPLE_EVENTS
+      .filter((e) => (filter === 'all' || e.kind === filter) && (domainFilter === 'all' || e.domain === domainFilter))
+      .forEach((e) => {
+        const arr = m.get(e.date) ?? [];
+        arr.push(e); m.set(e.date, arr);
+      });
     return m;
-  }, [filter]);
+  }, [filter, domainFilter]);
 
   const monthLabel = cursor.toLocaleDateString('en-LK', { month: 'long', year: 'numeric' });
   const firstWeekday = ((startOfMonth(cursor).getDay() + 6) % 7); // Mon = 0
@@ -136,6 +139,30 @@ export function UnifiedCalendar() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Domain filter — narrows the month grid AND the selected-day timeline */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {([
+          ['all', 'All domains'], ['food', 'Food'], ['school', 'School'],
+          ['epidemiology', 'Epidemiology'], ['occupational', 'Occupational'], ['administration', 'Administration'],
+        ] as const).map(([d, label]) => {
+          const activeChip = domainFilter === d;
+          return (
+            <button
+              key={d}
+              onClick={() => setDomainFilter(d)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                activeChip
+                  ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              }`}
+            >
+              {d !== 'all' && <span className={`inline-block h-2 w-2 rounded-full ${DOMAIN_META[d].dot}`} />}
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">

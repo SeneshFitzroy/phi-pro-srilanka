@@ -69,12 +69,14 @@ const statsCards = [
   },
 ];
 
+const DOMAIN_FILTERS = ['all', 'food', 'school', 'epidemiology', 'occupational', 'administration'] as const;
+
 const recentActivity = [
-  { icon: UtensilsCrossed, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/50', text: 'Food inspection at "Saman Hotel" — Grade A', time: '2 hours ago' },
-  { icon: Activity, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/50', text: 'Dengue case investigated — GN 547A', time: '4 hours ago' },
-  { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/50', text: 'Complaint #CMP-2026-001234 assigned to you', time: '6 hours ago' },
-  { icon: School, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/50', text: 'Grade 4 medical exam at Mahinda Vidyalaya completed', time: 'Yesterday' },
-  { icon: HardHat, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/50', text: 'Factory H1203 inspection overdue — Star Garments', time: 'Yesterday' },
+  { icon: UtensilsCrossed, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/50', text: 'Food inspection at "Saman Hotel" — Grade A', time: '2 hours ago', domain: 'food' },
+  { icon: Activity, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/50', text: 'Dengue case investigated — GN 547A', time: '4 hours ago', domain: 'epidemiology' },
+  { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/50', text: 'Complaint #CMP-2026-001234 assigned to you', time: '6 hours ago', domain: 'administration' },
+  { icon: School, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/50', text: 'Grade 4 medical exam at Mahinda Vidyalaya completed', time: 'Yesterday', domain: 'school' },
+  { icon: HardHat, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/50', text: 'Factory H1203 inspection overdue — Star Garments', time: 'Yesterday', domain: 'occupational' },
 ];
 
 const upcomingTasks = [
@@ -88,6 +90,11 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<DashTab>('overview');
+  const [activityDomain, setActivityDomain] = useState<string>('all');
+  const [taskPriority, setTaskPriority] = useState<string>('all');
+
+  const visibleActivity = recentActivity.filter((a) => activityDomain === 'all' || a.domain === activityDomain);
+  const visibleTasks = upcomingTasks.filter((task) => taskPriority === 'all' || task.priority === taskPriority);
 
   // Deep-link support: /dashboard?tab=administration. ?tab=complaints is kept
   // as an alias (complaints now lives inside Administration) so existing
@@ -198,16 +205,28 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t('dashboard.recentActivity') || 'Recent Activity'}
             </h3>
-            <a href="#calendar" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
-              View all →
-            </a>
+            <div className="flex items-center gap-2">
+              <select
+                value={activityDomain}
+                onChange={(e) => setActivityDomain(e.target.value)}
+                aria-label="Filter activity by domain"
+                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium capitalize text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                {DOMAIN_FILTERS.map((d) => <option key={d} value={d}>{d === 'all' ? 'All domains' : d}</option>)}
+              </select>
+              <a href="#calendar" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
+                View all →
+              </a>
+            </div>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
-            {recentActivity.map((item, idx) => (
+            {visibleActivity.length === 0 ? (
+              <p className="px-5 py-6 text-center text-xs text-slate-400">No recent activity in this domain.</p>
+            ) : visibleActivity.map((item, idx) => (
               <div key={idx} className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <div className={`mt-0.5 rounded-lg p-1.5 ${item.bg}`}>
                   <item.icon className={`h-3.5 w-3.5 ${item.color}`} />
@@ -223,14 +242,26 @@ export default function DashboardPage() {
 
         {/* Upcoming Tasks */}
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Upcoming Tasks</h3>
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-              {upcomingTasks.length}
-            </span>
+            <div className="flex items-center gap-2">
+              <select
+                value={taskPriority}
+                onChange={(e) => setTaskPriority(e.target.value)}
+                aria-label="Filter tasks by priority"
+                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium capitalize text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                {['all', 'high', 'medium', 'low'].map((p) => <option key={p} value={p}>{p === 'all' ? 'All priorities' : p}</option>)}
+              </select>
+              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+                {visibleTasks.length}
+              </span>
+            </div>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
-            {upcomingTasks.map((task, idx) => (
+            {visibleTasks.length === 0 ? (
+              <p className="px-5 py-6 text-center text-xs text-slate-400">No tasks at this priority.</p>
+            ) : visibleTasks.map((task, idx) => (
               <div key={idx} className="flex items-center gap-3 px-5 py-3.5">
                 <div className={`h-2 w-2 rounded-full ${
                   task.priority === 'high' ? 'bg-red-500' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-blue-500'
