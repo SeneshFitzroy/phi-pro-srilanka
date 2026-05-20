@@ -13,9 +13,9 @@
  * month + officer.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  ChevronLeft, ChevronRight, Calendar as CalendarIcon,
+  ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Trash2,
   UtensilsCrossed, School, Activity, HardHat, ClipboardList, AlertCircle, CheckCircle2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,7 +35,14 @@ interface CalEvent {
   detail?: string;
   priority?: 'high' | 'medium' | 'low';
   completed?: boolean;
+  isUser?: boolean;       // officer-added task (removable, persisted locally)
 }
+
+// Officer-added tasks persist on the device so "add task" actually sticks.
+interface UserTask { id: string; date: string; domain: Domain; title: string; priority: 'high' | 'medium' | 'low' }
+const TASKS_KEY = 'phi-calendar-tasks-v1';
+const mkId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+const loadTasks = (): UserTask[] => { try { return JSON.parse(localStorage.getItem(TASKS_KEY) || '[]'); } catch { return []; } };
 
 const today = new Date();
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -81,17 +88,47 @@ export function UnifiedCalendar() {
   const [selectedDate, setSelectedDate] = useState<string>(iso(today));
   const [filter, setFilter] = useState<Filter>('all');
   const [domainFilter, setDomainFilter] = useState<Domain | 'all'>('all');
+  const [userTasks, setUserTasks] = useState<UserTask[]>([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const [draft, setDraft] = useState<{ title: string; domain: Domain; date: string; priority: 'high' | 'medium' | 'low' }>(
+    { title: '', domain: 'food', date: iso(today), priority: 'medium' },
+  );
+
+  useEffect(() => { setUserTasks(loadTasks()); }, []);
+
+  const persistTasks = (next: UserTask[]) => {
+    setUserTasks(next);
+    try { localStorage.setItem(TASKS_KEY, JSON.stringify(next)); } catch { /* */ }
+  };
+
+  const addTask = () => {
+    if (!draft.title.trim()) return;
+    const t: UserTask = { id: mkId(), title: draft.title.trim(), domain: draft.domain, date: draft.date, priority: draft.priority };
+    persistTasks([...userTasks, t]);
+    setShowAdd(false);
+    setSelectedDate(t.date);
+    setCursor(startOfMonth(new Date(t.date)));
+    setDraft({ title: '', domain: 'food', date: iso(today), priority: 'medium' });
+  };
+
+  const removeTask = (id: string) => persistTasks(userTasks.filter((t) => t.id !== id));
+
+  // Sample events + officer-added tasks form the single event pool.
+  const allEvents = useMemo<CalEvent[]>(() => [
+    ...SAMPLE_EVENTS,
+    ...userTasks.map((t) => ({ id: t.id, date: t.date, kind: 'task' as const, domain: t.domain, title: t.title, priority: t.priority, isUser: true })),
+  ], [userTasks]);
 
   const byDate = useMemo(() => {
     const m = new Map<string, CalEvent[]>();
-    SAMPLE_EVENTS
+    allEvents
       .filter((e) => (filter === 'all' || e.kind === filter) && (domainFilter === 'all' || e.domain === domainFilter))
       .forEach((e) => {
         const arr = m.get(e.date) ?? [];
         arr.push(e); m.set(e.date, arr);
       });
     return m;
-  }, [filter, domainFilter]);
+  }, [allEvents, filter, domainFilter]);
 
   const monthLabel = cursor.toLocaleDateString('en-LK', { month: 'long', year: 'numeric' });
   const firstWeekday = ((startOfMonth(cursor).getDay() + 6) % 7); // Mon = 0
@@ -120,24 +157,32 @@ export function UnifiedCalendar() {
           <CalendarIcon className="h-4 w-4 text-blue-700 dark:text-blue-300" />
           Activity &amp; tasks calendar
         </h3>
-        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800">
-          {([
-            { v: 'all',      label: 'All' },
-            { v: 'activity', label: 'Activity' },
-            { v: 'task',     label: 'Tasks' },
-          ] as const).map((t) => (
-            <button
-              key={t.v}
-              onClick={() => setFilter(t.v)}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
-                filter === t.v
-                  ? 'bg-white text-blue-700 shadow-sm dark:bg-slate-900 dark:text-blue-300'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+            {([
+              { v: 'all',      label: 'All' },
+              { v: 'activity', label: 'Activity' },
+              { v: 'task',     label: 'Tasks' },
+            ] as const).map((t) => (
+              <button
+                key={t.v}
+                onClick={() => setFilter(t.v)}
+                className={`rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
+                  filter === t.v
+                    ? 'bg-white text-blue-700 shadow-sm dark:bg-slate-900 dark:text-blue-300'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowAdd((v) => !v)}
+            className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add task
+          </button>
         </div>
       </div>
 
@@ -164,6 +209,61 @@ export function UnifiedCalendar() {
           );
         })}
       </div>
+
+      {/* Add-task form — pick the section/domain, fill the fields, and it's
+          saved on this device and shown on the calendar + selected day. */}
+      {showAdd && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900/50 dark:bg-blue-950/20">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Task</label>
+              <input
+                value={draft.title}
+                onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                placeholder="e.g. Re-inspect Lotus Inn kitchen"
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-900"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</label>
+              <select
+                value={draft.domain}
+                onChange={(e) => setDraft((d) => ({ ...d, domain: e.target.value as Domain }))}
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+              >
+                {(['food', 'school', 'epidemiology', 'occupational', 'administration'] as Domain[]).map((d) => (
+                  <option key={d} value={d}>{DOMAIN_META[d].label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Date</label>
+              <input
+                type="date"
+                value={draft.date}
+                onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Priority</label>
+              <select
+                value={draft.priority}
+                onChange={(e) => setDraft((d) => ({ ...d, priority: e.target.value as 'high' | 'medium' | 'low' }))}
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-3 flex justify-end gap-2">
+            <button onClick={() => setShowAdd(false)} className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Cancel</button>
+            <button onClick={addTask} disabled={!draft.title.trim()} className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40">Add to calendar</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         {/* ── Calendar grid ── */}
@@ -296,6 +396,11 @@ export function UnifiedCalendar() {
                             <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600">
                               <CheckCircle2 className="h-3 w-3" /> Done
                             </span>
+                          )}
+                          {e.isUser && (
+                            <button onClick={() => removeTask(e.id)} aria-label="Remove task" title="Remove task" className="ml-auto rounded p-0.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30">
+                              <Trash2 className="h-3 w-3" />
+                            </button>
                           )}
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{e.title}</p>
