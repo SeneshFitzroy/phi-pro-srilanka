@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Briefcase, FileText, MapPin, BarChart3, Calendar, Map, Search, ClipboardList, TrendingUp, Users, Boxes } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Briefcase, FileText, MapPin, BarChart3, Calendar, Map, Search, ClipboardList, TrendingUp, Users, Boxes, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { ComplaintsManager } from '@/components/complaints-manager';
+
+type Tab = 'reporting' | 'complaints';
 
 const quickActions = [
   { title: 'GN Area Mapping', subtitle: 'H795', icon: MapPin, href: '/dashboard/administration/gn-mapping', color: 'bg-purple-50 text-administration border-purple-200' },
@@ -25,7 +29,16 @@ const gnDivisions = [
 ];
 
 export default function AdministrationPage() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
+  const [tab, setTab] = useState<Tab>('reporting');
+
+  // Deep-link support: /dashboard/administration?tab=complaints
+  useEffect(() => {
+    const q = searchParams.get('tab');
+    if (q === 'complaints' || q === 'reporting') setTab(q);
+  }, [searchParams]);
+
   const filtered = gnDivisions.filter(gn =>
     gn.name.toLowerCase().includes(search.toLowerCase()) || gn.code.toLowerCase().includes(search.toLowerCase())
   );
@@ -36,10 +49,30 @@ export default function AdministrationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Briefcase className="h-7 w-7 text-administration" /> Administration & Reporting</h1>
-        <p className="text-sm text-muted-foreground mt-1">GN area management, statistical reporting, and area surveys</p>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Briefcase className="h-7 w-7 text-administration" /> Administration &amp; Reporting</h1>
+        <p className="text-sm text-muted-foreground mt-1">GN area management, statistical reporting, area surveys and public complaints</p>
       </div>
 
+      {/* Tab switcher — Reporting vs Complaints */}
+      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
+        <button
+          onClick={() => setTab('reporting')}
+          className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${tab === 'reporting' ? 'border-administration text-administration' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+        >
+          <span className="inline-flex items-center gap-1.5"><ClipboardList className="h-4 w-4" /> Reporting &amp; GN areas</span>
+        </button>
+        <button
+          onClick={() => setTab('complaints')}
+          className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${tab === 'complaints' ? 'border-orange-500 text-orange-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+        >
+          <span className="inline-flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" /> Complaints</span>
+        </button>
+      </div>
+
+      {tab === 'complaints' ? (
+        <ComplaintsManager embedded />
+      ) : (
+      <>
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-l-4 border-l-administration">
@@ -117,6 +150,8 @@ export default function AdministrationPage() {
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

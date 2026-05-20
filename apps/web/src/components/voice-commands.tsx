@@ -18,6 +18,15 @@ import type { SpeechRecognitionInstance } from '@/types/speech';
 
 interface Cmd { phrases: string[]; label: string; run: () => void }
 
+const THEME_KEY = 'phi-pro-theme';
+function applyTheme(theme: 'light' | 'dark' | 'system') {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+    const wantDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', wantDark);
+  } catch { /* ignore */ }
+}
+
 export function VoiceCommands() {
   const router = useRouter();
   const { setLanguage } = useLanguage();
@@ -35,9 +44,11 @@ export function VoiceCommands() {
     { phrases: ['disease map', 'map', 'outbreak map'], label: 'Disease map', run: () => router.push('/dashboard/epidemiology/map') },
     { phrases: ['school', 'school health'], label: 'School Health', run: () => router.push('/dashboard/school') },
     { phrases: ['occupational', 'factory', 'workplace'], label: 'Occupational', run: () => router.push('/dashboard/occupational') },
-    { phrases: ['administration', 'admin', 'reports'], label: 'Administration', run: () => router.push('/dashboard/administration') },
+    { phrases: ['administration', 'admin', 'reports', 'reporting'], label: 'Administration', run: () => router.push('/dashboard/administration') },
+    { phrases: ['complaints', 'complaint', 'open complaints'], label: 'Complaints', run: () => router.push('/dashboard/administration?tab=complaints') },
     { phrases: ['inventory', 'stock'], label: 'Inventory', run: () => router.push('/dashboard/administration/inventory') },
     { phrases: ['copilot', 'assistant', 'ai assistant'], label: 'Compliance Copilot', run: () => router.push('/dashboard/copilot') },
+    { phrases: ['resources', 'officer resources', 'duty', 'downloads'], label: 'Officer Resources', run: () => router.push('/dashboard/resources') },
     { phrases: ['management', 'console'], label: 'Management', run: () => router.push('/dashboard/management') },
     { phrases: ['analytics', 'statistics'], label: 'Analytics', run: () => router.push('/dashboard/management/analytics') },
     { phrases: ['security', 'security console'], label: 'Security', run: () => router.push('/dashboard/management/security') },
@@ -45,14 +56,32 @@ export function VoiceCommands() {
     { phrases: ['new inspection', 'h800', 'new h800'], label: 'New H800', run: () => router.push('/dashboard/food/inspection/new') },
     { phrases: ['profile', 'my profile'], label: 'Profile', run: () => router.push('/dashboard/profile') },
     { phrases: ['settings'], label: 'Settings', run: () => router.push('/dashboard/settings') },
+    // ── Theme control ──────────────────────────────────────────────────
+    { phrases: ['dark mode', 'dark', 'night mode', 'switch to dark'], label: 'Dark mode', run: () => { applyTheme('dark'); toast.success('Dark mode on'); } },
+    { phrases: ['light mode', 'light', 'day mode', 'switch to light'], label: 'Light mode', run: () => { applyTheme('light'); toast.success('Light mode on'); } },
+    { phrases: ['system theme', 'auto theme', 'system mode'], label: 'System theme', run: () => { applyTheme('system'); toast.success('System theme'); } },
+    // ── Page actions ───────────────────────────────────────────────────
     { phrases: ['scroll down'], label: 'Scroll down', run: () => window.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' }) },
     { phrases: ['scroll up', 'scroll top'], label: 'Scroll up', run: () => window.scrollBy({ top: -window.innerHeight * 0.8, behavior: 'smooth' }) },
+    { phrases: ['top', 'go to top'], label: 'Top of page', run: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    { phrases: ['bottom', 'go to bottom'], label: 'Bottom of page', run: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) },
     { phrases: ['back'], label: 'Back', run: () => router.back() },
+    { phrases: ['forward'], label: 'Forward', run: () => router.forward() },
+    { phrases: ['reload', 'refresh'], label: 'Reload', run: () => window.location.reload() },
+    { phrases: ['search', 'open search'], label: 'Search', run: () => openSearch() },
+    { phrases: ['logout', 'log out', 'sign out'], label: 'Log out', run: () => clickButtonMatching(/log\s?out|sign\s?out/i) },
     { phrases: ['submit', 'send', 'save'], label: 'Submit form', run: () => clickButtonMatching(/submit|send|save/i) },
+    // ── Language ───────────────────────────────────────────────────────
     { phrases: ['sinhala', 'switch to sinhala'], label: 'Sinhala', run: () => setLanguage('si') },
     { phrases: ['tamil', 'switch to tamil'], label: 'Tamil', run: () => setLanguage('ta') },
     { phrases: ['english', 'switch to english'], label: 'English', run: () => setLanguage('en') },
   ];
+
+  // Open the Cmd/Ctrl-K dashboard search by dispatching the keyboard shortcut.
+  function openSearch() {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+  }
 
   function clickButtonMatching(re: RegExp) {
     const btns = Array.from(document.querySelectorAll<HTMLButtonElement>('button:not([disabled])'));
@@ -122,7 +151,7 @@ export function VoiceCommands() {
         <div className="fixed bottom-[88px] right-[72px] z-50 w-64 rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-xl dark:border-slate-700 dark:bg-slate-900">
           <div className="mb-1.5 flex items-center justify-between font-semibold text-slate-800 dark:text-slate-100"><span className="flex items-center gap-1.5"><Volume2 className="h-3.5 w-3.5 text-red-500" /> Listening…</span><button onClick={stop}><X className="h-3.5 w-3.5 text-muted-foreground" /></button></div>
           {lastHeard && <p className="mb-1.5 rounded bg-slate-100 px-2 py-1 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">“{lastHeard}”</p>}
-          <p className="text-[11px] text-muted-foreground">Try: <span className="font-medium">open food safety</span> · <span className="font-medium">disease map</span> · <span className="font-medium">inventory</span> · <span className="font-medium">analytics</span> · <span className="font-medium">copilot</span> · <span className="font-medium">submit</span> · <span className="font-medium">scroll down</span> · <span className="font-medium">switch to Sinhala</span> · <span className="font-medium">back</span></p>
+          <p className="text-[11px] text-muted-foreground">Try: <span className="font-medium">dark mode</span> · <span className="font-medium">light mode</span> · <span className="font-medium">open food safety</span> · <span className="font-medium">complaints</span> · <span className="font-medium">disease map</span> · <span className="font-medium">copilot</span> · <span className="font-medium">search</span> · <span className="font-medium">submit</span> · <span className="font-medium">scroll down</span> · <span className="font-medium">switch to Sinhala</span> · <span className="font-medium">back</span> · <span className="font-medium">log out</span></p>
         </div>
       )}
     </div>

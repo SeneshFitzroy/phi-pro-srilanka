@@ -47,18 +47,18 @@ const mainNavItems = [
 
 // PHI gets complaints; SPHI/Admin get full management suite
 const phiManagementItems = [
-  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+  { href: '/dashboard/administration?tab=complaints', icon: MessageSquare, label: 'Complaints' },
 ];
 
 const sphiManagementItems = [
-  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+  { href: '/dashboard/administration?tab=complaints', icon: MessageSquare, label: 'Complaints' },
   { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
   { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
   { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
 const adminManagementItems = [
-  { href: '/dashboard/management/complaints', icon: MessageSquare, label: 'Complaints' },
+  { href: '/dashboard/administration?tab=complaints', icon: MessageSquare, label: 'Complaints' },
   { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
   { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
   { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
