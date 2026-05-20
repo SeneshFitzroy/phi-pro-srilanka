@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
   UtensilsCrossed,
@@ -12,10 +14,16 @@ import {
   AlertTriangle,
   FileText,
   Calendar,
+  LayoutDashboard,
+  ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { MentalHealthCheckin } from '@/components/mental-health-checkin';
 import { DashboardMiniCalendar } from '@/components/dashboard-mini-calendar';
+import { AdministrationPanel } from '@/components/administration-panel';
+import { ComplaintsManager } from '@/components/complaints-manager';
+
+type DashTab = 'overview' | 'administration' | 'complaints';
 
 const statsCards = [
   {
@@ -77,6 +85,15 @@ const upcomingTasks = [
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<DashTab>('overview');
+
+  // Deep-link support: /dashboard?tab=administration | complaints. Clicking
+  // plain "Dashboard" (no ?tab) resets to Overview.
+  useEffect(() => {
+    const q = searchParams.get('tab');
+    setTab(q === 'administration' || q === 'complaints' ? q : 'overview');
+  }, [searchParams]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -103,8 +120,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* (Global dashboard search lives in the layout header — Cmd/Ctrl+K) */}
+      {/* Tab switcher — Overview · Administration · Complaints (merged in) */}
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800">
+        {([
+          { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
+          { id: 'administration' as const, label: 'Administration', icon: ClipboardList },
+          { id: 'complaints' as const, label: 'Complaints', icon: AlertTriangle },
+        ]).map((tb) => (
+          <button
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
+            className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${tab === tb.id ? 'border-blue-600 text-blue-700 dark:text-blue-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+          >
+            <tb.icon className="h-4 w-4" /> {tb.label}
+          </button>
+        ))}
+      </div>
 
+      {tab === 'administration' ? (
+        <AdministrationPanel />
+      ) : tab === 'complaints' ? (
+        <ComplaintsManager embedded />
+      ) : (
+      <>
       {/* Daily wellbeing check-in */}
       <MentalHealthCheckin />
 
@@ -202,6 +240,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

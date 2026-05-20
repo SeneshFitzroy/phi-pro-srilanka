@@ -10,7 +10,7 @@ import { TeamWellbeingHeatmap } from '@/components/team-wellbeing-heatmap';
 const QUICK_ACTIONS = [
   { title: 'Pending Approvals', desc: 'Review & approve PHI submissions', icon: FileCheck, href: '/dashboard/management/approvals', count: 12, color: 'text-orange-500' },
   { title: 'User Management', desc: 'Manage PHI & staff accounts', icon: Users, href: '/dashboard/management/users', count: 45, color: 'text-blue-500' },
-  { title: 'Complaints', desc: 'Review public complaints', icon: AlertTriangle, href: '/dashboard/administration?tab=complaints', count: 8, color: 'text-red-500' },
+  { title: 'Complaints', desc: 'Review public complaints', icon: AlertTriangle, href: '/dashboard?tab=complaints', count: 8, color: 'text-red-500' },
   { title: 'Citizen chat queue', desc: 'Live conversations from the public portal', icon: MessageCircle, href: '/dashboard/management/citizen-chat', count: null, color: 'text-violet-500' },
   { title: 'Permits & Licenses', desc: 'Issue & track permits', icon: ClipboardList, href: '/dashboard/management/permits', count: 15, color: 'text-green-500' },
   { title: 'Area Analytics', desc: 'Performance & trends', icon: BarChart3, href: '/dashboard/management/analytics', count: null, color: 'text-purple-500' },

@@ -38,7 +38,8 @@ const INDEX: Entry[] = [
   { label: 'Workplace safety checklist',     href: '/dashboard/occupational/checklist',     group: 'Occupational',    keywords: 'safety checklist workplace factory' },
   { label: 'Factory health certificate',     href: '/dashboard/occupational/factory-health',group: 'Occupational',    keywords: 'factory health certificate h1203' },
   // Administration
-  { label: 'Administration overview',        href: '/dashboard/administration',             group: 'Administration',  keywords: 'administration reports area survey monthly' },
+  { label: 'Administration & reporting',     href: '/dashboard?tab=administration',         group: 'Administration',  keywords: 'administration reports area survey monthly gn divisions' },
+  { label: 'Complaints',                     href: '/dashboard?tab=complaints',             group: 'Administration',  keywords: 'complaints public triage food safety' },
   { label: 'Monthly report',                 href: '/dashboard/administration/monthly-report', group: 'Administration', keywords: 'monthly report administration h399' },
   { label: 'Area survey',                    href: '/dashboard/administration/area-survey', group: 'Administration',  keywords: 'area survey administration' },
   { label: 'Spot map',                       href: '/dashboard/administration/spot-map',    group: 'Administration',  keywords: 'spot map gis cases administration' },
