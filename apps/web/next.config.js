@@ -13,6 +13,17 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  // Required so PostHog's trailing-slash capture calls aren't redirected.
+  skipTrailingSlashRedirect: true,
+  // Reverse-proxy PostHog through our own origin so ad-blockers (which match
+  // known tracker hostnames) can't block analytics. The browser only ever
+  // talks to phipro.lk/ingest; Vercel forwards it server-side to PostHog.
+  async rewrites() {
+    return [
+      { source: '/ingest/static/:path*', destination: 'https://us-assets.i.posthog.com/static/:path*' },
+      { source: '/ingest/:path*', destination: 'https://us.i.posthog.com/:path*' },
+    ];
+  },
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', '@radix-ui/react-icons', 'date-fns'],
     serverComponentsExternalPackages: ['onnxruntime-node', 'sharp'],
@@ -71,6 +82,8 @@ module.exports = withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   hideSourceMaps: true,
+  // Tunnel Sentry events through our own origin so ad-blockers can't block them.
+  tunnelRoute: '/monitoring-tunnel',
   // Disable Sentry webpack instrumentation in dev — prevents module factory corruption
   disableClientWebpackPlugin: process.env.NODE_ENV !== 'production',
   disableServerWebpackPlugin: process.env.NODE_ENV !== 'production',

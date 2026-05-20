@@ -45,12 +45,14 @@ export function initSentry() {
 
 export function initPostHog() {
   const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://app.posthog.com';
 
   if (!apiKey || posthogInitialized || typeof window === 'undefined') return;
 
   posthog.init(apiKey, {
-    api_host: host,
+    // Same-origin reverse proxy (see rewrites in next.config.js) so ad-blockers
+    // can't block analytics; ui_host keeps toolbar/links pointing at PostHog.
+    api_host: '/ingest',
+    ui_host: 'https://us.posthog.com',
     capture_pageview: true,
     capture_pageleave: true,
     // Skip the /decide feature-flag round-trip — we don't use PostHog flags,
