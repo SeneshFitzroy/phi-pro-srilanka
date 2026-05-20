@@ -6,6 +6,8 @@ import { Users, BarChart3, FileCheck, AlertTriangle, Settings, ChevronRight, Cli
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TeamWellbeingHeatmap } from '@/components/team-wellbeing-heatmap';
+import { AlertPublisher } from '@/components/alert-publisher';
+import { PaymentPipeline } from '@/components/payment-pipeline';
 
 const QUICK_ACTIONS = [
   { title: 'Pending Approvals', desc: 'Review & approve PHI submissions', icon: FileCheck, href: '/dashboard/management/approvals', count: 12, color: 'text-orange-500' },
@@ -98,6 +100,12 @@ export default function ManagementPage() {
           </table>
         </CardContent>
       </Card>
+
+      {/* Real-time payment processing — the officer side of /public/payments */}
+      <PaymentPipeline />
+
+      {/* Publish a public health alert → citizen-facing /public/alerts feed */}
+      <AlertPublisher />
 
       {/* Team wellbeing (anonymised) */}
       <TeamWellbeingHeatmap />
