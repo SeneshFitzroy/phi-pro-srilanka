@@ -35,7 +35,7 @@ const quickActions = [
   { href: '/dashboard/food/inspection/new', icon: Plus,     label: 'New Inspection',      code: 'H800', desc: '100-point hygiene score',  accent: 'from-emerald-600 to-emerald-800' },
   { href: '/dashboard/food/registration',   icon: FileText, label: 'Register Premises',   code: 'H801', desc: 'New food establishment',   accent: 'from-blue-600 to-blue-800' },
   { href: '/dashboard/food/sampling',       icon: TestTube, label: 'Submit Sample',       code: 'H802', desc: 'Adulteration & lab test',  accent: 'from-purple-600 to-purple-800' },
-  { href: '/dashboard/food/calendar',       icon: Calendar, label: 'Inspection Calendar', code: 'H803', desc: 'Schedule & follow-ups',    accent: 'from-amber-600 to-orange-700' },
+  { href: '/dashboard#calendar',            icon: Calendar, label: 'Inspection Calendar', code: 'H803', desc: 'Schedule & follow-ups',    accent: 'from-amber-600 to-orange-700' },
 ];
 
 interface RecentInspection {

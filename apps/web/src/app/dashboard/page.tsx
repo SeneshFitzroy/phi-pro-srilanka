@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -19,11 +18,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { MentalHealthCheckin } from '@/components/mental-health-checkin';
-import { DashboardMiniCalendar } from '@/components/dashboard-mini-calendar';
+import { UnifiedCalendar } from '@/components/unified-calendar';
 import { AdministrationPanel } from '@/components/administration-panel';
 import { ComplaintsManager } from '@/components/complaints-manager';
 
-type DashTab = 'overview' | 'administration' | 'complaints';
+// Two tabs only: Overview (personal + the one calendar) and Administration
+// (reporting + complaints casework merged together).
+type DashTab = 'overview' | 'administration';
 
 const statsCards = [
   {
@@ -88,11 +89,12 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<DashTab>('overview');
 
-  // Deep-link support: /dashboard?tab=administration | complaints. Clicking
-  // plain "Dashboard" (no ?tab) resets to Overview.
+  // Deep-link support: /dashboard?tab=administration. ?tab=complaints is kept
+  // as an alias (complaints now lives inside Administration) so existing
+  // sidebar/search/voice links keep working. Plain "Dashboard" → Overview.
   useEffect(() => {
     const q = searchParams.get('tab');
-    setTab(q === 'administration' || q === 'complaints' ? q : 'overview');
+    setTab(q === 'administration' || q === 'complaints' ? 'administration' : 'overview');
   }, [searchParams]);
 
   const greeting = () => {
@@ -120,12 +122,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Tab switcher — Overview · Administration · Complaints (merged in) */}
+      {/* Tab switcher — Overview · Administration (reporting + complaints) */}
       <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800">
         {([
           { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
           { id: 'administration' as const, label: 'Administration', icon: ClipboardList },
-          { id: 'complaints' as const, label: 'Complaints', icon: AlertTriangle },
         ]).map((tb) => (
           <button
             key={tb.id}
@@ -138,9 +139,15 @@ export default function DashboardPage() {
       </div>
 
       {tab === 'administration' ? (
-        <AdministrationPanel />
-      ) : tab === 'complaints' ? (
-        <ComplaintsManager embedded />
+        <div className="space-y-8">
+          <AdministrationPanel />
+          <div>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+              <AlertTriangle className="h-5 w-5 text-red-500" /> Public Complaints
+            </h2>
+            <ComplaintsManager embedded />
+          </div>
+        </div>
       ) : (
       <>
       {/* Daily wellbeing check-in */}
@@ -182,20 +189,22 @@ export default function DashboardPage() {
       {/* Domain Quick Access — coloured stat tiles removed; the sidebar +
           dashboard search are now the primary way into the five modules. */}
 
-      {/* Bottom Grid: Mini calendar + Recent Activity + Upcoming Tasks */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Mini calendar */}
-        <DashboardMiniCalendar />
+      {/* The ONE calendar — every domain's activities + tasks surface here */}
+      <div id="calendar" className="scroll-mt-20">
+        <UnifiedCalendar />
+      </div>
 
+      {/* Recent Activity + Upcoming Tasks quick lists */}
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t('dashboard.recentActivity') || 'Recent Activity'}
             </h3>
-            <Link href="/dashboard/activity" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
+            <a href="#calendar" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
               View all →
-            </Link>
+            </a>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {recentActivity.map((item, idx) => (
@@ -234,9 +243,9 @@ export default function DashboardPage() {
             ))}
           </div>
           <div className="border-t border-slate-100 px-5 py-3 dark:border-slate-800">
-            <Link href="/dashboard/activity" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
+            <a href="#calendar" className="text-xs font-medium text-blue-700 hover:text-blue-600 dark:text-blue-400">
               View all tasks →
-            </Link>
+            </a>
           </div>
         </div>
       </div>

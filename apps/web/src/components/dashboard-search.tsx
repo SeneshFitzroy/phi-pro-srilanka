@@ -19,7 +19,7 @@ const INDEX: Entry[] = [
   { label: 'New H800 food inspection',       href: '/dashboard/food/inspection/new',        group: 'Food Safety',     keywords: 'h800 inspection food premises new score' },
   { label: 'Register food premises (H801)',  href: '/dashboard/food/registration',          group: 'Food Safety',     keywords: 'h801 registration premises new licence' },
   { label: 'Submit food sample (H802)',      href: '/dashboard/food/sampling',              group: 'Food Safety',     keywords: 'h802 sample testing lab adulteration' },
-  { label: 'Food inspection calendar (H803)',href: '/dashboard/food/calendar',              group: 'Food Safety',     keywords: 'h803 schedule calendar followup' },
+  { label: 'Food inspection calendar (H803)',href: '/dashboard#calendar',                    group: 'Food Safety',     keywords: 'h803 schedule calendar followup inspection' },
   // School Health
   { label: 'School Health overview',         href: '/dashboard/school',                     group: 'School Health',   keywords: 'school medical inspection grade students' },
   { label: 'School monthly summary (H1214)', href: '/dashboard/school/monthly',             group: 'School Health',   keywords: 'h1214 monthly summary report school' },
@@ -45,7 +45,7 @@ const INDEX: Entry[] = [
   { label: 'Spot map',                       href: '/dashboard/administration/spot-map',    group: 'Administration',  keywords: 'spot map gis cases administration' },
   // Tools / account
   { label: 'AI Copilot',                     href: '/dashboard/copilot',                    group: 'Tools',           keywords: 'copilot ai assistant help' },
-  { label: 'Activity & tasks calendar',      href: '/dashboard/activity',                   group: 'Tools',           keywords: 'activity calendar tasks recent' },
+  { label: 'Activity & tasks calendar',      href: '/dashboard#calendar',                   group: 'Tools',           keywords: 'activity calendar tasks recent schedule' },
   { label: 'Profile & settings',             href: '/dashboard/profile',                    group: 'Account',         keywords: 'profile account settings' },
 ];
 
