@@ -22,6 +22,21 @@ const H399Collab = dynamic(
   },
 );
 
+// Contact tracing graph (graphology force layout) + SIR forecasting model
+// (Runge-Kutta) — both client-only, embedded here instead of standalone
+// routes so the live H399 surveillance feed and the analytics live together.
+const ContactTracingGraph = dynamic(
+  () => import('@/components/contact-tracing-graph').then((m) => ({ default: m.ContactTracingGraph })),
+  { ssr: false, loading: () => <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-muted-foreground dark:border-slate-700">Loading transmission network…</div> },
+);
+const SIRModel = dynamic(
+  () => import('@/components/sir-model').then((m) => ({ default: m.SIRModel })),
+  { ssr: false, loading: () => <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-muted-foreground dark:border-slate-700">Loading epidemic forecasting engine…</div> },
+);
+
+// Live "Active Cases" headline metric — seeds the SIR model's I0.
+const ACTIVE_CASES = 23;
+
 const quickActions = [
   { title: 'Weekly Return', subtitle: 'H399', icon: FileText, href: '/dashboard/epidemiology/weekly', color: 'bg-red-50 text-epidemiology border-red-200' },
   { title: 'Monthly Return', subtitle: 'H411', icon: Activity, href: '/dashboard/epidemiology/monthly', color: 'bg-red-50 text-epidemiology border-red-200' },
@@ -158,6 +173,49 @@ export default function EpidemiologyPage() {
             </p>
           </div>
           <H399Collab />
+        </CardContent>
+      </Card>
+
+      {/* ── Live Cluster Transmission Network — contact-tracing graph
+            embedded next to the H399 feed (no standalone route). ── */}
+      <Card className="border-l-4 border-l-indigo-500">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GitMerge className="h-4 w-4 text-indigo-600" />
+            Live Cluster Transmission Network
+            <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+              graph · interactive
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Patient → venue → supplier transmission chains on a Fruchterman-Reingold force layout. Use the inline
+            controls to add nodes or re-layout; clusters map to the same cases logged in the H399 feed above.
+          </p>
+          <ContactTracingGraph embedded />
+        </CardContent>
+      </Card>
+
+      {/* ── Epidemic Forecasting & Capacity Planning — SIR model, I0 seeded
+            from the live Active Cases metric. ── */}
+      <Card className="border-l-4 border-l-red-500">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Activity className="h-4 w-4 text-red-600" />
+            Epidemic Forecasting &amp; Capacity Planning
+            <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-950/40 dark:text-red-300">
+              SIR · RK4
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Kermack-McKendrick SIR solved with Runge-Kutta 4th order. Initial infected (I₀) is seeded from the
+            live <strong>{ACTIVE_CASES} Active Cases</strong> metric above; adjust disease + population to model
+            district capacity. R<sub>t</sub> above 1.0 flags a growing outbreak.
+          </p>
+          <SIRModel embedded seedInfected={ACTIVE_CASES} />
         </CardContent>
       </Card>
 

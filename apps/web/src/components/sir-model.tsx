@@ -6,7 +6,7 @@
 // Shows: S/I/R curves, peak day, R₀, attack rate, Rt over time
 // ============================================================================
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer, ReferenceLine,
@@ -17,12 +17,17 @@ import { cn } from '@/lib/utils';
 
 const DISEASE_KEYS = Object.keys(DISEASE_PRESETS) as Array<keyof typeof DISEASE_PRESETS>;
 
-export default function SIRModelPage() {
-  const [disease, setDisease] = useState<keyof typeof DISEASE_PRESETS>('dengue');
+export function SIRModel({ embedded = false, seedInfected, seedDisease }: { embedded?: boolean; seedInfected?: number; seedDisease?: keyof typeof DISEASE_PRESETS } = {}) {
+  const [disease, setDisease] = useState<keyof typeof DISEASE_PRESETS>(seedDisease ?? 'dengue');
   const [population, setPopulation] = useState(50000);
-  const [initialInfected, setInitialInfected] = useState(5);
+  // I0 seeds from the live Active Cases metric when embedded in Epidemiology.
+  const [initialInfected, setInitialInfected] = useState(seedInfected && seedInfected > 0 ? seedInfected : 5);
   const [days, setDays] = useState(180);
   const [showCode, setShowCode] = useState(false);
+
+  // Re-seed when the live active-case count or selected disease changes.
+  useEffect(() => { if (seedInfected && seedInfected > 0) setInitialInfected(seedInfected); }, [seedInfected]);
+  useEffect(() => { if (seedDisease) setDisease(seedDisease); }, [seedDisease]);
 
   const result = useMemo(
     () => runSIRForDisease(disease, population, initialInfected, days),
@@ -45,8 +50,8 @@ export default function SIRModelPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
+      {/* Header — hidden when embedded inside another dashboard */}
+      <div className={cn('flex items-start justify-between', embedded && 'hidden')}>
         <div>
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-orange-600 shadow">

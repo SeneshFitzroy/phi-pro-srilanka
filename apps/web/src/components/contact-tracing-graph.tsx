@@ -127,7 +127,7 @@ const EDGE_CFG: Record<string, { stroke: string; dash?: string }> = {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function ContactTracingPage() {
+export function ContactTracingGraph({ embedded = false }: { embedded?: boolean } = {}) {
   const graphRef   = useRef<Graph<NodeAttrs, EdgeAttrs> | null>(null);
   const animRef    = useRef<number>(0);
   const [, forceUpdate] = useState(0);
@@ -194,8 +194,8 @@ export default function ContactTracingPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      {/* Header — hidden when embedded inside another dashboard */}
+      <div className={cn('flex flex-wrap items-start justify-between gap-3', embedded && 'hidden')}>
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 shadow">
             <GitFork className="h-5 w-5 text-white" />

@@ -29,7 +29,9 @@ const INDEX: Entry[] = [
   { label: 'School activity log (H1014)',    href: '/dashboard/school/activity',            group: 'School Health',   keywords: 'h1014 activity log school' },
   // Epidemiology
   { label: 'Epidemiology overview',          href: '/dashboard/epidemiology',               group: 'Epidemiology',    keywords: 'epidemiology dengue outbreak surveillance' },
-  { label: 'Contact tracing',                href: '/dashboard/epidemiology/contact-tracing', group: 'Epidemiology',  keywords: 'contact tracing outbreak case investigation' },
+  { label: 'Contact tracing network',        href: '/dashboard/epidemiology', group: 'Epidemiology',  keywords: 'contact tracing outbreak case investigation cluster transmission graph' },
+  { label: 'SIR epidemic forecast',          href: '/dashboard/epidemiology', group: 'Epidemiology',  keywords: 'sir model forecast reproduction number rt capacity planning' },
+  { label: 'Live HACCP telemetry (IoT)',     href: '/dashboard/food',         group: 'Food Safety',   keywords: 'iot cold chain temperature sensor mqtt haccp fridge' },
   // Occupational
   { label: 'Occupational Health overview',   href: '/dashboard/occupational',               group: 'Occupational',    keywords: 'occupational factory worker health safety' },
   { label: 'Worker survey',                  href: '/dashboard/occupational/worker-survey', group: 'Occupational',    keywords: 'worker survey factory health' },

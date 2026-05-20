@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import {
   UtensilsCrossed, Plus, Search, FileText, Calendar, TestTube, ClipboardCheck,
   ArrowRight, TrendingUp, AlertTriangle, CheckCircle, Eye, X, Phone, MapPin,
+  Thermometer,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +15,14 @@ import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/modal';
 import { ZKPModal } from '@/components/zkp-modal';
 import { ShieldCheck } from 'lucide-react';
+
+// IoT Cold Chain telemetry — MQTT/WS engine is client-only. Dynamic import
+// (ssr:false) so the mqtt client never reaches the server bundle. Filtered
+// to food-safety sensors and rendered without its own page header.
+const IoTColdChain = dynamic(
+  () => import('@/components/iot-cold-chain').then((m) => ({ default: m.IoTColdChain })),
+  { ssr: false, loading: () => <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-muted-foreground dark:border-slate-700">Connecting live HACCP telemetry…</div> },
+);
 
 const foodStats = [
   { label: 'Total Inspections', value: '45', icon: ClipboardCheck, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300', change: '+8 this month' },
@@ -149,6 +159,27 @@ export default function FoodModulePage() {
           </Link>
         ))}
       </div>
+
+      {/* ── Live HACCP Telemetry — IoT cold-chain sensors for food premises,
+            streamed over MQTT/WebSocket (HiveMQ), with simulation fallback.
+            Vaccine cold rooms are filtered out here (food-safety view). ── */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Thermometer className="h-5 w-5 text-cyan-600" /> Live HACCP Telemetry
+          </CardTitle>
+          <span className="rounded-full bg-cyan-100 px-2.5 py-1 text-[10px] font-bold text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
+            MQTT · live
+          </span>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Walk-in fridges, hot-holding units and hotel kitchen cold rooms — temperature + humidity stream in live.
+            A breach (e.g. fridge above 5°C) raises a critical alert. Click a sensor to expand its last-hour log.
+          </p>
+          <IoTColdChain embedded foodSafetyOnly />
+        </CardContent>
+      </Card>
 
       {/* Recent Inspections Table */}
       <Card>

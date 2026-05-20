@@ -22,10 +22,7 @@ import {
   Menu,
   X,
   Sparkles,
-  Thermometer,
-  TrendingUp,
   HeartPulse,
-  Network,
   BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -72,13 +69,14 @@ const adminManagementItems = [
 // monitoring item is admin-only — split out so it can be appended for MOH only.
 const baseAiNavItems = [
   { href: '/dashboard/copilot', icon: Sparkles, label: 'Compliance Copilot' },
-  { href: '/dashboard/epidemiology/sir-model', icon: TrendingUp, label: 'SIR Epidemic Model' },
-  { href: '/dashboard/epidemiology/contact-tracing', icon: Network, label: 'Contact Tracing Graph' },
-  { href: '/dashboard/iot', icon: Thermometer, label: 'IoT Cold Chain' },
-  // Edge AI Classifier is now embedded in the H800 inspection form, and the
-  // ZKP Grade Proof is embedded in the Food Safety inspections table.
-  // H399 Collaborative lives inside Epidemiology. None have standalone nav
-  // items anymore — the engines run where the officer already works.
+  // Every other AI/monitoring engine now runs inside the domain where the
+  // officer already works (DSRM — no data silos, no duplicate entry):
+  //   • SIR Epidemic Model + Contact Tracing Graph + H399 Collaborative
+  //     → embedded in /dashboard/epidemiology
+  //   • IoT Cold Chain (Live HACCP Telemetry) + ZKP Grade Proof
+  //     → embedded in /dashboard/food
+  //   • Edge AI Classifier → embedded in the H800 inspection form
+  // None have standalone sidebar items / routes anymore.
 ];
 const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 

@@ -93,9 +93,9 @@ const STATUS_CFG: Record<ConnStatus, { label: string; icon: React.ReactNode; cls
   fallback:   { label: 'Simulated',      icon: <Radio className="h-3.5 w-3.5" />,                cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
 };
 
-export default function IoTPage() {
+export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { embedded?: boolean; foodSafetyOnly?: boolean } = {}) {
   const [sensors, setSensors] = useState<Sensor[]>([]);
-  const [selected, setSelected] = useState('MOH-VC-01');
+  const [selected, setSelected] = useState(foodSafetyOnly ? 'REST-CF-07' : 'MOH-VC-01');
   const [connStatus, setConnStatus] = useState<ConnStatus>('idle');
   const [msgCount, setMsgCount] = useState(0);
   const [msgLog, setMsgLog] = useState<string[]>([]);
@@ -216,15 +216,20 @@ export default function IoTPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedSensor = sensors.find(s => s.id === selected);
-  const alertCount    = sensors.filter(s => s.alertActive).length;
+  // When embedded in the Food Safety dashboard we hide vaccine cold-chain
+  // sensors and surface only food premises / hot-holding / kitchen units.
+  const visibleSensors = foodSafetyOnly
+    ? sensors.filter((s) => s.type !== 'vaccine_cold_chain')
+    : sensors;
+  const selectedSensor = visibleSensors.find(s => s.id === selected) ?? visibleSensors[0];
+  const alertCount    = visibleSensors.filter(s => s.alertActive).length;
   const latest        = selectedSensor?.readings.at(-1);
   const statusCfg     = STATUS_CFG[connStatus];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      {/* Header — hidden when embedded inside another dashboard */}
+      <div className={cn('flex flex-wrap items-start justify-between gap-3', embedded && 'hidden')}>
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-600 to-blue-700 shadow">
             <Thermometer className="h-5 w-5 text-white" />
@@ -256,7 +261,7 @@ export default function IoTPage() {
 
       {/* Sensor grid */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {sensors.map(sensor => {
+        {visibleSensors.map(sensor => {
           const last = sensor.readings.at(-1);
           const isSelected = sensor.id === selected;
           return (
