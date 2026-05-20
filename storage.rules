@@ -29,6 +29,11 @@ service firebase.storage {
              && request.resource.size < 25 * 1024 * 1024; // 25MB max
     }
 
+    function isValidVideo() {
+      return request.resource.contentType.matches('video/.*')
+             && request.resource.size < 50 * 1024 * 1024; // 50MB max
+    }
+
     // User profile photos
     match /users/{userId}/profile/{fileName} {
       allow read: if isAuthenticated();
@@ -42,10 +47,11 @@ service firebase.storage {
       allow delete: if isAuthenticated() && isAdmin();
     }
 
-    // Complaint attachments
+    // Complaint attachments — public citizens can upload evidence + identity
+    // media (images/video/pdf); only authenticated PHI officers can read them.
     match /complaints/{complaintId}/{fileName} {
       allow read: if isAuthenticated();
-      allow create: if isValidImage() || isValidDocument();
+      allow create: if isValidImage() || isValidVideo() || isValidDocument();
       allow delete: if isAuthenticated() && isAdmin();
     }
 

@@ -37,7 +37,8 @@ import { FaceIdCapture } from '@/components/face-id-capture';
 import { checkPhotoLooksReal } from '@/lib/image-sanity';
 import { toast } from 'sonner';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 
 /* ── reference data ─────────────────────────────────────────────────────── */
 
@@ -305,6 +306,31 @@ export default function ComplaintsPage() {
 
     try {
       const trackingId = 'CMP-' + Date.now().toString().slice(-8);
+
+      // Upload evidence + identity media to Firebase Storage so the receiving
+      // PHI office can actually SEE the photos/selfie/NIC card. Each upload is
+      // resilient — a failure (e.g. Storage rules) must never block filing, so
+      // we keep going and persist whatever URLs we managed to get.
+      const ext = (f: File) => (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const upload = async (item: MediaItem | null, name: string): Promise<string | null> => {
+        if (!item) return null;
+        try {
+          const r = storageRef(storage, `complaints/${trackingId}/${name}.${ext(item.file)}`);
+          await uploadBytes(r, item.file);
+          return await getDownloadURL(r);
+        } catch (uErr) {
+          console.warn('[complaint] media upload failed (non-fatal):', name, uErr);
+          return null;
+        }
+      };
+
+      const [nicPhotoUrl, selfieUrl, photoUrls, videoUrls] = await Promise.all([
+        upload(form.nicPhoto, 'nic-card'),
+        upload(form.selfie, 'selfie'),
+        Promise.all(form.photos.map((m, i) => upload(m, `photo-${i + 1}`))),
+        Promise.all(form.videos.map((m, i) => upload(m, `video-${i + 1}`))),
+      ]);
+
       await addDoc(collection(db, 'public_complaints'), {
         trackingId,
         type: form.type,
@@ -315,13 +341,11 @@ export default function ComplaintsPage() {
         pin: form.pin,
         contactName: form.contactName || null,
         contactInfo: form.contactInfo || null,
-        // NOTE: file blobs themselves should be uploaded to Firebase Storage in
-        // a follow-up — here we only persist their lightweight metadata. A real
-        // ID-verification pipeline would move the NIC + selfie blobs into a
-        // signed-URL bucket and queue them for an OCR/face-match worker.
         identity: {
           nicNumber: form.nicNumber.trim().toUpperCase(),
           nicPhotoName: form.nicPhoto?.file.name ?? null,
+          nicPhotoUrl,
+          selfieUrl,
           selfieCaptured: Boolean(form.selfie),
         },
         media: {
@@ -329,6 +353,8 @@ export default function ComplaintsPage() {
           videoCount: form.videos.length,
           photoNames: form.photos.map((m) => m.file.name),
           videoNames: form.videos.map((m) => m.file.name),
+          photoUrls: photoUrls.filter((u): u is string => Boolean(u)),
+          videoUrls: videoUrls.filter((u): u is string => Boolean(u)),
         },
         status: 'pending',
         assignedTo: null,
