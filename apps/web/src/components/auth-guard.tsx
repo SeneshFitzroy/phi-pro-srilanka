@@ -134,12 +134,13 @@ export function AuthGuard({ children, allowedRoles, requireAuth = true }: AuthGu
 
           {/* Wordmark */}
           <div className="text-center">
-            <p className="text-3xl font-extrabold tracking-[0.25em] text-white">PHI&nbsp;-&nbsp;PRO</p>
-            <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-blue-200/90">
+            <p className="text-[2rem] font-extrabold leading-none tracking-[0.18em] text-white">PHI-PRO</p>
+            <div className="mx-auto mt-2.5 h-px w-12 bg-gradient-to-r from-transparent via-blue-300/50 to-transparent" />
+            <p className="mt-2.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-200/90">
               Digital Health Enforcement
             </p>
-            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-blue-300/60">
-              Officer workspace &middot; secured
+            <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-blue-300/55">
+              Officer Workspace &middot; Secured
             </p>
           </div>
 
