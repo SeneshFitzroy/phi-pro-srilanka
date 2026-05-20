@@ -38,6 +38,48 @@ const catColor = (c: string) =>
 
 const emptyDraft = { name: '', category: 'Vaccines' as string, unit: 'units', quantity: 0, reorderLevel: 5, location: '', sku: '' };
 
+// Standard consumables a Sri Lankan PHI / MOH area actually stocks — used by
+// the one-click "Load standard PHI stock" seed when the register is empty.
+const DEFAULT_STOCK: Omit<Item, 'id' | 'updatedAt'>[] = [
+  // Vaccines (EPI cold chain)
+  { name: 'BCG vaccine (10-dose vial)',          category: 'Vaccines',    unit: 'vials', quantity: 40, reorderLevel: 15, location: 'Cold room A', sku: 'VAC-BCG' },
+  { name: 'OPV — bivalent oral polio',           category: 'Vaccines',    unit: 'vials', quantity: 60, reorderLevel: 20, location: 'Cold room A', sku: 'VAC-OPV' },
+  { name: 'Pentavalent (DPT-HepB-Hib)',          category: 'Vaccines',    unit: 'vials', quantity: 55, reorderLevel: 20, location: 'Cold room A', sku: 'VAC-PENTA' },
+  { name: 'MMR vaccine',                         category: 'Vaccines',    unit: 'vials', quantity: 45, reorderLevel: 15, location: 'Cold room A', sku: 'VAC-MMR' },
+  { name: 'Japanese Encephalitis vaccine',       category: 'Vaccines',    unit: 'vials', quantity: 30, reorderLevel: 10, location: 'Cold room A', sku: 'VAC-JE' },
+  { name: 'aTd (adult tetanus-diphtheria)',      category: 'Vaccines',    unit: 'vials', quantity: 50, reorderLevel: 15, location: 'Cold room A', sku: 'VAC-ATD' },
+  { name: 'Hepatitis B (paediatric)',            category: 'Vaccines',    unit: 'vials', quantity: 35, reorderLevel: 12, location: 'Cold room A', sku: 'VAC-HEPB' },
+  { name: 'HPV vaccine',                         category: 'Vaccines',    unit: 'vials', quantity: 25, reorderLevel: 10, location: 'Cold room B', sku: 'VAC-HPV' },
+  { name: 'fIPV (inactivated polio)',            category: 'Vaccines',    unit: 'vials', quantity: 28, reorderLevel: 10, location: 'Cold room A', sku: 'VAC-FIPV' },
+  { name: 'Rabies vaccine (post-exposure)',      category: 'Vaccines',    unit: 'vials', quantity: 20, reorderLevel: 8,  location: 'Cold room B', sku: 'VAC-RAB' },
+  // Test kits
+  { name: 'Dengue NS1 Antigen RDT',              category: 'Test kits',   unit: 'kits',  quantity: 80, reorderLevel: 25, location: 'Store shelf 2', sku: 'TK-NS1' },
+  { name: 'Dengue IgM/IgG RDT',                  category: 'Test kits',   unit: 'kits',  quantity: 60, reorderLevel: 20, location: 'Store shelf 2', sku: 'TK-DENVIG' },
+  { name: 'Malaria RDT',                         category: 'Test kits',   unit: 'kits',  quantity: 40, reorderLevel: 15, location: 'Store shelf 2', sku: 'TK-MAL' },
+  { name: 'COVID-19 Antigen RDT',                category: 'Test kits',   unit: 'kits',  quantity: 50, reorderLevel: 20, location: 'Store shelf 2', sku: 'TK-COV' },
+  { name: 'Water bacteriology H2S test kit',     category: 'Test kits',   unit: 'kits',  quantity: 35, reorderLevel: 12, location: 'Lab store',     sku: 'TK-H2S' },
+  { name: 'Chlorine (DPD) test kit',             category: 'Test kits',   unit: 'kits',  quantity: 30, reorderLevel: 10, location: 'Lab store',     sku: 'TK-DPD' },
+  // Forms
+  { name: 'H800 Food Inspection form',           category: 'Forms',       unit: 'pads',  quantity: 18, reorderLevel: 5,  location: 'Store shelf 4', sku: 'FRM-H800' },
+  { name: 'H801 Premises Registration form',     category: 'Forms',       unit: 'pads',  quantity: 15, reorderLevel: 5,  location: 'Store shelf 4', sku: 'FRM-H801' },
+  { name: 'H399 Weekly Return form',             category: 'Forms',       unit: 'pads',  quantity: 22, reorderLevel: 6,  location: 'Store shelf 4', sku: 'FRM-H399' },
+  { name: 'Disease Notification (H544) cards',   category: 'Forms',       unit: 'packs', quantity: 40, reorderLevel: 10, location: 'Store shelf 4', sku: 'FRM-H544' },
+  // PPE
+  { name: 'N95 respirator masks',                category: 'PPE',         unit: 'boxes', quantity: 24, reorderLevel: 6,  location: 'PPE cabinet',  sku: 'PPE-N95' },
+  { name: 'Surgical face masks',                 category: 'PPE',         unit: 'boxes', quantity: 60, reorderLevel: 15, location: 'PPE cabinet',  sku: 'PPE-MASK' },
+  { name: 'Nitrile examination gloves',          category: 'PPE',         unit: 'boxes', quantity: 45, reorderLevel: 12, location: 'PPE cabinet',  sku: 'PPE-GLV' },
+  { name: 'Disposable gowns',                    category: 'PPE',         unit: 'units', quantity: 50, reorderLevel: 15, location: 'PPE cabinet',  sku: 'PPE-GOWN' },
+  { name: 'Gumboots',                            category: 'PPE',         unit: 'pairs', quantity: 12, reorderLevel: 4,  location: 'PPE cabinet',  sku: 'PPE-BOOT' },
+  // Lab reagents
+  { name: 'H2S broth medium',                    category: 'Lab reagents',unit: 'bottles', quantity: 28, reorderLevel: 8, location: 'Lab fridge', sku: 'LAB-H2S' },
+  { name: "Lugol's iodine solution",             category: 'Lab reagents',unit: 'bottles', quantity: 15, reorderLevel: 5, location: 'Lab fridge', sku: 'LAB-IOD' },
+  { name: 'Formalin (sample preservative)',      category: 'Lab reagents',unit: 'bottles', quantity: 20, reorderLevel: 6, location: 'Lab store',  sku: 'LAB-FORM' },
+  // Other
+  { name: 'Temephos (Abate) larvicide',          category: 'Other',       unit: 'kg',    quantity: 18, reorderLevel: 5,  location: 'Vector store', sku: 'OTH-ABATE' },
+  { name: 'Sterile sample bottles',              category: 'Other',       unit: 'units', quantity: 120, reorderLevel: 30, location: 'Lab store',    sku: 'OTH-BOTL' },
+  { name: 'Cool box with ice packs',             category: 'Other',       unit: 'units', quantity: 6,  reorderLevel: 2,  location: 'Cold room A',  sku: 'OTH-COOL' },
+];
+
 export default function InventoryPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
@@ -46,6 +88,7 @@ export default function InventoryPage() {
   const [cat, setCat] = useState<string>('ALL');
   const [showAdd, setShowAdd] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
+  const [seeding, setSeeding] = useState(false);
   const [qrFor, setQrFor] = useState<Item | null>(null);
   const [origin, setOrigin] = useState('');
 
@@ -78,6 +121,17 @@ export default function InventoryPage() {
       toast.success('Item added.');
       setShowAdd(false); setDraft(emptyDraft);
     } catch { toast.error('Could not add item (sign in & deploy Firestore rules).'); }
+  };
+
+  const seedStandard = async () => {
+    setSeeding(true);
+    let ok = 0;
+    for (const it of DEFAULT_STOCK) {
+      try { await createDocument('inventory_items', { ...it, updatedBy: user?.uid ?? 'anonymous' }); ok++; } catch { /* rules/auth */ }
+    }
+    setSeeding(false);
+    if (ok > 0) toast.success(`Loaded ${ok} standard PHI stock items.`);
+    else toast.error('Could not load stock — sign in and deploy Firestore rules.');
   };
 
   const adjust = async (item: Item, delta: number) => {
@@ -150,7 +204,13 @@ export default function InventoryPage() {
         <CardHeader className="flex flex-row items-center justify-between"><CardTitle className="text-base">Items ({filtered.length})</CardTitle>{loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}</CardHeader>
         <CardContent className="overflow-x-auto">
           {!loading && items.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">No items yet — click <strong>Add Item</strong>. (Requires sign-in and deployed Firestore rules.)</div>
+            <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+              <p>No items yet — click <strong>Add Item</strong>, or load the standard PHI stock list to get started.</p>
+              <Button onClick={seedStandard} disabled={seeding} className="mt-4 gap-2">
+                {seeding ? <><Loader2 className="h-4 w-4 animate-spin" />Loading…</> : <><PackagePlus className="h-4 w-4" />Load standard PHI stock ({DEFAULT_STOCK.length} items)</>}
+              </Button>
+              <p className="mt-2 text-[11px]">(Requires sign-in and deployed Firestore rules.)</p>
+            </div>
           ) : (
             <table className="w-full text-sm">
               <thead><tr className="border-b text-left text-muted-foreground"><th className="py-2 pr-2 font-medium">Item</th><th className="py-2 pr-2 font-medium">Category</th><th className="py-2 pr-2 font-medium">Location</th><th className="py-2 pr-2 font-medium text-center">In stock</th><th className="py-2 pr-2 font-medium text-center">Adjust</th><th className="py-2 font-medium text-right">QR / Remove</th></tr></thead>

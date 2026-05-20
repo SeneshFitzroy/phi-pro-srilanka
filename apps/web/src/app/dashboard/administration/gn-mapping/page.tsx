@@ -7,6 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { COLOMBO_GN_DIVISIONS } from '@/data/colombo-gn-divisions';
+
+// Pre-loaded with every GN division of the Colombo MOH area (shared dataset).
+const SEED_RECORDS = COLOMBO_GN_DIVISIONS.map((g, i) => ({
+  id: i + 1,
+  gnCode: g.code,
+  gnName: g.name,
+  gnOfficer: g.officer,
+  population: String(g.population),
+  households: String(g.households),
+  waterSource: g.waterSource,
+  sanitationType: g.sanitationType,
+  healthFacilities: String(g.healthFacilities),
+  schools: String(g.schools),
+  factories: String(g.factories),
+  foodPremises: String(g.foodPremises),
+}));
 
 interface GNRecord {
   id: number;
@@ -24,9 +42,7 @@ interface GNRecord {
 }
 
 export default function GNMappingPage() {
-  const [records, setRecords] = useState<GNRecord[]>([
-    { id: 1, gnCode: '', gnName: '', gnOfficer: '', population: '', households: '', waterSource: '', sanitationType: '', healthFacilities: '', schools: '', factories: '', foodPremises: '' },
-  ]);
+  const [records, setRecords] = useState<GNRecord[]>(SEED_RECORDS);
 
   const addRecord = () => setRecords(prev => [...prev, { id: Date.now(), gnCode: '', gnName: '', gnOfficer: '', population: '', households: '', waterSource: '', sanitationType: '', healthFacilities: '', schools: '', factories: '', foodPremises: '' }]);
   const removeRecord = (id: number) => setRecords(prev => prev.filter(r => r.id !== id));
@@ -43,8 +59,8 @@ export default function GNMappingPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-administration hover:bg-administration/90" onClick={() => { try { localStorage.setItem('phi-gn-mapping', JSON.stringify(records)); } catch { /* */ } toast.success(`Saved ${records.length} GN divisions.`); }}><Save className="mr-2 h-4 w-4" />Save</Button>
         </div>
       </div>
 

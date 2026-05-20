@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { FileText, MapPin, BarChart3, Calendar, Map, Search, ClipboardList, TrendingUp, Users, Boxes } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { COLOMBO_GN_DIVISIONS } from '@/data/colombo-gn-divisions';
 
 const quickActions = [
   { title: 'GN Area Mapping', subtitle: 'H795', icon: MapPin, href: '/dashboard/administration/gn-mapping', color: 'bg-purple-50 text-administration border-purple-200' },
@@ -20,14 +21,9 @@ const quickActions = [
   { title: 'Inventory & Stock', subtitle: 'Consumables', icon: Boxes, href: '/dashboard/administration/inventory', color: 'bg-blue-50 text-blue-600 border-blue-200' },
 ];
 
-const gnDivisions = [
-  { code: 'GN-001', name: 'Borella South', population: 4200, households: 980, lastSurvey: '2025-01-15', status: 'Complete' },
-  { code: 'GN-002', name: 'Borella North', population: 3800, households: 890, lastSurvey: '2025-01-20', status: 'Complete' },
-  { code: 'GN-003', name: 'Narahenpita', population: 5100, households: 1200, lastSurvey: '2025-02-01', status: 'In Progress' },
-  { code: 'GN-004', name: 'Kirulapone', population: 3200, households: 750, lastSurvey: '2024-12-10', status: 'Complete' },
-  { code: 'GN-005', name: 'Cinnamon Gardens', population: 2800, households: 640, lastSurvey: '2024-11-20', status: 'Outdated' },
-  { code: 'GN-006', name: 'Havelock Town', population: 4500, households: 1050, lastSurvey: '2024-10-05', status: 'Outdated' },
-];
+// Shared single source — same divisions, figures and survey dates as the GN
+// Area Mapping (H795) form, so the table and dates stay in sync.
+const gnDivisions = COLOMBO_GN_DIVISIONS;
 
 export function AdministrationPanel() {
   const [search, setSearch] = useState('');

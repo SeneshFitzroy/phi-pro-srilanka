@@ -45,19 +45,17 @@ const mainNavItems = [
 ];
 
 // PHI gets complaints; SPHI/Admin get full management suite
-const phiManagementItems = [
-  { href: '/dashboard?tab=complaints', icon: MessageSquare, label: 'Complaints' },
-];
+// Complaints now live inside the dashboard Administration tab (Public
+// Complaints section) — there is no standalone Complaints nav entry / tab.
+const phiManagementItems: { href: string; icon: typeof MessageSquare; label: string }[] = [];
 
 const sphiManagementItems = [
-  { href: '/dashboard?tab=complaints', icon: MessageSquare, label: 'Complaints' },
   { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
   { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
   { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
 const adminManagementItems = [
-  { href: '/dashboard?tab=complaints', icon: MessageSquare, label: 'Complaints' },
   { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
   { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
   { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
@@ -225,36 +223,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               })}
             </div>
 
-            <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
+            {managementItems.length > 0 && (
+              <>
+                <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
 
-            {!collapsed && !hideManagementHeader && (
-              <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                {managementLabel}
-              </div>
+                {!collapsed && !hideManagementHeader && (
+                  <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {managementLabel}
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {managementItems.map((item) => {
+                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
+                          isActive
+                            ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
+                          collapsed && 'justify-center px-2',
+                        )}
+                        title={collapsed ? item.label : undefined}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
+                        {!collapsed && <span>{item.label}</span>}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </>
             )}
-            <div className="space-y-0.5">
-              {managementItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
-                      isActive
-                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
-                      collapsed && 'justify-center px-2',
-                    )}
-                    title={collapsed ? item.label : undefined}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
-                    {!collapsed && <span>{item.label}</span>}
-                  </Link>
-                );
-              })}
-            </div>
 
             <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
 
