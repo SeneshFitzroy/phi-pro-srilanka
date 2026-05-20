@@ -42,7 +42,6 @@ const mainNavItems = [
   { href: '/dashboard/school', icon: School, labelKey: 'nav.school', accent: 'blue' },
   { href: '/dashboard/epidemiology', icon: Activity, labelKey: 'nav.epidemiology', accent: 'red' },
   { href: '/dashboard/occupational', icon: HardHat, labelKey: 'nav.occupational', accent: 'amber' },
-  { href: '/dashboard?tab=administration', icon: ClipboardList, labelKey: 'nav.administration', accent: 'violet' },
 ];
 
 // PHI gets complaints; SPHI/Admin get full management suite
@@ -119,7 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Field-form domains: hidden for SPHI (supervisory role) — they manage via Approvals/Permits/Analytics
   // Always-on for PHI (field officer) and MOH_ADMIN (full oversight)
   const visibleMainNavItems = role === UserRole.SPHI
-    ? mainNavItems.filter((i) => i.href === '/dashboard' || i.href === '/dashboard?tab=administration')
+    ? mainNavItems.filter((i) => i.href === '/dashboard')
     : mainNavItems;
 
   // System Status: MOH_ADMIN only
