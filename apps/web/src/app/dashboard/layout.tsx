@@ -134,6 +134,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     : role === UserRole.SPHI    ? 'Supervision'
     : 'Complaints';
 
+  // A single-item group whose only entry repeats the group name (e.g. PHI's
+  // "Complaints / Complaints") reads as a duplicate — drop the redundant header.
+  const hideManagementHeader =
+    managementItems.length === 1 && managementItems[0].label === managementLabel;
+
+  // Fold the AI assistant + officer resources into one "Tools" group so the
+  // sidebar isn't fragmented into several single-item sections.
+  const toolsItems = [
+    ...visibleAiNavItems,
+    ...(showOfficerResources ? officerResourceItems : []),
+  ];
+
   const initials = user?.displayName
     ? user.displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'U';
@@ -215,7 +227,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
 
-            {!collapsed && (
+            {!collapsed && !hideManagementHeader && (
               <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 {managementLabel}
               </div>
@@ -248,11 +260,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {!collapsed && (
               <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                AI &amp; Monitoring
+                Tools
               </div>
             )}
             <div className="space-y-0.5">
-              {visibleAiNavItems.map((item) => {
+              {toolsItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
@@ -274,40 +286,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 );
               })}
             </div>
-
-            {showOfficerResources && (
-              <>
-                <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
-                {!collapsed && (
-                  <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Officer Resources
-                  </div>
-                )}
-                <div className="space-y-0.5">
-                  {officerResourceItems.map((item) => {
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
-                          isActive
-                            ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
-                          collapsed && 'justify-center px-2',
-                        )}
-                        title={collapsed ? item.label : undefined}
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        <item.icon className={cn('h-[18px] w-[18px] shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300', isActive && 'text-slate-700 dark:text-slate-200')} />
-                        {!collapsed && <span>{item.label}</span>}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </>
-            )}
           </nav>
 
           {/* Bottom User Section */}
