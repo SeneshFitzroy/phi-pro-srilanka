@@ -20,6 +20,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { UserRole } from '@phi-pro/shared';
 import { UnifiedCalendar } from '@/components/unified-calendar';
 import { AdministrationPanel } from '@/components/administration-panel';
+import { AnalyticsContent } from '@/components/analytics-content';
 import { ComplaintsManager } from '@/components/complaints-manager';
 
 // Two tabs only: Overview (personal + the one calendar) and Administration
@@ -101,7 +102,10 @@ export default function DashboardPage() {
   //    by supervisory staff and is hidden from PHIs.
   //  • SPHI / MOH_ADMIN — full Overview + Administration access.
   const role = user?.role ?? UserRole.PHI;
-  const canSeeAdmin = role === UserRole.SPHI || role === UserRole.MOH_ADMIN;
+  // Administration is MOH-only now — SPHI supervisors get their analytics
+  // embedded inline on the Overview tab instead (see below).
+  const canSeeAdmin = role === UserRole.MOH_ADMIN;
+  const isSphi = role === UserRole.SPHI;
 
   // Deep-link support: /dashboard?tab=administration. ?tab=complaints is kept
   // as an alias (complaints now lives inside Administration) so existing
@@ -172,6 +176,19 @@ export default function DashboardPage() {
       {/* Daily wellbeing check-in is now available from the top-nav heart pill
           (WellbeingBell) on every dashboard page — keeps the main column for
           operational KPIs. */}
+
+      {/* SPHI supervisor view — the Area Analytics dashboard is embedded
+          directly on /dashboard so supervisors land on workforce performance,
+          drift, and the workload heatmap immediately. */}
+      {isSphi && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Supervisor view — Area Analytics</h2>
+            <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-purple-700 dark:bg-purple-950/40 dark:text-purple-300">SPHI</span>
+          </div>
+          <AnalyticsContent embedded />
+        </section>
+      )}
 
       {/* KPI Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
