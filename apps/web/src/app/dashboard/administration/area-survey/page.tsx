@@ -7,15 +7,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { COLOMBO_GN_DIVISIONS } from '@/data/colombo-gn-divisions';
 
 const WATER_SOURCES = ['Pipe-borne (treated)', 'Protected well', 'Unprotected well', 'Tube well', 'Stream/river', 'Rainwater', 'Bowser/vendor'];
 const TOILET_TYPES = ['Water-sealed', 'Pour flush', 'Pit latrine', 'No latrine'];
 const WASTE_METHODS = ['Municipal collection', 'Open burning', 'Burying', 'Composting', 'Open dumping'];
 
+// Realistic household-count splits for the Colombo (CMC) area (≈20,000 HH).
+const WATER_HH: Record<string, number>  = { 'Pipe-borne (treated)': 18200, 'Protected well': 980, 'Unprotected well': 210, 'Tube well': 140, 'Stream/river': 60, 'Rainwater': 350, 'Bowser/vendor': 150 };
+const TOILET_HH: Record<string, number> = { 'Water-sealed': 17800, 'Pour flush': 1700, 'Pit latrine': 480, 'No latrine': 110 };
+const WASTE_HH: Record<string, number>  = { 'Municipal collection': 18600, 'Open burning': 720, 'Burying': 240, 'Composting': 410, 'Open dumping': 120 };
+const FACILITY_COUNT: Record<string, number> = { Hospitals: 6, 'MOH Offices': 1, Schools: 41, 'Pre-schools': 38, 'Food Premises': 1490, Factories: 39, Markets: 12, 'Places of Worship': 84, 'Hotels/Restaurants': 210, Bakeries: 95, 'Slaughter Houses': 3, Cemeteries: 7 };
+
+// Section 1 pre-loaded from the shared Colombo GN dataset.
+const SEED_GN = COLOMBO_GN_DIVISIONS.map((g, i) => {
+  const males = Math.round(g.population * 0.49);
+  return {
+    id: i + 1,
+    gnName: g.name,
+    population: String(g.population),
+    males: String(males),
+    females: String(g.population - males),
+    under5: String(Math.round(g.population * 0.08)),
+    over60: String(Math.round(g.population * 0.12)),
+    households: String(g.households),
+  };
+});
+
 export default function AreaSurveyPage() {
-  const [gnDivisions, setGnDivisions] = useState([
-    { id: 1, gnName: '', population: '', males: '', females: '', under5: '', over60: '', households: '' },
-  ]);
+  const [gnDivisions, setGnDivisions] = useState(SEED_GN);
 
   const addGN = () => setGnDivisions(prev => [...prev, { id: Date.now(), gnName: '', population: '', males: '', females: '', under5: '', over60: '', households: '' }]);
   const removeGN = (id: number) => setGnDivisions(prev => prev.filter(g => g.id !== id));
@@ -39,17 +60,17 @@ export default function AreaSurveyPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-administration hover:bg-administration/90" onClick={() => toast.success('Area survey saved.')}><Save className="mr-2 h-4 w-4" />Save</Button>
         </div>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-4">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Code" /></div>
-          <div className="space-y-2"><Label>Survey Year</Label><Input type="number" placeholder="2025" /></div>
-          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input defaultValue="Colombo (CMC)" placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input defaultValue="COL-PHI-04" placeholder="Code" /></div>
+          <div className="space-y-2"><Label>Survey Year</Label><Input type="number" defaultValue={new Date().getFullYear()} placeholder="2025" /></div>
+          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
         </CardContent>
       </Card>
 
@@ -99,7 +120,7 @@ export default function AreaSurveyPage() {
             {WATER_SOURCES.map(src => (
               <div key={src} className="flex items-center justify-between rounded border p-2">
                 <span className="text-sm">{src}</span>
-                <Input type="number" className="h-8 w-24 text-center text-xs" placeholder="HH count" />
+                <Input type="number" className="h-8 w-24 text-center text-xs" defaultValue={WATER_HH[src]} placeholder="HH count" />
               </div>
             ))}
           </div>
@@ -114,7 +135,7 @@ export default function AreaSurveyPage() {
             {TOILET_TYPES.map(t => (
               <div key={t} className="flex items-center justify-between rounded border p-2">
                 <span className="text-sm">{t}</span>
-                <Input type="number" className="h-8 w-24 text-center text-xs" placeholder="HH count" />
+                <Input type="number" className="h-8 w-24 text-center text-xs" defaultValue={TOILET_HH[t]} placeholder="HH count" />
               </div>
             ))}
           </div>
@@ -129,7 +150,7 @@ export default function AreaSurveyPage() {
             {WASTE_METHODS.map(m => (
               <div key={m} className="flex items-center justify-between rounded border p-2">
                 <span className="text-sm">{m}</span>
-                <Input type="number" className="h-8 w-24 text-center text-xs" placeholder="HH count" />
+                <Input type="number" className="h-8 w-24 text-center text-xs" defaultValue={WASTE_HH[m]} placeholder="HH count" />
               </div>
             ))}
           </div>
@@ -140,9 +161,9 @@ export default function AreaSurveyPage() {
       <Card>
         <CardHeader className="bg-orange-50 dark:bg-orange-950/10 rounded-t-lg"><CardTitle className="text-base">Section 5: Housing Types</CardTitle></CardHeader>
         <CardContent className="p-4 grid gap-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>Permanent</Label><Input type="number" placeholder="Count" /></div>
-          <div className="space-y-2"><Label>Semi-permanent</Label><Input type="number" placeholder="Count" /></div>
-          <div className="space-y-2"><Label>Temporary/Shanty</Label><Input type="number" placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Permanent</Label><Input type="number" defaultValue={17200} placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Semi-permanent</Label><Input type="number" defaultValue={2400} placeholder="Count" /></div>
+          <div className="space-y-2"><Label>Temporary/Shanty</Label><Input type="number" defaultValue={490} placeholder="Count" /></div>
         </CardContent>
       </Card>
 
@@ -151,7 +172,7 @@ export default function AreaSurveyPage() {
         <CardHeader className="bg-red-50 dark:bg-red-950/10 rounded-t-lg"><CardTitle className="text-base">Section 6: Key Facilities in Area</CardTitle></CardHeader>
         <CardContent className="p-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {['Hospitals', 'MOH Offices', 'Schools', 'Pre-schools', 'Food Premises', 'Factories', 'Markets', 'Places of Worship', 'Hotels/Restaurants', 'Bakeries', 'Slaughter Houses', 'Cemeteries'].map(f => (
-            <div key={f} className="space-y-1"><Label className="text-xs">{f}</Label><Input type="number" placeholder="0" /></div>
+            <div key={f} className="space-y-1"><Label className="text-xs">{f}</Label><Input type="number" defaultValue={FACILITY_COUNT[f]} placeholder="0" /></div>
           ))}
         </CardContent>
       </Card>

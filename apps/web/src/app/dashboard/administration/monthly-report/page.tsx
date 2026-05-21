@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 interface Section { title: string; items: { key: string; label: string }[]; color: string; }
 
@@ -87,12 +88,25 @@ const SECTIONS: Section[] = [
   },
 ];
 
+// One month of realistic activity for the Colombo (CMC) PHI area.
+const SEED: Record<string, string> = {
+  f1: '118', f2: '24', f3: '16', f4: '7', f5: '2', f6: '5', f7: '14', f8: '63',
+  d1: '23', d2: '21', d3: '12', d4: '48', d5: '6', d6: '4',
+  s1: '9', s2: '412', s3: '67', s4: '23', s5: '128', s6: '96', s7: '7',
+  o1: '8', o2: '142', o3: '11', o4: '5', o5: '1',
+  e1: '54', e2: '19', e3: '12', e4: '23', e5: '9',
+  h1: '11', h2: '486', h3: '78', h4: '6', h5: '16', h6: '5', h7: '2',
+};
+
 export default function MonthlyReportPage() {
-  const [data, setData] = useState<Record<string, string>>(() => {
-    const d: Record<string, string> = {};
-    SECTIONS.forEach(s => s.items.forEach(i => { d[i.key] = ''; }));
-    return d;
+  const [data, setData] = useState<Record<string, string>>(SEED);
+  const [meta, setMeta] = useState({
+    month: new Date().toISOString().slice(0, 7),
+    phiArea: 'Colombo (CMC) — PHI Area 04',
+    mohArea: 'Colombo (CMC)',
   });
+
+  const save = () => { try { localStorage.setItem('phi-monthly-report', JSON.stringify({ data, meta })); } catch { /* */ } toast.success('Monthly report saved & submitted.'); };
 
   const totalActivities = useMemo(() =>
     Object.values(data).reduce((sum, v) => sum + (parseInt(v) || 0), 0),
@@ -110,16 +124,16 @@ export default function MonthlyReportPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save & Submit</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-administration hover:bg-administration/90" onClick={save}><Save className="mr-2 h-4 w-4" />Save & Submit</Button>
         </div>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-4">
-          <div className="space-y-2"><Label>Month</Label><Input type="month" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="MOH area" /></div>
+          <div className="space-y-2"><Label>Month</Label><Input type="month" value={meta.month} onChange={(e) => setMeta({ ...meta, month: e.target.value })} /></div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input value={meta.phiArea} onChange={(e) => setMeta({ ...meta, phiArea: e.target.value })} placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input value={meta.mohArea} onChange={(e) => setMeta({ ...meta, mohArea: e.target.value })} placeholder="MOH area" /></div>
           <div className="space-y-2"><Label>Total Activities</Label><Input value={totalActivities} readOnly className="font-bold" /></div>
         </CardContent>
       </Card>

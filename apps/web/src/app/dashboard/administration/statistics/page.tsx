@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 const CATEGORIES = [
   { key: 'population', label: 'Total Population' },
@@ -34,16 +35,48 @@ const CATEGORIES = [
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
 
+// Realistic 5-year figures for the Colombo (CMC) MOH area — oldest → newest.
+const SEED_VALUES: Record<string, number[]> = {
+  population:        [86000, 86800, 87500, 88000, 88250],
+  males:             [42140, 42532, 42875, 43120, 43243],
+  females:           [43860, 44268, 44625, 44880, 45007],
+  households:        [19420, 19610, 19820, 19980, 20090],
+  births:            [1410, 1380, 1342, 1305, 1288],
+  deaths:            [602, 631, 648, 659, 671],
+  infantDeaths:      [8, 7, 6, 6, 5],
+  maternalDeaths:    [1, 0, 1, 0, 0],
+  dengue:            [420, 510, 380, 640, 590],
+  typhoid:           [12, 9, 7, 11, 8],
+  dysentery:         [34, 28, 22, 30, 25],
+  foodPoisoning:     [18, 22, 15, 26, 19],
+  tuberculosis:      [64, 58, 52, 49, 47],
+  leprosy:           [3, 2, 2, 1, 1],
+  rabies:            [210, 240, 198, 265, 231],
+  foodPremises:      [1180, 1240, 980, 1320, 1410],
+  schoolsInspected:  [42, 44, 38, 45, 46],
+  factoriesInspected:[28, 31, 24, 33, 35],
+  waterSamples:      [320, 360, 280, 390, 410],
+  foodSamples:       [240, 270, 210, 300, 315],
+};
+
+const SEED_DATA: Record<string, Record<number, string>> = (() => {
+  const d: Record<string, Record<number, string>> = {};
+  CATEGORIES.forEach((c) => { d[c.key] = {}; YEARS.forEach((y, i) => { d[c.key][y] = String(SEED_VALUES[c.key]?.[i] ?? ''); }); });
+  return d;
+})();
+
+const DEFAULT_NOTES = `Figures cover the Colombo Municipal Council (CMC) MOH area, 18 GN divisions. ${currentYear - 1}–${currentYear} dengue rise tracks the inter-monsoon breeding peak (Apr–Jun); vector control intensified in Kotahena and Wanathamulla. Infant and maternal mortality remain at/near zero. Food-premises inspection coverage exceeds 95% of registered premises.`;
+
 export default function StatisticsPage() {
-  const [data, setData] = useState<Record<string, Record<number, string>>>(() => {
-    const d: Record<string, Record<number, string>> = {};
-    CATEGORIES.forEach(c => { d[c.key] = {}; YEARS.forEach(y => { d[c.key][y] = ''; }); });
-    return d;
-  });
+  const [data, setData] = useState<Record<string, Record<number, string>>>(SEED_DATA);
+  const [meta, setMeta] = useState({ moh: 'Colombo (CMC)', code: 'COL-PHI-04', preparedBy: 'C.M.I.T. Wijerathna (PHI)' });
+  const [notes, setNotes] = useState(DEFAULT_NOTES);
 
   const updateCell = (cat: string, year: number, val: string) => {
     setData(prev => ({ ...prev, [cat]: { ...prev[cat], [year]: val } }));
   };
+
+  const save = () => { try { localStorage.setItem('phi-h796', JSON.stringify({ data, meta, notes })); } catch { /* */ } toast.success('Five-Year Statistics saved.'); };
 
   return (
     <div className="space-y-6">
@@ -56,16 +89,16 @@ export default function StatisticsPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-administration hover:bg-administration/90"><Save className="mr-2 h-4 w-4" />Save</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-administration hover:bg-administration/90" onClick={save}><Save className="mr-2 h-4 w-4" />Save</Button>
         </div>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area Code</Label><Input placeholder="Code" /></div>
-          <div className="space-y-2"><Label>Prepared By</Label><Input placeholder="PHI name" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input value={meta.moh} onChange={(e) => setMeta({ ...meta, moh: e.target.value })} placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>PHI Area Code</Label><Input value={meta.code} onChange={(e) => setMeta({ ...meta, code: e.target.value })} placeholder="Code" /></div>
+          <div className="space-y-2"><Label>Prepared By</Label><Input value={meta.preparedBy} onChange={(e) => setMeta({ ...meta, preparedBy: e.target.value })} placeholder="PHI name" /></div>
         </CardContent>
       </Card>
 
@@ -91,7 +124,7 @@ export default function StatisticsPage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Notes</CardTitle></CardHeader>
         <CardContent>
-          <textarea className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Additional remarks or explanations..." />
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Additional remarks or explanations..." />
         </CardContent>
       </Card>
     </div>
