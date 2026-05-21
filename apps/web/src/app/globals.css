@@ -114,13 +114,33 @@ body { top: 0 !important; }
 
 /* Print styles */
 @media print {
-  nav, aside, header, footer, button {
+  /* Hide app chrome so the print captures only the page content */
+  nav, aside, header, footer, button,
+  [data-print-hide] {
     display: none !important;
   }
+
+  /* CRITICAL: the dashboard shell uses a fixed-height (h-screen) scroll
+     container with overflow hidden, which otherwise clips the print to a
+     single viewport ("1 page"). Unclip every box so the FULL page flows
+     and paginates across as many pages as needed. */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  * {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
   main {
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
   }
+
+  /* Avoid awkward breaks inside cards / table rows */
+  tr, .rounded-xl, .rounded-2xl { break-inside: avoid; }
 }
 /* ── Accessibility pack (toggled via the Accessibility menu) ───────────────── */
 
