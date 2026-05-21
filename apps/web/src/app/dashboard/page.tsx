@@ -17,7 +17,6 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
-import { MentalHealthCheckin } from '@/components/mental-health-checkin';
 import { UnifiedCalendar } from '@/components/unified-calendar';
 import { AdministrationPanel } from '@/components/administration-panel';
 import { ComplaintsManager } from '@/components/complaints-manager';
@@ -157,8 +156,9 @@ export default function DashboardPage() {
         </div>
       ) : (
       <>
-      {/* Daily wellbeing check-in */}
-      <MentalHealthCheckin />
+      {/* Daily wellbeing check-in is now available from the top-nav heart pill
+          (WellbeingBell) on every dashboard page — keeps the main column for
+          operational KPIs. */}
 
       {/* KPI Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

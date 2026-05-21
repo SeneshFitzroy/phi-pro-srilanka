@@ -1,67 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowRight, Users, Phone, Newspaper,
-  UserCheck, Store, ChevronDown, ChevronRight,
+  ArrowRight, Phone, Newspaper,
+  ChevronDown, ChevronRight,
   BookOpen, ShieldCheck, MapPin,
   AlertTriangle, CheckCircle, Megaphone,
 } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '@/components/public-chrome';
 
 /* ──────────────────────────── data ─────────────────────────────────────── */
-
-// Three audiences served by PHI-PRO — operations-grade card content: who they
-// are, what they get on day one, and the single CTA that takes them in.
-const audiences = [
-  {
-    icon: UserCheck,
-    title: 'Field officers',
-    tag: 'PHI · SPHI · MOH',
-    summary: 'Uniformed officers carrying inspections, samples and prosecutions in the field.',
-    bullets: [
-      'H800 food, H1046 water, H1203 vector forms',
-      'Offline-first inspections with GPS stamp',
-      'GIS outbreak triage + dengue heatmap',
-      'AI compliance copilot + audit chain',
-    ],
-    cta: 'Officer login',
-    href: '/login',
-    accent: 'from-blue-700 to-blue-950',
-    badge: 'Statutory cadre',
-  },
-  {
-    icon: Store,
-    title: 'Business owners',
-    tag: 'Premises · factories · trades',
-    summary: 'Restaurant operators, factory managers and trade permit holders.',
-    bullets: [
-      'Live A / B / C grade status',
-      'Online permit renewal in minutes',
-      'QR-signed certificates downloadable',
-      'PayHere government-rail payments',
-    ],
-    cta: 'Pay or renew',
-    href: '/public/payments',
-    accent: 'from-sky-600 to-blue-800',
-    badge: 'Operator',
-  },
-  {
-    icon: Users,
-    title: 'Citizens',
-    tag: 'Every Sri Lankan',
-    summary: 'Eat safe. Stay informed. Report what isn’t right — in your own language.',
-    bullets: [
-      'Restaurant hygiene grade lookup',
-      'District outbreak & dengue alerts',
-      'Anonymous, NIC-verified complaints',
-      'Trilingual EN · සිංහල · தமிழ்',
-    ],
-    cta: 'Open public portal',
-    href: '/public/portal',
-    accent: 'from-indigo-600 to-blue-900',
-    badge: 'Public',
-  },
-];
 
 // Portal teaser tiles — link to the consolidated /public/portal hub.
 const portalTeaser = [
@@ -130,86 +77,6 @@ export default function HomePage() {
 
             {/* Trust-badge strip removed per design — keeps the hero focus on
                 the headline + the two CTAs immediately above. */}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════ THREE AUDIENCES — moved up so visitors see
-           which front door to use BEFORE the editorial content scrolls past.
-           Compact card layout — same data, same audit chain, three
-           purpose-built entry points. ═══════════════════ */}
-      <section className="border-t border-slate-200 bg-white py-10 sm:py-14 dark:border-slate-800 dark:bg-slate-950">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-7 max-w-3xl text-center">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">Choose your front door</p>
-            <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-              One audit-grade platform. Three purpose-built workspaces.
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Officers enforce. Operators comply. Citizens stay informed. Every action lands on the same
-              tamper-evident chain.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {audiences.map((a, i) => (
-              <article
-                key={a.title}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-              >
-                {/* Compact top band */}
-                <div className={`relative overflow-hidden bg-gradient-to-br ${a.accent} px-4 py-4 text-white`}>
-                  <div
-                    className="absolute inset-0 opacity-[0.08]"
-                    style={{
-                      backgroundImage:
-                        'linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(to right,rgba(255,255,255,.6) 1px,transparent 1px)',
-                      backgroundSize: '24px 24px',
-                    }}
-                    aria-hidden
-                  />
-                  <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-xl" aria-hidden />
-                  <div className="relative flex items-start justify-between gap-2">
-                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
-                      <a.icon className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/90 ring-1 ring-white/20">
-                        {a.badge}
-                      </span>
-                      <p className="mt-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-white/60">
-                        0{i + 1}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="relative mt-2.5 text-[10px] font-bold uppercase tracking-widest text-white/80">{a.tag}</p>
-                  <h3 className="relative mt-0.5 text-lg font-extrabold leading-tight">{a.title}</h3>
-                </div>
-
-                {/* Body */}
-                <div className="flex flex-1 flex-col p-4">
-                  <p className="text-[12px] leading-relaxed text-slate-600 dark:text-slate-400">{a.summary}</p>
-
-                  <div className="my-2.5 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-slate-700" />
-
-                  <ul className="flex-1 space-y-1.5">
-                    {a.bullets.map((b) => (
-                      <li key={b} className="flex items-start gap-1.5 text-[12px] text-slate-700 dark:text-slate-300">
-                        <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-emerald-600" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={a.href}
-                    className={`mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r ${a.accent} px-3 py-2 text-xs font-bold text-white shadow-md transition-all hover:brightness-110 hover:shadow-lg`}
-                  >
-                    {a.cta} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
-              </article>
-            ))}
           </div>
         </div>
       </section>

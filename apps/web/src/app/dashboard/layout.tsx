@@ -31,6 +31,7 @@ import { SyncStatusBadge } from '@/components/sync-status-badge';
 import { AiAssistantFab } from '@/components/ai-assistant-fab';
 import { VoiceCommands } from '@/components/voice-commands';
 import { NotificationBell } from '@/components/notification-bell';
+import { WellbeingBell } from '@/components/wellbeing-bell';
 import { DashboardSearch } from '@/components/dashboard-search';
 import { UserRole } from '@phi-pro/shared';
 
@@ -355,6 +356,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-2">
               {/* Sync status indicator */}
               <SyncStatusBadge />
+
+              {/* Daily Wellbeing Check-in (compact dropdown) */}
+              <WellbeingBell />
 
               {/* Notifications */}
               <NotificationBell />
