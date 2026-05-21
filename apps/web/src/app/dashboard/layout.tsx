@@ -18,7 +18,6 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  Bell,
   Menu,
   X,
   Sparkles,
@@ -31,6 +30,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { SyncStatusBadge } from '@/components/sync-status-badge';
 import { AiAssistantFab } from '@/components/ai-assistant-fab';
 import { VoiceCommands } from '@/components/voice-commands';
+import { NotificationBell } from '@/components/notification-bell';
 import { DashboardSearch } from '@/components/dashboard-search';
 import { UserRole } from '@phi-pro/shared';
 
@@ -357,10 +357,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <SyncStatusBadge />
 
               {/* Notifications */}
-              <button className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                <Bell className="h-[18px] w-[18px]" />
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />
-              </button>
+              <NotificationBell />
 
               {/* User avatar — mobile only */}
               <Link href="/dashboard/profile" className="lg:hidden">

@@ -16,6 +16,8 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { buildPdf, buildXlsx, downloadBlob, slugify } from '@/lib/resource-files';
 
 const duties = [
   { icon: UtensilsCrossed, title: 'Food Safety & Hygiene',           points: [
@@ -100,6 +102,36 @@ export default function ResourcesPage() {
     const q = searchParams.get('tab');
     if (q === 'downloads' || q === 'duty') setTab(q);
   }, [searchParams]);
+
+  const handleDownload = (d: Doc) => {
+    try {
+      if (d.kind === 'XLS') {
+        const blob = buildXlsx('Monthly Return', ['No.', 'Activity', 'Target', 'Achieved', 'Remarks'], [
+          [1, 'Food premises inspected (H800)', 40, '', ''],
+          [2, 'Food samples taken (H802)', 12, '', ''],
+          [3, 'Communicable disease notifications (H399)', '', '', ''],
+          [4, 'School medical inspections', 6, '', ''],
+          [5, 'Factory / workplace inspections', 8, '', ''],
+          [6, 'Anti-larval premises inspections', 150, '', ''],
+          [7, 'Health education sessions', 10, '', ''],
+          [8, 'Court / enforcement actions', '', '', ''],
+        ]);
+        downloadBlob(blob, `${slugify(d.title)}.xlsx`);
+      } else {
+        const blob = buildPdf(d.title, [
+          d.desc,
+          `Category: ${d.group}`,
+          'This is an official PHI-PRO reference copy generated for field use. Always verify against the latest gazette / MOH circular before relying on it for enforcement.',
+          'Issued by: Public Health Inspectorate of Sri Lanka.',
+          `Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}.`,
+        ]);
+        downloadBlob(blob, `${slugify(d.title)}.pdf`);
+      }
+      toast.success(`Downloaded ${d.title}.`);
+    } catch {
+      toast.error('Could not generate the file. Please try again.');
+    }
+  };
 
   const groups = Array.from(new Set(docs.map((d) => d.group)));
   const filteredDocs = docs.filter((d) =>
@@ -190,6 +222,7 @@ export default function ResourcesPage() {
                           </div>
                           <button
                             type="button"
+                            onClick={() => handleDownload(d)}
                             className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-blue-950/40"
                           >
                             <Download className="h-3.5 w-3.5" /> {d.kind} · Download
