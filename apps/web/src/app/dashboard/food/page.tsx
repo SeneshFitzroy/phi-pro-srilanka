@@ -173,26 +173,9 @@ export default function FoodModulePage() {
         ))}
       </div>
 
-      {/* ── Live HACCP Telemetry — IoT cold-chain sensors for food premises,
-            streamed over MQTT/WebSocket (HiveMQ), with simulation fallback.
-            Vaccine cold rooms are filtered out here (food-safety view). ── */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Thermometer className="h-5 w-5 text-cyan-600" /> Live HACCP Telemetry
-          </CardTitle>
-          <span className="rounded-full bg-cyan-100 px-2.5 py-1 text-[10px] font-bold text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
-            MQTT · live
-          </span>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-3 text-xs text-muted-foreground">
-            Walk-in fridges, hot-holding units and hotel kitchen cold rooms — temperature + humidity stream in live.
-            A breach (e.g. fridge above 5°C) raises a critical alert. Click a sensor to expand its last-hour log.
-          </p>
-          <IoTColdChain embedded foodSafetyOnly />
-        </CardContent>
-      </Card>
+      {/* Live HACCP telemetry is no longer surfaced as a standalone block —
+          it now opens per-inspection from the thermometer action on every
+          Recent inspection row (see the row "View HACCP" button below). */}
 
       {/* Printable QR generator — officers generate a scannable QR for any
           permit / certificate / premises reference. Citizens verify these on
@@ -428,7 +411,7 @@ export default function FoodModulePage() {
         subtitle="Live fridge / hot-holding status, on/off and temperature trend"
         size="lg"
       >
-        {tempItem && <IoTColdChain embedded foodSafetyOnly />}
+        {tempItem && <IoTColdChain embedded foodSafetyOnly premisesFilter={tempItem.premises} />}
       </Modal>
 
       {/* ── ZKP certificate modal — opens for Approved Grade-A rows. The

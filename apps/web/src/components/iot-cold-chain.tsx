@@ -57,6 +57,18 @@ function initSensors(): Sensor[] {
   return INITIAL_SENSORS.map(s => ({ ...s, readings: makeSeedReadings(s), alertActive: false }));
 }
 
+// When the component is rendered from a specific inspection row, we generate
+// a per-premises sensor pair so the modal only shows the units that belong
+// to that establishment — never the whole national feed.
+function initSensorsForPremises(premises: string): Sensor[] {
+  const slug = premises.toUpperCase().replace(/[^A-Z0-9]+/g, '').slice(0, 6) || 'PREM';
+  const list: Omit<Sensor, 'readings' | 'alertActive'>[] = [
+    { id: `${slug}-CF-01`, name: 'Walk-in Fridge', location: `${premises} — Kitchen`, type: 'food_cold_storage', minTemp: 1,  maxTemp: 5  },
+    { id: `${slug}-HH-01`, name: 'Hot Holding Unit', location: `${premises} — Service line`, type: 'food_hot_holding', minTemp: 60, maxTemp: 75 },
+  ];
+  return list.map((s) => ({ ...s, readings: makeSeedReadings(s), alertActive: false }));
+}
+
 function simulateReading(sensor: Sensor): SensorReading {
   const base = (sensor.minTemp + sensor.maxTemp) / 2;
   const drift = sensor.alertActive ? (Math.random() > 0.4 ? 5 : -3) : 0;
@@ -101,9 +113,18 @@ const STATUS_CFG: Record<ConnStatus, { label: string; icon: React.ReactNode; cls
   fallback:   { label: 'Live telemetry', icon: <Radio className="h-3.5 w-3.5" />,                cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
 };
 
-export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { embedded?: boolean; foodSafetyOnly?: boolean } = {}) {
+export function IoTColdChain({
+  embedded = false,
+  foodSafetyOnly = false,
+  premisesFilter,
+}: {
+  embedded?: boolean;
+  foodSafetyOnly?: boolean;
+  /** When set, only the per-premises generated sensor pair is shown. */
+  premisesFilter?: string;
+} = {}) {
   const [sensors, setSensors] = useState<Sensor[]>([]);
-  const [selected, setSelected] = useState(foodSafetyOnly ? 'REST-CF-07' : 'MOH-VC-01');
+  const [selected, setSelected] = useState(premisesFilter ? '' : foodSafetyOnly ? 'REST-CF-07' : 'MOH-VC-01');
   const [connStatus, setConnStatus] = useState<ConnStatus>('idle');
   const [msgCount, setMsgCount] = useState(0);
   const [msgLog, setMsgLog] = useState<string[]>([]);
@@ -123,8 +144,9 @@ export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { emb
   };
 
   useEffect(() => {
-    const initial = initSensors();
+    const initial = premisesFilter ? initSensorsForPremises(premisesFilter) : initSensors();
     setSensors(initial);
+    if (premisesFilter && initial.length > 0) setSelected(initial[0].id);
 
     let pubTimer: ReturnType<typeof setInterval>;
     let simTimer: ReturnType<typeof setInterval>;
@@ -224,11 +246,13 @@ export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { emb
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When embedded in the Food Safety dashboard we hide vaccine cold-chain
-  // sensors and surface only food premises / hot-holding / kitchen units.
-  const visibleSensors = foodSafetyOnly
-    ? sensors.filter((s) => s.type !== 'vaccine_cold_chain')
-    : sensors;
+  // Visibility precedence: premisesFilter (per-row modal) → foodSafetyOnly
+  // (food dashboard view, drops vaccine cold chain) → all sensors (default).
+  const visibleSensors = premisesFilter
+    ? sensors
+    : foodSafetyOnly
+      ? sensors.filter((s) => s.type !== 'vaccine_cold_chain')
+      : sensors;
   const selectedSensor = visibleSensors.find(s => s.id === selected) ?? visibleSensors[0];
   const alertCount    = visibleSensors.filter(s => s.alertActive).length;
   const latest        = selectedSensor?.readings.at(-1);
