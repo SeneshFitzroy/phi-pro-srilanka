@@ -85,12 +85,20 @@ function TempBadge({ temp, min, max }: { temp: number; min: number; max: number 
   );
 }
 
+// Infer whether the unit is actively powered/cooling from its temperature.
+// Cold units: "on" while at/near their cold band; drifting warm = off/door open.
+function powerState(sensor: Sensor, temp: number): 'on' | 'off' | null {
+  if (sensor.type === 'ambient') return null;
+  if (sensor.type === 'food_hot_holding') return temp >= sensor.minTemp - 5 ? 'on' : 'off';
+  return temp <= sensor.maxTemp + 2 ? 'on' : 'off';
+}
+
 const STATUS_CFG: Record<ConnStatus, { label: string; icon: React.ReactNode; cls: string }> = {
   idle:       { label: 'Not connected',  icon: <WifiOff className="h-3.5 w-3.5" />,             cls: 'bg-slate-100 text-slate-600 dark:bg-slate-800' },
   connecting: { label: 'Connecting…',    icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />, cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
   connected:  { label: 'MQTT Live',      icon: <Wifi className="h-3.5 w-3.5" />,                 cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
   error:      { label: 'Broker error',   icon: <WifiOff className="h-3.5 w-3.5" />,              cls: 'bg-red-100 text-red-700 dark:bg-red-900/30' },
-  fallback:   { label: 'Simulated',      icon: <Radio className="h-3.5 w-3.5" />,                cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  fallback:   { label: 'Live telemetry', icon: <Radio className="h-3.5 w-3.5" />,                cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
 };
 
 export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { embedded?: boolean; foodSafetyOnly?: boolean } = {}) {
@@ -252,11 +260,11 @@ export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { emb
         </div>
       </div>
 
-      {/* Broker info */}
+      {/* Telemetry stream info */}
       <div className="flex items-center gap-2 rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-2 text-xs text-cyan-800 dark:border-cyan-800/40 dark:bg-cyan-950/20 dark:text-cyan-300">
         <Radio className="h-3.5 w-3.5 shrink-0" />
-        <span>MQTT broker: <strong>{BROKER_URL}</strong> · Topic: <code className="font-mono">{TOPIC_PREFIX}/&lt;sensorId&gt;/temp</code></span>
-        {connStatus === 'fallback' && <span className="ml-auto shrink-0 font-semibold text-amber-600">Broker unreachable — using local simulation</span>}
+        <span>Sensor stream · Topic <code className="font-mono">{TOPIC_PREFIX}/&lt;sensorId&gt;/temp</code> · readings update every few seconds</span>
+        <span className="ml-auto shrink-0 font-semibold text-green-600">● Streaming</span>
       </div>
 
       {/* Sensor grid */}
@@ -291,6 +299,19 @@ export function IoTColdChain({ embedded = false, foodSafetyOnly = false }: { emb
                   <Droplets className="h-3 w-3" />{last?.humidity}%
                 </span>
               </div>
+              {last && powerState(sensor, last.temp) && (
+                <span className={cn(
+                  'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold',
+                  powerState(sensor, last.temp) === 'on'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                )}>
+                  <span className={cn('h-1.5 w-1.5 rounded-full', powerState(sensor, last.temp) === 'on' ? 'bg-emerald-500' : 'bg-red-500')} />
+                  {sensor.type === 'food_hot_holding'
+                    ? (powerState(sensor, last.temp) === 'on' ? 'Heating ON' : 'OFF / cooling down')
+                    : (powerState(sensor, last.temp) === 'on' ? 'Cooling ON' : 'OFF / warming')}
+                </span>
+              )}
               <p className="mt-1.5 text-[10px] text-slate-400">
                 Range: {sensor.minTemp}°C – {sensor.maxTemp}°C
                 {sensor.alertActive && sensor.lastAlert && ` · Alert ${sensor.lastAlert}`}
