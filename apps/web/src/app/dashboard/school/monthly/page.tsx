@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Printer, FileText } from 'lucide-react';
+import { Save, Printer, FileText, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SubpageHeader } from '@/components/dashboard-subpage-header';
+import { toast } from 'sonner';
+import { COLOMBO_SCHOOLS, SCHOOL_NAMES } from '@/data/colombo-schools';
 
 // H1214 — School Health Monthly Summary
 const defectCategories = [
@@ -22,7 +24,15 @@ const defectCategories = [
 
 export default function SchoolMonthlyPage() {
   const [schoolName, setSchoolName] = useState('');
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [examined, setExamined] = useState('');
   const [values, setValues] = useState<Record<string, Record<string, { male: string; female: string }>>>({});
+
+  const onSchoolChange = (name: string) => {
+    setSchoolName(name);
+    const match = COLOMBO_SCHOOLS.find((s) => s.name === name);
+    if (match && !examined) setExamined(String(match.students));
+  };
 
   const updateValue = (catId: string, sub: string, gender: 'male' | 'female', val: string) => {
     setValues(prev => ({
@@ -54,8 +64,8 @@ export default function SchoolMonthlyPage() {
         tone="blue"
         actions={
           <>
-            <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-            <Button className="bg-blue-700 hover:bg-blue-800"><Save className="mr-2 h-4 w-4" />Submit</Button>
+            <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print PDF</Button>
+            <Button className="bg-blue-700 hover:bg-blue-800" onClick={() => { if (!schoolName.trim()) { toast.error('Select a school first.'); return; } toast.success(`H1214 summary submitted for ${schoolName}.`); }}><Save className="mr-2 h-4 w-4" />Submit</Button>
           </>
         }
       />
@@ -63,8 +73,17 @@ export default function SchoolMonthlyPage() {
       {/* Header Info */}
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2"><Label>School Name *</Label><Input value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="Enter school name" /></div>
-          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
+          <div className="space-y-2">
+            <Label>School Name *</Label>
+            <div className="relative">
+              <Input list="colombo-school-list" value={schoolName} onChange={(e) => onSchoolChange(e.target.value)} placeholder="Select or type a school…" />
+              {schoolName && <button type="button" aria-label="Clear school" onClick={() => setSchoolName('')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 hover:text-rose-600"><X className="h-3.5 w-3.5" /></button>}
+            </div>
+            <datalist id="colombo-school-list">
+              {SCHOOL_NAMES.map((n) => <option key={n} value={n} />)}
+            </datalist>
+          </div>
+          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></div>
           <div className="space-y-2">
             <Label>Grades Inspected</Label>
             <div className="flex gap-2">
@@ -73,7 +92,7 @@ export default function SchoolMonthlyPage() {
               ))}
             </div>
           </div>
-          <div className="space-y-2"><Label>Students Examined</Label><Input type="number" placeholder="Total count" /></div>
+          <div className="space-y-2"><Label>Students Examined</Label><Input type="number" value={examined} onChange={(e) => setExamined(e.target.value)} placeholder="Total count" /></div>
         </CardContent>
       </Card>
 

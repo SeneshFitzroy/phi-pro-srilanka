@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Plus, Trash2, ClipboardList } from 'lucide-react';
+import { Save, Plus, Trash2, ClipboardList, Video, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { IcdAutocomplete } from '@/components/icd-autocomplete';
 import { SubpageHeader } from '@/components/dashboard-subpage-header';
+import { toast } from 'sonner';
+import { SCHOOL_NAMES } from '@/data/colombo-schools';
 
 interface StudentRecord {
   id: number;
@@ -19,6 +21,7 @@ interface StudentRecord {
   action: string;
   referred: boolean;
   icd: string;
+  video?: string;
 }
 
 const blankRecord = (id: number): StudentRecord => ({ id, name: '', grade: '1', age: '', gender: 'M', defects: '', action: '', referred: false, icd: '' });
@@ -34,6 +37,9 @@ export default function SchoolDefectsPage() {
     setRecords(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
   };
 
+  const setVideo = (id: number, file: File) => setRecords(prev => prev.map(r => r.id === id ? { ...r, video: URL.createObjectURL(file) } : r));
+  const clearVideo = (id: number) => setRecords(prev => prev.map(r => { if (r.id === id && r.video) URL.revokeObjectURL(r.video); return r.id === id ? { ...r, video: undefined } : r; }));
+
   return (
     <div className="space-y-6">
       <SubpageHeader
@@ -45,14 +51,18 @@ export default function SchoolDefectsPage() {
         subtitle="Individual student health defects found at the grade-level medical exam"
         tone="rose"
         actions={
-          <Button className="bg-rose-700 hover:bg-rose-800"><Save className="mr-2 h-4 w-4" />Save records</Button>
+          <Button className="bg-rose-700 hover:bg-rose-800" onClick={() => toast.success(`Saved ${records.length} student record${records.length === 1 ? '' : 's'}.`)}><Save className="mr-2 h-4 w-4" />Save records</Button>
         }
       />
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>School Name *</Label><Input placeholder="Enter school name" /></div>
-          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" /></div>
+          <div className="space-y-2">
+            <Label>School Name *</Label>
+            <Input list="defects-school-list" placeholder="Select or type a school…" />
+            <datalist id="defects-school-list">{SCHOOL_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
           <div className="space-y-2"><Label>PHI Officer</Label><Input placeholder="Your name" /></div>
         </CardContent>
       </Card>
@@ -118,6 +128,17 @@ export default function SchoolDefectsPage() {
                     <IcdAutocomplete onSelect={(sel) => updateRecord(r.id, 'icd', sel ? `${sel.code} · ${sel.title}` : '')} placeholder="Type the condition…" />
                   </div>
                 )}
+                <div className="mt-3 space-y-1">
+                  <Label className="flex items-center gap-1 text-xs"><Video className="h-3 w-3" /> Live video clip <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                  {r.video ? (
+                    <div className="flex items-center gap-2">
+                      <video src={r.video} controls className="h-24 rounded border border-slate-200 dark:border-slate-700" />
+                      <button type="button" onClick={() => clearVideo(r.id)} aria-label="Remove video" className="rounded p-1 text-slate-400 hover:text-rose-600"><X className="h-4 w-4" /></button>
+                    </div>
+                  ) : (
+                    <input type="file" accept="video/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideo(r.id, f); e.target.value = ''; }} className="text-xs" />
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Save, Plus, Trash2, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SubpageHeader } from '@/components/dashboard-subpage-header';
+import { toast } from 'sonner';
+import { SCHOOL_NAMES } from '@/data/colombo-schools';
+
+const today = () => new Date().toISOString().slice(0, 10);
 
 interface ActivityEntry {
   id: number;
@@ -28,17 +32,28 @@ const activityTypes = [
 
 export default function SchoolActivityPage() {
   const [entries, setEntries] = useState<ActivityEntry[]>([
-    { id: 1, date: '', school: '', activity: '', details: '', duration: '', studentsReached: '' },
+    { id: 1, date: today(), school: '', activity: '', details: '', duration: '', studentsReached: '' },
   ]);
 
   const addEntry = () => {
-    setEntries(prev => [...prev, { id: prev.length + 1, date: '', school: '', activity: '', details: '', duration: '', studentsReached: '' }]);
+    setEntries(prev => [...prev, { id: (prev.at(-1)?.id ?? 0) + 1, date: today(), school: '', activity: '', details: '', duration: '', studentsReached: '' }]);
   };
 
   const removeEntry = (id: number) => setEntries(prev => prev.filter(e => e.id !== id));
 
   const update = (id: number, field: keyof ActivityEntry, value: string) => {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
+  };
+
+  const totals = useMemo(() => ({
+    students: entries.reduce((s, e) => s + (parseInt(e.studentsReached) || 0), 0),
+    hours: entries.reduce((s, e) => s + (parseFloat(e.duration) || 0), 0),
+  }), [entries]);
+
+  const submit = () => {
+    const valid = entries.filter((e) => e.school.trim() && e.activity);
+    if (valid.length === 0) { toast.error('Add at least one entry with a school and activity.'); return; }
+    toast.success(`Activity log submitted — ${valid.length} entr${valid.length === 1 ? 'y' : 'ies'}, ${totals.students} students reached.`);
   };
 
   return (
@@ -52,17 +67,24 @@ export default function SchoolActivityPage() {
         subtitle="Record all school-health program activities for the month"
         tone="indigo"
         actions={
-          <Button className="bg-indigo-700 hover:bg-indigo-800"><Save className="mr-2 h-4 w-4" />Submit log</Button>
+          <Button className="bg-indigo-700 hover:bg-indigo-800" onClick={submit}><Save className="mr-2 h-4 w-4" />Submit log</Button>
         }
       />
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" /></div>
+          <div className="space-y-2"><Label>Month / Year</Label><Input type="month" defaultValue={new Date().toISOString().slice(0, 7)} /></div>
           <div className="space-y-2"><Label>PHI Officer</Label><Input placeholder="Your name" /></div>
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
+          <div className="space-y-2"><Label>MOH Area</Label><Input defaultValue="Colombo (CMC)" placeholder="Area name" /></div>
         </CardContent>
       </Card>
+
+      {/* Running totals */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{entries.length}</p><p className="text-xs text-muted-foreground">Activity entries</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{totals.students.toLocaleString()}</p><p className="text-xs text-muted-foreground">Students reached</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{totals.hours}</p><p className="text-xs text-muted-foreground">Total hours</p></CardContent></Card>
+      </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -79,7 +101,7 @@ export default function SchoolActivityPage() {
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-1"><Label className="text-xs">Date</Label><Input type="date" value={entry.date} onChange={(e) => update(entry.id, 'date', e.target.value)} /></div>
-                  <div className="space-y-1"><Label className="text-xs">School</Label><Input value={entry.school} onChange={(e) => update(entry.id, 'school', e.target.value)} placeholder="School name" /></div>
+                  <div className="space-y-1"><Label className="text-xs">School</Label><Input list="activity-school-list" value={entry.school} onChange={(e) => update(entry.id, 'school', e.target.value)} placeholder="Select or type a school…" /><datalist id="activity-school-list">{SCHOOL_NAMES.map((n) => <option key={n} value={n} />)}</datalist></div>
                   <div className="space-y-1">
                     <Label className="text-xs">Activity Type</Label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={entry.activity} onChange={(e) => update(entry.id, 'activity', e.target.value)}>

@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Syringe, Plus, Trash2 } from 'lucide-react';
+import { Save, Syringe, Plus, Trash2, Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SubpageHeader } from '@/components/dashboard-subpage-header';
+import { toast } from 'sonner';
+import { SCHOOL_NAMES } from '@/data/colombo-schools';
 
 interface VaccineRecord {
   id: number;
@@ -20,6 +22,7 @@ interface VaccineRecord {
   site: string;
   reaction: string;
   consent: boolean;
+  consentPhoto?: string;
 }
 
 export default function SchoolVaccinePage() {
@@ -37,8 +40,9 @@ export default function SchoolVaccinePage() {
     setRecords(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
   };
 
-  const hpvCount = records.filter(r => r.vaccine === 'HPV').length;
-  const apdtCount = records.filter(r => r.vaccine === 'aPdT').length;
+  const setConsentPhoto = (id: number, file: File) => {
+    setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, consentPhoto: URL.createObjectURL(file) } : r)));
+  };
 
   return (
     <div className="space-y-6">
@@ -51,34 +55,18 @@ export default function SchoolVaccinePage() {
         subtitle="HPV (Grade 6 girls · 2 doses) and aP / dT (Grade 7 · 1 dose) campaign tracker"
         tone="purple"
         actions={
-          <Button className="bg-purple-700 hover:bg-purple-800"><Save className="mr-2 h-4 w-4" />Save records</Button>
+          <Button className="bg-purple-700 hover:bg-purple-800" onClick={() => toast.success(`Saved ${records.length} vaccination record${records.length === 1 ? '' : 's'}.`)}><Save className="mr-2 h-4 w-4" />Save records</Button>
         }
       />
 
-      {/* Info Cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="border-purple-200 bg-purple-50">
-          <CardContent className="p-4">
-            <p className="font-semibold text-purple-700">HPV Vaccine</p>
-            <p className="text-sm text-purple-600 mt-1">Target: Girls in Grade 6</p>
-            <p className="text-sm text-purple-600">Schedule: Dose 1 (Day 0), Dose 2 (6 months)</p>
-            <p className="text-lg font-bold text-purple-700 mt-2">{hpvCount} records this session</p>
-          </CardContent>
-        </Card>
-        <Card className="border-indigo-200 bg-indigo-50">
-          <CardContent className="p-4">
-            <p className="font-semibold text-indigo-700">aP/dT Vaccine</p>
-            <p className="text-sm text-indigo-600 mt-1">Target: All students in Grade 7</p>
-            <p className="text-sm text-indigo-600">Schedule: Single dose</p>
-            <p className="text-lg font-bold text-indigo-700 mt-2">{apdtCount} records this session</p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>School Name *</Label><Input placeholder="Enter school" /></div>
-          <div className="space-y-2"><Label>Date</Label><Input type="date" /></div>
+          <div className="space-y-2">
+            <Label>School Name *</Label>
+            <Input list="vaccine-school-list" placeholder="Select or type a school…" />
+            <datalist id="vaccine-school-list">{SCHOOL_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>Date</Label><Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
           <div className="space-y-2"><Label>Vaccinator Name</Label><Input placeholder="Name" /></div>
         </CardContent>
       </Card>
@@ -139,6 +127,16 @@ export default function SchoolVaccinePage() {
                     </select>
                   </div>
                   <label className="flex items-center gap-2 text-sm mt-5"><input type="checkbox" className="rounded" checked={r.consent} onChange={(e) => updateRecord(r.id, 'consent', e.target.checked)} /> Parental consent obtained</label>
+                  <div className="mt-2 space-y-1">
+                    <Label className="flex items-center gap-1 text-xs"><Camera className="h-3 w-3" /> Consent form photo</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) setConsentPhoto(r.id, f); e.target.value = ''; }} className="text-xs" />
+                      {r.consentPhoto && (
+                        // eslint-disable-next-line @next/next/no-img-element -- blob: preview
+                        <img src={r.consentPhoto} alt="Consent form" className="h-9 w-12 rounded border border-slate-200 object-cover dark:border-slate-700" />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
