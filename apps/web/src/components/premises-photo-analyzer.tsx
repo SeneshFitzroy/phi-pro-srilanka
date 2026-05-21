@@ -14,7 +14,7 @@
 // ============================================================================
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Upload, Loader2, ScanSearch, AlertTriangle, CheckCircle2, X, Sparkles, WifiOff } from 'lucide-react';
+import { Camera, Upload, Loader2, ScanSearch, AlertTriangle, CheckCircle2, X, Sparkles, WifiOff, Video } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CameraCapture } from '@/components/camera-capture';
@@ -141,6 +141,55 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
 
   const acceptImage = useCallback((url: string) => { setPreview(url); void analyse(url); }, [analyse]);
 
+  // ── Live camera hazard scan ──────────────────────────────────────────────
+  const [liveOpen, setLiveOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const frameCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const loopRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const busyRef = useRef(false);
+
+  const stopLive = useCallback(() => {
+    if (loopRef.current) clearInterval(loopRef.current);
+    loopRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    busyRef.current = false;
+    setLiveOpen(false);
+  }, []);
+
+  const startLive = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      streamRef.current = stream;
+      setLiveOpen(true);
+      setTimeout(() => { if (videoRef.current) { videoRef.current.srcObject = stream; void videoRef.current.play(); } }, 60);
+      const clip = await loadModel();
+      if (!clip) { stopLive(); return; }
+      const labels = HAZARD_CLASSES.map((h) => h.prompt);
+      loopRef.current = setInterval(async () => {
+        if (busyRef.current) return;
+        const v = videoRef.current; const c = frameCanvasRef.current;
+        if (!v || !c || v.readyState < 2) return;
+        busyRef.current = true;
+        try {
+          c.width = 224; c.height = 224;
+          const ctx = c.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(v, 0, 0, c.width, c.height);
+            const out = await clip(c.toDataURL('image/jpeg', 0.7), labels, { hypothesis_template: 'This is a photo of {}.' });
+            setFindings(out.labels.map((lbl, i) => { const cls = HAZARD_CLASSES.find((h) => h.prompt === lbl)!; return { ...cls, score: out.scores[i] }; }));
+          }
+        } catch { /* skip frame */ } finally { busyRef.current = false; }
+      }, 1600);
+    } catch {
+      toast.error('Camera unavailable.');
+      setLiveOpen(false);
+    }
+  }, [loadModel, stopLive]);
+
+  useEffect(() => () => stopLive(), [stopLive]);
+
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -175,10 +224,26 @@ export function PremisesPhotoAnalyzer({ onApplyDeficiency, variant = 'h800', cla
               <Button type="button" variant="outline" size="sm" disabled={analysing} onClick={() => fileRef.current?.click()} className="gap-2">
                 <Upload className="h-4 w-4" /> Upload Image
               </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => (liveOpen ? stopLive() : startLive())} className="gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:text-red-300">
+                {liveOpen ? <><X className="h-4 w-4" /> Stop live</> : <><Video className="h-4 w-4" /> Live scan</>}
+              </Button>
               {!online && <span className="flex items-center gap-1 text-[10px] font-medium text-amber-600"><WifiOff className="h-3 w-3" /> offline — needs model cached</span>}
             </div>
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} />
             <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={acceptImage} />
+
+            {/* Live camera hazard scan — frames classified every ~1.6s */}
+            {liveOpen && (
+              <div className="mt-3 overflow-hidden rounded-lg border border-red-300 bg-black/90">
+                <div className="flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-white">
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> Live hazard scan — point at the area</span>
+                  <button type="button" onClick={stopLive} className="rounded bg-white/15 px-2 py-0.5 hover:bg-white/25">Stop</button>
+                </div>
+                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                <video ref={videoRef} playsInline muted className="max-h-64 w-full object-contain" />
+                <canvas ref={frameCanvasRef} className="hidden" />
+              </div>
+            )}
 
             {/* Model download progress */}
             {modelState === 'loading' && (

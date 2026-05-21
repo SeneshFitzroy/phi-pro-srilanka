@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, ClipboardCheck, Printer, ScanEye } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Printer, ScanEye, Video, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LiveObjectDetector } from '@/components/live-object-detector';
+import { SignaturePad } from '@/components/signature-pad';
+import { toast } from 'sonner';
+import { COLOMBO_FACTORIES, FACTORY_NAMES } from '@/data/colombo-factories';
 
 const safetySections = [
   {
@@ -64,6 +67,14 @@ export default function SafetyInspectionPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
   const [detectorOpen, setDetectorOpen] = useState(false);
+  const [fac, setFac] = useState({ name: '', reg: '' });
+  const [signature, setSignature] = useState<string | null>(null);
+  const [video, setVideo] = useState<string | null>(null);
+
+  const onFactory = (name: string) => {
+    const m = COLOMBO_FACTORIES.find((x) => x.name === name);
+    setFac({ name, reg: m?.id ?? fac.reg });
+  };
 
   // Calculate compliance score
   const total = safetySections.reduce((s, sec) => s + sec.items.length, 0);
@@ -82,8 +93,8 @@ export default function SafetyInspectionPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setDetectorOpen(true)}><ScanEye className="mr-2 h-4 w-4" />Live Detection</Button>
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-occupational hover:bg-occupational/90" onClick={() => { if (!fac.name.trim()) { toast.error('Select the factory.'); return; } toast.success(`H1204 safety inspection submitted (${score}% compliance).`); }}><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
       <LiveObjectDetector open={detectorOpen} onClose={() => setDetectorOpen(false)} title="Workplace safety — live detection" />
@@ -100,9 +111,13 @@ export default function SafetyInspectionPage() {
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2"><Label>Factory Name *</Label><Input placeholder="Factory name" /></div>
-          <div className="space-y-2"><Label>Registration No.</Label><Input placeholder="Reg number" /></div>
-          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" /></div>
+          <div className="space-y-2">
+            <Label>Factory Name *</Label>
+            <Input list="safety-factory-list" value={fac.name} onChange={(e) => onFactory(e.target.value)} placeholder="Select or type a factory…" />
+            <datalist id="safety-factory-list">{FACTORY_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>Registration No.</Label><Input value={fac.reg} onChange={(e) => setFac({ ...fac, reg: e.target.value })} placeholder="Reg number" /></div>
+          <div className="space-y-2"><Label>Inspection Date</Label><Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
           <div className="space-y-2"><Label>Inspector</Label><Input placeholder="Your name" /></div>
         </CardContent>
       </Card>
@@ -125,6 +140,32 @@ export default function SafetyInspectionPage() {
           </CardContent>
         </Card>
       ))}
+
+      {/* Evidence video + officer signature */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Evidence video &amp; officer signature</CardTitle></CardHeader>
+        <CardContent className="grid gap-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Live walkthrough video <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            {video ? (
+              <div className="flex items-center gap-2">
+                <video src={video} controls className="h-28 rounded border border-slate-200 dark:border-slate-700" />
+                <button type="button" onClick={() => { URL.revokeObjectURL(video); setVideo(null); }} aria-label="Remove video" className="rounded p-1 text-slate-400 hover:text-rose-600"><X className="h-4 w-4" /></button>
+              </div>
+            ) : (
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm hover:bg-accent">
+                <Video className="h-4 w-4" /> Capture / upload video
+                <input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideo(URL.createObjectURL(f)); e.target.value = ''; }} />
+              </label>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label>Inspecting officer&apos;s signature</Label>
+            <SignaturePad onChange={setSignature} className="max-w-md" />
+            <p className="text-xs text-muted-foreground">{signature ? 'Signature captured.' : 'Sign before submitting.'}</p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader><CardTitle className="text-base">Violations & Notices</CardTitle></CardHeader>

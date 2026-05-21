@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Users, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Users, Plus, Trash2, Camera, IdCard, ScanEye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { FACTORY_NAMES } from '@/data/colombo-factories';
 
 interface WorkerRecord {
   id: number;
@@ -18,19 +20,28 @@ interface WorkerRecord {
   healthIssues: string;
   ppeCompliant: boolean;
   lastMedical: string;
+  nic: string;
+  photo?: string;
+  nicPhoto?: string;
+  eyeScan?: string;
 }
 
-export default function WorkerSurveyPage() {
-  const [records, setRecords] = useState<WorkerRecord[]>([
-    { id: 1, name: '', age: '', gender: 'M', section: '', yearsEmployed: '', healthIssues: '', ppeCompliant: true, lastMedical: '' },
-  ]);
+const blankWorker = (id: number): WorkerRecord => ({ id, name: '', age: '', gender: 'M', section: '', yearsEmployed: '', healthIssues: '', ppeCompliant: true, lastMedical: '', nic: '' });
 
-  const addRecord = () => {
-    setRecords(prev => [...prev, { id: Date.now(), name: '', age: '', gender: 'M', section: '', yearsEmployed: '', healthIssues: '', ppeCompliant: true, lastMedical: '' }]);
-  };
+export default function WorkerSurveyPage() {
+  const [records, setRecords] = useState<WorkerRecord[]>([blankWorker(1)]);
+
+  const addRecord = () => setRecords(prev => [...prev, blankWorker(Date.now())]);
   const removeRecord = (id: number) => setRecords(prev => prev.filter(r => r.id !== id));
   const updateRecord = (id: number, field: keyof WorkerRecord, value: string | boolean) => {
     setRecords(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+  const setMedia = (id: number, key: 'photo' | 'nicPhoto' | 'eyeScan', file: File) =>
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, [key]: URL.createObjectURL(file) } : r));
+  const save = () => {
+    const named = records.filter((r) => r.name.trim());
+    if (named.length === 0) { toast.error('Add at least one worker with a name.'); return; }
+    toast.success(`Saved ${named.length} worker health record${named.length === 1 ? '' : 's'}.`);
   };
 
   return (
@@ -43,13 +54,17 @@ export default function WorkerSurveyPage() {
             <p className="text-sm text-muted-foreground">Individual worker health assessment records</p>
           </div>
         </div>
-        <Button className="bg-occupational hover:bg-occupational/90"><Save className="mr-2 h-4 w-4" />Save Survey</Button>
+        <Button className="bg-occupational hover:bg-occupational/90" onClick={save}><Save className="mr-2 h-4 w-4" />Save Survey</Button>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
-          <div className="space-y-2"><Label>Factory Name *</Label><Input placeholder="Factory name" /></div>
-          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" /></div>
+          <div className="space-y-2">
+            <Label>Factory Name *</Label>
+            <Input list="ws-factory-list" placeholder="Select or type a factory…" />
+            <datalist id="ws-factory-list">{FACTORY_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>Survey Date</Label><Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
           <div className="space-y-2"><Label>PHI Officer</Label><Input placeholder="Your name" /></div>
         </CardContent>
       </Card>
@@ -90,11 +105,34 @@ export default function WorkerSurveyPage() {
                   </div>
                   <div className="space-y-1"><Label className="text-xs">Last Medical Exam</Label><Input type="date" value={r.lastMedical} onChange={(e) => updateRecord(r.id, 'lastMedical', e.target.value)} /></div>
                 </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="space-y-1"><Label className="text-xs">NIC Number</Label><Input value={r.nic} onChange={(e) => updateRecord(r.id, 'nic', e.target.value.toUpperCase())} placeholder="e.g. 199012345678" /></div>
+                  <MediaCapture label="Worker photo" icon={<Camera className="h-3 w-3" />} value={r.photo} facing="user" onPick={(f) => setMedia(r.id, 'photo', f)} />
+                  <MediaCapture label="NIC card photo" icon={<IdCard className="h-3 w-3" />} value={r.nicPhoto} facing="environment" onPick={(f) => setMedia(r.id, 'nicPhoto', f)} />
+                  <MediaCapture label="Eye / iris scan" icon={<ScanEye className="h-3 w-3" />} value={r.eyeScan} facing="user" onPick={(f) => setMedia(r.id, 'eyeScan', f)} />
+                </div>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function MediaCapture({ label, icon, value, facing, onPick }: { label: string; icon: React.ReactNode; value?: string; facing: 'user' | 'environment'; onPick: (f: File) => void }) {
+  return (
+    <div className="space-y-1">
+      <Label className="flex items-center gap-1 text-xs">{icon} {label}</Label>
+      {value ? (
+        // eslint-disable-next-line @next/next/no-img-element -- blob: preview
+        <img src={value} alt={label} className="h-16 w-full rounded border border-slate-200 object-cover dark:border-slate-700" />
+      ) : (
+        <label className="flex h-16 cursor-pointer items-center justify-center rounded border border-dashed border-slate-300 text-[11px] text-slate-400 hover:bg-accent dark:border-slate-700">
+          Capture
+          <input type="file" accept="image/*" capture={facing} className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPick(f); e.target.value = ''; }} />
+        </label>
+      )}
     </div>
   );
 }
