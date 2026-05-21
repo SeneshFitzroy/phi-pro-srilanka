@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { MOH_AREA_NAMES, mohDefaults } from '@/data/colombo-moh-areas';
 
 const sections = [
   {
@@ -53,7 +55,13 @@ const sections = [
 
 export default function EpidemiologyMonthlyPage() {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [meta, setMeta] = useState({ moh: '', phi: '', month: '', year: String(new Date().getFullYear()) });
   const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
+
+  const onMohChange = (name: string) => {
+    const d = mohDefaults(name);
+    setMeta((prev) => ({ ...prev, moh: name, phi: d.phiArea || prev.phi, month: prev.month || d.month }));
+  };
 
   return (
     <div className="space-y-6">
@@ -66,17 +74,21 @@ export default function EpidemiologyMonthlyPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90" onClick={() => { if (!meta.moh) { toast.error('Select an MOH area.'); return; } toast.success(`H411 monthly return submitted for ${meta.moh}.`); }}><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
-          <div className="space-y-2"><Label>Month</Label><Input type="month" /></div>
-          <div className="space-y-2"><Label>Year</Label><Input type="number" placeholder="2026" /></div>
+          <div className="space-y-2">
+            <Label>MOH Area</Label>
+            <Input list="moh-area-list" value={meta.moh} onChange={(e) => onMohChange(e.target.value)} placeholder="Select MOH area…" />
+            <datalist id="moh-area-list">{MOH_AREA_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input value={meta.phi} onChange={(e) => setMeta({ ...meta, phi: e.target.value })} placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Month</Label><Input type="month" value={meta.month} onChange={(e) => setMeta({ ...meta, month: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Year</Label><Input type="number" value={meta.year} onChange={(e) => setMeta({ ...meta, year: e.target.value })} placeholder="2026" /></div>
         </CardContent>
       </Card>
 

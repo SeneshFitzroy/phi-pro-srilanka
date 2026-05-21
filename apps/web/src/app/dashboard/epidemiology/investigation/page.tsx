@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Search, MapPin, Users, Printer } from 'lucide-react';
+import { ArrowLeft, Save, Search, MapPin, Users, Printer, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 const investigationSections = [
   {
@@ -62,6 +63,18 @@ const investigationSections = [
 
 export default function CaseInvestigationPage() {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [loc, setLoc] = useState({ lat: '', lng: '' });
+  const [locating, setLocating] = useState(false);
+
+  const captureGPS = () => {
+    if (!('geolocation' in navigator)) { toast.error('Geolocation not available.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setLoc({ lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) });
+      setLocating(false);
+      toast.success('GPS location captured.');
+    }, () => { setLocating(false); toast.error('Could not read your location.'); }, { enableHighAccuracy: true, timeout: 10000 });
+  };
   const update = (id: string, val: string) => setValues(prev => ({ ...prev, [id]: val }));
 
   return (
@@ -76,7 +89,7 @@ export default function CaseInvestigationPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90" onClick={() => toast.success('Case investigation saved.')}><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
 
@@ -113,9 +126,9 @@ export default function CaseInvestigationPage() {
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Location</CardTitle></CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2"><Label>Latitude</Label><Input placeholder="e.g. 6.9271" /></div>
-            <div className="space-y-2"><Label>Longitude</Label><Input placeholder="e.g. 79.8612" /></div>
-            <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
+            <div className="space-y-2"><Label>Latitude</Label><Input value={loc.lat} onChange={(e) => setLoc({ ...loc, lat: e.target.value })} placeholder="e.g. 6.9271" /></div>
+            <div className="space-y-2"><Label>Longitude</Label><Input value={loc.lng} onChange={(e) => setLoc({ ...loc, lng: e.target.value })} placeholder="e.g. 79.8612" /></div>
+            <div className="flex items-end"><Button variant="outline" className="w-full" onClick={captureGPS} disabled={locating}>{locating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}{locating ? 'Locating…' : 'Capture GPS'}</Button></div>
           </div>
         </CardContent>
       </Card>

@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Bell, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Save, Bell, MapPin, Clock, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { IcdAutocomplete } from '@/components/icd-autocomplete';
+import { toast } from 'sonner';
 
 const notifiableDiseases = [
   'Dengue Fever', 'Dengue Haemorrhagic Fever', 'Typhoid', 'Paratyphoid',
@@ -21,9 +22,31 @@ const notifiableDiseases = [
   'Sexually Transmitted Infection', 'Other Notifiable Disease',
 ];
 
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
 export default function DiseaseNotificationPage() {
   const [disease, setDisease] = useState('');
   const [icd, setIcd] = useState<{ code: string; title: string } | null>(null);
+  const [loc, setLoc] = useState({ lat: '', lng: '', address: '', gn: '' });
+  const [locating, setLocating] = useState(false);
+
+  const captureGPS = () => {
+    if (!('geolocation' in navigator)) { toast.error('Geolocation not available.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      setLoc((p) => ({ ...p, lat: lat.toFixed(6), lng: lng.toFixed(6) }));
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=en`, { headers: { Accept: 'application/json' } });
+        const j = await res.json() as { display_name?: string; address?: Record<string, string> };
+        const a = j.address ?? {};
+        const street = [a.house_number, a.road || a.pedestrian, a.suburb || a.neighbourhood, a.city || a.town].filter(Boolean).join(', ');
+        setLoc((p) => ({ ...p, address: p.address || street || j.display_name || '', gn: p.gn || a.suburb || a.neighbourhood || a.village || '' }));
+        toast.success('GPS captured — address filled.');
+      } catch { toast.message('GPS captured (address lookup unavailable).'); }
+      setLocating(false);
+    }, () => { setLocating(false); toast.error('Could not read your location.'); }, { enableHighAccuracy: true, timeout: 10000 });
+  };
 
   return (
     <div className="space-y-6">
@@ -35,7 +58,7 @@ export default function DiseaseNotificationPage() {
             <p className="text-sm text-muted-foreground">Immediate notification — 48-hour investigation mandate</p>
           </div>
         </div>
-        <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit Notification</Button>
+        <Button className="bg-epidemiology hover:bg-epidemiology/90" onClick={() => { if (!disease) { toast.error('Select the notifiable disease.'); return; } toast.success('Notification submitted — 48-hour investigation clock started.'); }}><Save className="mr-2 h-4 w-4" />Submit Notification</Button>
       </div>
 
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -57,9 +80,9 @@ export default function DiseaseNotificationPage() {
               </select>
             </div>
             <div className="space-y-2"><Label>NIC Number</Label><Input placeholder="National ID" /></div>
-            <div className="space-y-2"><Label>Address *</Label><Input placeholder="Full address" /></div>
+            <div className="space-y-2"><Label>Address *</Label><Input value={loc.address} onChange={(e) => setLoc({ ...loc, address: e.target.value })} placeholder="Full address (or Capture GPS)" /></div>
             <div className="space-y-2"><Label>Phone</Label><Input type="tel" placeholder="+94..." /></div>
-            <div className="space-y-2"><Label>GN Division *</Label><Input placeholder="GN division code/name" /></div>
+            <div className="space-y-2"><Label>GN Division *</Label><Input value={loc.gn} onChange={(e) => setLoc({ ...loc, gn: e.target.value })} placeholder="GN division code/name" /></div>
             <div className="space-y-2"><Label>Occupation</Label><Input placeholder="Occupation" /></div>
           </div>
         </CardContent>
@@ -82,8 +105,8 @@ export default function DiseaseNotificationPage() {
               <IcdAutocomplete onSelect={setIcd} initialQuery={disease} />
               {icd && <input type="hidden" name="icd11" value={`${icd.code}|${icd.title}`} readOnly />}
             </div>
-            <div className="space-y-2"><Label>Date of Onset *</Label><Input type="date" /></div>
-            <div className="space-y-2"><Label>Date Notified</Label><Input type="date" /></div>
+            <div className="space-y-2"><Label>Date of Onset *</Label><Input type="date" defaultValue={todayStr()} /></div>
+            <div className="space-y-2"><Label>Date Notified</Label><Input type="date" defaultValue={todayStr()} /></div>
             <div className="space-y-2"><Label>Notified By</Label><Input placeholder="Hospital / Doctor name" /></div>
             <div className="space-y-2">
               <Label>Patient Status</Label>
@@ -108,9 +131,9 @@ export default function DiseaseNotificationPage() {
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Location & GPS</CardTitle></CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-2"><Label>Latitude</Label><Input placeholder="e.g. 6.9271" /></div>
-            <div className="space-y-2"><Label>Longitude</Label><Input placeholder="e.g. 79.8612" /></div>
-            <div className="flex items-end"><Button variant="outline" className="w-full"><MapPin className="mr-2 h-4 w-4" />Capture GPS</Button></div>
+            <div className="space-y-2"><Label>Latitude</Label><Input value={loc.lat} onChange={(e) => setLoc({ ...loc, lat: e.target.value })} placeholder="e.g. 6.9271" /></div>
+            <div className="space-y-2"><Label>Longitude</Label><Input value={loc.lng} onChange={(e) => setLoc({ ...loc, lng: e.target.value })} placeholder="e.g. 79.8612" /></div>
+            <div className="flex items-end"><Button variant="outline" className="w-full" onClick={captureGPS} disabled={locating}>{locating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}{locating ? 'Locating…' : 'Capture GPS'}</Button></div>
           </div>
         </CardContent>
       </Card>

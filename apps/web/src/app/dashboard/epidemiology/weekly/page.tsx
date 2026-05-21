@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { MOH_AREA_NAMES, mohDefaults } from '@/data/colombo-moh-areas';
 
 const diseases = [
   'Dengue Fever', 'Dengue Haemorrhagic Fever', 'Typhoid', 'Paratyphoid',
@@ -25,8 +27,14 @@ const diseases = [
 
 export default function EpidemiologyWeeklyPage() {
   const [values, setValues] = useState<Record<string, { cases: string; deaths: string }>>({});
+  const [meta, setMeta] = useState({ moh: '', phi: '', week: '', ending: '' });
   const updateValue = (disease: string, field: 'cases' | 'deaths', val: string) => {
     setValues(prev => ({ ...prev, [disease]: { ...(prev[disease] || { cases: '', deaths: '' }), [field]: val } }));
+  };
+
+  const onMohChange = (name: string) => {
+    const d = mohDefaults(name);
+    setMeta((prev) => ({ moh: name, phi: d.phiArea || prev.phi, week: prev.week || d.week, ending: prev.ending || d.ending }));
   };
 
   const totalCases = Object.values(values).reduce((s, v) => s + (parseInt(v.cases) || 0), 0);
@@ -43,17 +51,21 @@ export default function EpidemiologyWeeklyPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print</Button>
-          <Button className="bg-epidemiology hover:bg-epidemiology/90"><Save className="mr-2 h-4 w-4" />Submit</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print</Button>
+          <Button className="bg-epidemiology hover:bg-epidemiology/90" onClick={() => { if (!meta.moh) { toast.error('Select an MOH area.'); return; } toast.success(`H399 submitted — ${totalCases} cases, ${totalDeaths} deaths.`); }}><Save className="mr-2 h-4 w-4" />Submit</Button>
         </div>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2"><Label>MOH Area</Label><Input placeholder="Area name" /></div>
-          <div className="space-y-2"><Label>PHI Area</Label><Input placeholder="Sub-area" /></div>
-          <div className="space-y-2"><Label>Epi Week Number</Label><Input type="number" min="1" max="53" placeholder="1-53" /></div>
-          <div className="space-y-2"><Label>Week Ending Date</Label><Input type="date" /></div>
+          <div className="space-y-2">
+            <Label>MOH Area</Label>
+            <Input list="moh-area-list" value={meta.moh} onChange={(e) => onMohChange(e.target.value)} placeholder="Select MOH area…" />
+            <datalist id="moh-area-list">{MOH_AREA_NAMES.map((n) => <option key={n} value={n} />)}</datalist>
+          </div>
+          <div className="space-y-2"><Label>PHI Area</Label><Input value={meta.phi} onChange={(e) => setMeta({ ...meta, phi: e.target.value })} placeholder="Sub-area" /></div>
+          <div className="space-y-2"><Label>Epi Week Number</Label><Input type="number" min="1" max="53" value={meta.week} onChange={(e) => setMeta({ ...meta, week: e.target.value })} placeholder="1-53" /></div>
+          <div className="space-y-2"><Label>Week Ending Date</Label><Input type="date" value={meta.ending} onChange={(e) => setMeta({ ...meta, ending: e.target.value })} /></div>
         </CardContent>
       </Card>
 
