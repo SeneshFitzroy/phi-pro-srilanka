@@ -94,6 +94,7 @@ export default function FoodModulePage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
   const [viewItem, setViewItem] = useState<RecentInspection | null>(null);
   const [zkpItem, setZkpItem] = useState<RecentInspection | null>(null);
+  const [tempItem, setTempItem] = useState<RecentInspection | null>(null);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -307,6 +308,15 @@ export default function FoodModulePage() {
                           >
                             <MapPin className="h-3.5 w-3.5" />
                           </a>
+                          <button
+                            type="button"
+                            aria-label={`Live cold-chain telemetry for ${item.premises}`}
+                            title="Live fridge/HACCP telemetry"
+                            onClick={() => setTempItem(item)}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-cyan-700 hover:border-cyan-300 hover:bg-cyan-50 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-300"
+                          >
+                            <Thermometer className="h-3.5 w-3.5" />
+                          </button>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -407,6 +417,18 @@ export default function FoodModulePage() {
             </div>
           </dl>
         )}
+      </Modal>
+
+      {/* ── Live HACCP telemetry modal — fires from each row's thermometer
+            icon. Shows the live cold-chain (fridge on/off + temp chart). ── */}
+      <Modal
+        open={!!tempItem}
+        onClose={() => setTempItem(null)}
+        title={tempItem ? `Cold-chain telemetry — ${tempItem.premises}` : 'Telemetry'}
+        subtitle="Live fridge / hot-holding status, on/off and temperature trend"
+        size="lg"
+      >
+        {tempItem && <IoTColdChain embedded foodSafetyOnly />}
       </Modal>
 
       {/* ── ZKP certificate modal — opens for Approved Grade-A rows. The
