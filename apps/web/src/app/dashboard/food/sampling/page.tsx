@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Search, FlaskConical, Clock, CheckCircle, AlertTriangle, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, Plus, Search, FlaskConical, Clock, CheckCircle, AlertTriangle, MapPin, Phone, Camera, Video, X, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ interface SampleRow {
   sentToMRI: string;
   result: 'PASS' | 'FAIL' | 'Pending' | '—';
   status: string;
+  media?: number;
 }
 
 const initialSamples: SampleRow[] = [
@@ -34,6 +35,16 @@ export default function FoodSamplingPage() {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [samples, setSamples] = useState<SampleRow[]>(initialSamples);
+  const [media, setMedia] = useState<{ id: string; url: string; kind: 'photo' | 'video' }[]>([]);
+  const photoInput = useRef<HTMLInputElement | null>(null);
+  const videoInput = useRef<HTMLInputElement | null>(null);
+
+  const addMedia = (files: FileList | null, kind: 'photo' | 'video') => {
+    if (!files) return;
+    const items = Array.from(files).map((f) => ({ id: `${Date.now()}-${Math.random()}`, url: URL.createObjectURL(f), kind }));
+    setMedia((prev) => [...prev, ...items]);
+  };
+  const removeMedia = (id: string) => setMedia((prev) => { const m = prev.find((x) => x.id === id); if (m) URL.revokeObjectURL(m.url); return prev.filter((x) => x.id !== id); });
 
   const [form, setForm] = useState({
     premises: '',
@@ -75,10 +86,13 @@ export default function FoodSamplingPage() {
       sentToMRI: '—',
       result: 'Pending',
       status: 'Pending MRI Submission',
+      media: media.length,
     };
     setSamples((prev) => [newRow, ...prev]);
-    toast.success(`Sample ${nextId} saved — sync to MRI when online`);
+    toast.success(`Sample ${nextId} saved${media.length ? ` with ${media.length} attachment${media.length === 1 ? '' : 's'}` : ''} — sync to MRI when online`);
     setShowForm(false);
+    media.forEach((m) => URL.revokeObjectURL(m.url));
+    setMedia([]);
     setForm((prev) => ({ ...prev, premises: '', address: '', phone: '', foodItem: '', quantity: '', temp: '', notes: '' }));
   };
 
@@ -176,7 +190,31 @@ export default function FoodSamplingPage() {
                 <Label>Notes</Label>
                 <Input value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Additional observations" />
               </div>
-              <div className="flex items-end gap-2">
+              <div className="space-y-2 sm:col-span-2 lg:col-span-3">
+                <Label>Sample photos / videos <span className="text-[10px] font-normal text-muted-foreground">capture live or upload</span></Label>
+                <div className="rounded-lg border-2 border-dashed border-slate-200 p-3 dark:border-slate-700">
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => photoInput.current?.click()}><Camera className="mr-1.5 h-3.5 w-3.5" /> Photo</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => videoInput.current?.click()}><Video className="mr-1.5 h-3.5 w-3.5" /> Video</Button>
+                    <input ref={photoInput} type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={(e) => { addMedia(e.target.files, 'photo'); e.target.value = ''; }} />
+                    <input ref={videoInput} type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => { addMedia(e.target.files, 'video'); e.target.value = ''; }} />
+                  </div>
+                  {media.length > 0 && (
+                    <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                      {media.map((m) => (
+                        <div key={m.id} className="group relative overflow-hidden rounded-md border border-slate-200 dark:border-slate-700">
+                          {m.kind === 'photo'
+                            // eslint-disable-next-line @next/next/no-img-element -- blob: preview
+                            ? <img src={m.url} alt="sample" className="h-20 w-full object-cover" />
+                            : <video src={m.url} className="h-20 w-full object-cover" muted />}
+                          <button type="button" onClick={() => removeMedia(m.id)} className="absolute right-1 top-1 rounded-full bg-slate-900/80 p-1 text-white"><X className="h-3 w-3" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-end gap-2 lg:col-span-3">
                 <Button className="bg-emerald-700 hover:bg-emerald-800 flex-1" onClick={onSave}>Save sample</Button>
               </div>
             </div>
@@ -217,7 +255,7 @@ export default function FoodSamplingPage() {
                         <p className="font-semibold">{s.premises}</p>
                         <p className="text-[11px] text-muted-foreground">{s.address}</p>
                       </td>
-                      <td className="py-3 pr-4">{s.type}</td>
+                      <td className="py-3 pr-4">{s.type}{s.media ? <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"><ImageIcon className="h-2.5 w-2.5" />{s.media}</span> : null}</td>
                       <td className="py-3 pr-4">{s.collectedDate}</td>
                       <td className="py-3 pr-4 text-muted-foreground">{s.sentToMRI}</td>
                       <td className="py-3 pr-4">
