@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/modal';
 import { cn } from '@/lib/utils';
 import { analyseComplaint, priorityRank, type TriagePriority } from '@/lib/sentiment';
+import { LiveChatsPanel } from '@/components/live-chats-panel';
+import { MessageSquare } from 'lucide-react';
 
 interface Complaint {
   id: string;
@@ -80,6 +82,7 @@ export function ComplaintsManager({ embedded = false }: { embedded?: boolean } =
   const [sortBy, setSortBy] = useState<'triage' | 'date' | 'status'>('triage');
   const [viewItem, setViewItem] = useState<ComplaintWithTriage | null>(null);
   const [liveComplaints, setLiveComplaints] = useState<Complaint[]>([]);
+  const [view, setView] = useState<'complaints' | 'chats'>('complaints');
 
   // Real-time feed of public submissions. Every complaint filed at
   // /public/complaints lands here instantly with its full data + media URLs.
@@ -154,6 +157,14 @@ export function ComplaintsManager({ embedded = false }: { embedded?: boolean } =
         </div>
       </div>
 
+      {/* Section toggle — Complaints vs Live chats (separate filter section) */}
+      <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+        <button onClick={() => setView('complaints')} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${view === 'complaints' ? 'bg-white text-blue-700 shadow-sm dark:bg-slate-900 dark:text-blue-300' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}><AlertTriangle className="h-3.5 w-3.5" /> Complaints</button>
+        <button onClick={() => setView('chats')} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${view === 'chats' ? 'bg-white text-violet-700 shadow-sm dark:bg-slate-900 dark:text-violet-300' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}><MessageSquare className="h-3.5 w-3.5" /> Live chats</button>
+      </div>
+
+      {view === 'chats' ? <LiveChatsPanel /> : (
+      <>
       {/* Live feed indicator */}
       <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs font-medium text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-300">
         <Radio className="h-3.5 w-3.5 animate-pulse" />
@@ -227,6 +238,9 @@ export function ComplaintsManager({ embedded = false }: { embedded?: boolean } =
           );
         })}
       </div>
+
+      </>
+      )}
 
       {/* ── Complaint detail modal — fires from every row's View button ── */}
       <Modal
