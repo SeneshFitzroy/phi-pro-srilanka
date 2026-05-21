@@ -357,18 +357,6 @@ export function H399Collab() {
         </div>
       </div>
 
-      {/* CRDT explanation */}
-      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-800/30 dark:bg-emerald-950/10">
-        <div className="flex gap-3">
-          <GitMerge className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-          <div className="text-xs text-emerald-800 dark:text-emerald-200 space-y-1">
-            <p className="font-semibold">How CRDTs guarantee conflict-free collaboration:</p>
-            <p>Each field is a <strong>Yjs YMap</strong> inside a <strong>YArray</strong>. Every change is appended as an immutable operation in the document's state vector. When two officers edit the same cell simultaneously, Yjs applies a deterministic merge rule (last-write-wins per client clock) — no merge conflicts, no data loss.</p>
-            <p>Press <strong>"Simulate Remote Edit"</strong> to see a concurrent change from a remote client merge into this document automatically — this is the same mechanism used by Google Docs.</p>
-            <p className="text-emerald-600 dark:text-emerald-400">Persistence: the full CRDT state is stored in <strong>IndexedDB</strong> — the form survives browser refresh and works offline.</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

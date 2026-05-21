@@ -8,11 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { haversineDistance, DENGUE_CLUSTER_RADIUS_METRES } from '@phi-pro/shared';
 import { DengueRiskPanel } from '@/components/epidemiology/dengue-risk-panel';
+import type { LeafletMarker } from '@/components/leaflet-map';
 
 const DeckGLClusterMap = dynamic(
   () => import('@/components/epidemiology/deckgl-cluster-map').then((m) => ({ default: m.DeckGLClusterMap })),
   { ssr: false, loading: () => <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading 3D view…</div> },
 );
+
+// Leaflet (OSM) base — renders reliably with no Mapbox token, so the 2D map is
+// always visible. Disease cases drop as colour-coded pins.
+const LeafletMap = dynamic(() => import('@/components/leaflet-map'), { ssr: false });
+const PIN_COLOUR = (d: string): LeafletMarker['color'] =>
+  d === 'Dengue Fever' ? 'rose' : d === 'Chickenpox' ? 'blue' : d === 'Leptospirosis' ? 'amber' : d === 'Food Poisoning' ? 'emerald' : 'indigo';
 
 // ---------------------------------------------------------------------------
 // Data types
@@ -122,21 +129,6 @@ function hexToRgba(hex: string, alpha = 200): [number, number, number, number] {
 }
 
 // ---------------------------------------------------------------------------
-// Dynamic Mapbox Map (SSR-disabled — Mapbox needs window)
-// ---------------------------------------------------------------------------
-const MapboxMap = dynamic(() => import('@/components/epidemiology/mapbox-disease-map'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center bg-slate-100">
-      <div className="text-center">
-        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-[#0066cc] border-t-transparent" />
-        <p className="text-sm text-muted-foreground">Loading map…</p>
-      </div>
-    </div>
-  ),
-});
-
-// ---------------------------------------------------------------------------
 // Severity badge
 // ---------------------------------------------------------------------------
 const SEV_CLASSES: Record<string, string> = {
@@ -184,7 +176,7 @@ export default function DiseaseMapPage() {
               <MapPin className="h-6 w-6 text-[#cc0000]" /> Disease Intelligence Map
             </h1>
             <p className="text-sm text-muted-foreground">
-              Haversine {DENGUE_CLUSTER_RADIUS_METRES}m hotspot detection · Real-time case mapping
+              {DENGUE_CLUSTER_RADIUS_METRES} m cluster hotspot detection · real-time case mapping
             </p>
           </div>
         </div>
@@ -224,25 +216,6 @@ export default function DiseaseMapPage() {
         ))}
       </div>
 
-      {/* Algorithm transparency panel */}
-      <Card className="border border-blue-200 bg-blue-50/50">
-        <CardContent className="p-3">
-          <p className="text-xs font-semibold text-blue-800 mb-1">
-            Haversine Cluster Algorithm (150m buffer)
-          </p>
-          <code className="block rounded bg-white p-2 text-[11px] font-mono text-gray-700 shadow-sm">
-            {`// For each pair of same-disease cases:
-dist = haversineDistance(lat1,lng1, lat2,lng2)  // metres
-if dist <= ${DENGUE_CLUSTER_RADIUS_METRES} → grouped into same cluster
-// Severity: ≥10 cases = CRITICAL, ≥5 = HIGH, ≥3 = MEDIUM, else LOW`}
-          </code>
-          <p className="mt-1 text-[10px] text-blue-600">
-            {clusters.length} clusters detected from {filteredCases.length} cases ·
-            Earth radius = 6,371,000m · Reference: Sri Lanka Epidemiology Unit SOP 2019
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Rainfall-driven dengue risk heat-map */}
       <DengueRiskPanel />
 
@@ -272,11 +245,11 @@ if dist <= ${DENGUE_CLUSTER_RADIUS_METRES} → grouped into same cluster
       <Card className="overflow-hidden">
         <div className="relative h-[480px] sm:h-[560px]">
           {mapMode === '2D' ? (
-            <MapboxMap
-              cases={filteredCases}
-              clusters={clusters}
-              diseaseColor={diseaseColor}
-              onClusterSelect={setSelectedCluster}
+            <LeafletMap
+              height="100%"
+              centre={{ lat: 6.9100, lng: 79.8700 }}
+              zoom={13}
+              markers={filteredCases.map((c) => ({ id: c.id, position: { lat: c.lat, lng: c.lng }, color: PIN_COLOUR(c.disease), label: c.disease.split(' ')[0] }))}
             />
           ) : (
             <DeckGLClusterMap

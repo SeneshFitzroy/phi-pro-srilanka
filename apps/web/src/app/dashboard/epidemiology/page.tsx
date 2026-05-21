@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Biohazard, FileText, AlertTriangle, Search as SearchIcon, MapPin, Activity, TrendingUp, Clock, Bell, Plus, GitMerge, Info } from 'lucide-react';
+import { Biohazard, FileText, AlertTriangle, Search as SearchIcon, MapPin, Activity, TrendingUp, Clock, Bell, Plus, GitMerge } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,10 +45,14 @@ const quickActions = [
   { title: 'Disease Map', subtitle: 'GIS Clusters', icon: MapPin, href: '/dashboard/epidemiology/map', color: 'bg-rose-50 text-rose-600 border-rose-200' },
 ];
 
+// Sri Lanka Epidemiology Unit — full notifiable diseases list.
 const notifiableDiseases = [
-  'Dengue Fever', 'Dengue Haemorrhagic Fever', 'Typhoid', 'Chickenpox', 'Measles',
-  'Leptospirosis', 'Hepatitis A', 'Hepatitis B', 'Food Poisoning', 'Rabies (Animal Bite)',
-  'Tuberculosis', 'Malaria', 'COVID-19', 'Diarrhoea', 'Dysentery',
+  'Acute Flaccid Paralysis', 'Chickenpox', 'Cholera', 'Dengue Fever', 'Dengue Haemorrhagic Fever',
+  'Diphtheria', 'Dysentery', 'Encephalitis', 'Enteric Fever (Typhoid)', 'Food Poisoning',
+  'Viral Hepatitis', 'Human Rabies', 'Leishmaniasis', 'Leptospirosis', 'Malaria',
+  'Measles', 'Meningitis', 'Mumps', 'Plague', 'Poliomyelitis',
+  'Rubella', 'Tetanus / Neonatal Tetanus', 'Tuberculosis', 'Typhus Fever',
+  'Whooping Cough (Pertussis)', 'COVID-19',
 ];
 
 const recentCases = [
@@ -74,7 +78,7 @@ export default function EpidemiologyPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Biohazard className="h-7 w-7 text-epidemiology" /> Epidemiology & Disease Surveillance</h1>
-          <p className="text-sm text-muted-foreground mt-1">48-hour investigation mandate • 45 notifiable diseases • 150m cluster radius</p>
+          <p className="text-sm text-muted-foreground mt-1">48-hour investigation mandate • 26 notifiable diseases • 150m cluster radius</p>
         </div>
         <Link href="/dashboard/epidemiology/notification">
           <Button className="bg-epidemiology hover:bg-epidemiology/90"><Plus className="mr-2 h-4 w-4" />New Notification</Button>
@@ -112,6 +116,35 @@ export default function EpidemiologyPage() {
         ))}
       </div>
 
+      {/* Recent Cases — surfaced near the top of the module */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Recent Cases</CardTitle>
+          <div className="relative"><SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search cases..." className="pl-9 w-64" /></div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Case ID</th><th className="pb-3 pr-4 font-medium">Disease</th><th className="pb-3 pr-4 font-medium">Patient</th><th className="pb-3 pr-4 font-medium">Age</th><th className="pb-3 pr-4 font-medium">GN Division</th><th className="pb-3 pr-4 font-medium">Reported</th><th className="pb-3 pr-4 font-medium">Priority</th><th className="pb-3 font-medium">Status</th></tr></thead>
+              <tbody>
+                {filteredCases.map((c) => (
+                  <tr key={c.id} className="border-b last:border-0 hover:bg-accent/50">
+                    <td className="py-3 pr-4 font-mono text-xs">{c.id}</td>
+                    <td className="py-3 pr-4 font-medium">{c.disease}</td>
+                    <td className="py-3 pr-4">{c.patient}</td>
+                    <td className="py-3 pr-4">{c.age}</td>
+                    <td className="py-3 pr-4">{c.gn}</td>
+                    <td className="py-3 pr-4 text-muted-foreground">{c.reportedDate}</td>
+                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-bold ${c.priority === 'HIGH' ? 'bg-red-100 text-red-700' : c.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{c.priority}</span></td>
+                    <td className="py-3"><span className={`text-xs font-medium ${c.status === 'Under Investigation' ? 'text-amber-600' : c.status === 'Investigated' ? 'text-green-600' : 'text-gray-500'}`}>{c.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Top Diseases this week */}
       <Card>
         <CardHeader><CardTitle className="text-base">Disease Trend — This Week</CardTitle></CardHeader>
@@ -138,14 +171,16 @@ export default function EpidemiologyPage() {
 
       {/* Notifiable Diseases Quick Reference */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Notifiable Diseases (Quick Reference)</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Notifiable Diseases — Sri Lanka ({notifiableDiseases.length})</CardTitle></CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {notifiableDiseases.map((d) => (
-              <span key={d} className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs text-red-700">{d}</span>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {notifiableDiseases.map((d, i) => (
+              <span key={d} className="flex items-center gap-2 rounded-md border border-red-100 bg-red-50/60 px-3 py-1.5 text-xs text-red-800 dark:border-red-950/40 dark:bg-red-950/20 dark:text-red-300">
+                <span className="font-mono text-[10px] text-red-400">{String(i + 1).padStart(2, '0')}</span>{d}
+              </span>
             ))}
-            <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-500">+30 more</span>
           </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">All cases must be notified to the MOH within 24 hours and investigated within 48 hours (Quarantine &amp; Prevention of Diseases Ordinance).</p>
         </CardContent>
       </Card>
 
@@ -154,24 +189,19 @@ export default function EpidemiologyPage() {
             Cluster panels above without dual-entry. Edits sync across
             concurrent tabs via Yjs + IndexedDB. ── */}
       <Card className="border-l-4 border-l-violet-500">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <GitMerge className="h-4 w-4 text-violet-600" />
             H399 Weekly Return — collaborative ingest
             <span className="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
-              CRDT · live
+              live
             </span>
           </CardTitle>
+          <Link href="/dashboard/epidemiology/weekly" className="inline-flex items-center gap-1 rounded-md border border-violet-200 px-2.5 py-1 text-xs font-semibold text-violet-700 hover:bg-violet-50 dark:border-violet-900 dark:text-violet-300">
+            Open full H399 weekly return →
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="mb-3 flex items-start gap-2 rounded-md border border-violet-100 bg-violet-50/60 px-3 py-2 text-[11px] text-violet-900 dark:border-violet-900 dark:bg-violet-950/30 dark:text-violet-200">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <p>
-              Rows entered here are the live data source for the metrics, the disease trend bars,
-              the cluster radar (150 m radius alerts) and the Notifiable Diseases reference above.
-              Open in two browser tabs to see the conflict-free merge in action.
-            </p>
-          </div>
           <H399Collab />
         </CardContent>
       </Card>
@@ -219,34 +249,6 @@ export default function EpidemiologyPage() {
         </CardContent>
       </Card>
 
-      {/* Cases Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent Cases</CardTitle>
-          <div className="relative"><SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search cases..." className="pl-9 w-64" /></div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b text-left text-muted-foreground"><th className="pb-3 pr-4 font-medium">Case ID</th><th className="pb-3 pr-4 font-medium">Disease</th><th className="pb-3 pr-4 font-medium">Patient</th><th className="pb-3 pr-4 font-medium">Age</th><th className="pb-3 pr-4 font-medium">GN Division</th><th className="pb-3 pr-4 font-medium">Reported</th><th className="pb-3 pr-4 font-medium">Priority</th><th className="pb-3 font-medium">Status</th></tr></thead>
-              <tbody>
-                {filteredCases.map((c) => (
-                  <tr key={c.id} className="border-b last:border-0 hover:bg-accent/50">
-                    <td className="py-3 pr-4 font-mono text-xs">{c.id}</td>
-                    <td className="py-3 pr-4 font-medium">{c.disease}</td>
-                    <td className="py-3 pr-4">{c.patient}</td>
-                    <td className="py-3 pr-4">{c.age}</td>
-                    <td className="py-3 pr-4">{c.gn}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">{c.reportedDate}</td>
-                    <td className="py-3 pr-4"><span className={`rounded px-2 py-0.5 text-xs font-bold ${c.priority === 'HIGH' ? 'bg-red-100 text-red-700' : c.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{c.priority}</span></td>
-                    <td className="py-3"><span className={`text-xs font-medium ${c.status === 'Under Investigation' ? 'text-amber-600' : c.status === 'Investigated' ? 'text-green-600' : 'text-gray-500'}`}>{c.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
