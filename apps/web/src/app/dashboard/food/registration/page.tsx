@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Building2, CheckCircle, Clock, Phone, MapPin, FileText } from 'lucide-react';
+import { Plus, Search, Building2, CheckCircle, Clock, Phone, MapPin, FileText, Crosshair, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SubpageHeader } from '@/components/dashboard-subpage-header';
+import { toast } from 'sonner';
+import { createDocument } from '@/lib/firestore';
 
 interface RegisteredPremises {
   id: string; name: string; owner: string; type: string; risk: 'HIGH' | 'MEDIUM' | 'LOW';
@@ -34,11 +36,62 @@ const gradeTone = {
   C: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
 } as const;
 
+const EMPTY_FORM = { name: '', owner: '', nic: '', phone: '', address: '', gn: '', foodType: 'Restaurant', risk: 'HIGH' as 'HIGH' | 'MEDIUM' | 'LOW', lat: '', lng: '' };
+
 export default function FoodRegistrationPage() {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [locating, setLocating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [extra, setExtra] = useState<RegisteredPremises[]>([]);
 
-  const filtered = registeredPremises.filter((p) =>
+  const setF = (k: keyof typeof EMPTY_FORM, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  const useMyLocation = () => {
+    if (!('geolocation' in navigator)) { toast.error('Geolocation not available.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      setForm((p) => ({ ...p, lat: lat.toFixed(6), lng: lng.toFixed(6) }));
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=en`, { headers: { Accept: 'application/json' } });
+        const j = await res.json() as { display_name?: string; address?: Record<string, string> };
+        const a = j.address ?? {};
+        const street = [a.house_number, a.road || a.pedestrian, a.suburb || a.neighbourhood, a.city || a.town].filter(Boolean).join(', ');
+        setForm((p) => ({ ...p, address: street || j.display_name || p.address, gn: p.gn || a.suburb || a.neighbourhood || a.village || '' }));
+        toast.success('Location detected — address filled.');
+      } catch { toast.message('Pinned coordinates; address lookup unavailable.'); }
+      setLocating(false);
+    }, () => { setLocating(false); toast.error('Could not read your location.'); }, { enableHighAccuracy: true, timeout: 10000 });
+  };
+
+  const register = async () => {
+    if (!form.name.trim() || !form.owner.trim() || !form.address.trim()) { toast.error('Premises name, owner and address are required.'); return; }
+    setSaving(true);
+    const id = 'H801-' + Date.now().toString().slice(-6);
+    const today = new Date();
+    const expiry = new Date(today); expiry.setFullYear(expiry.getFullYear() + 1);
+    const record: RegisteredPremises = {
+      id, name: form.name.trim(), owner: form.owner.trim(), type: form.foodType, risk: form.risk,
+      grade: 'A', regDate: today.toISOString().slice(0, 10), expiry: expiry.toISOString().slice(0, 10),
+      status: 'Active', phone: form.phone.trim(), address: form.address.trim(),
+    };
+    try {
+      await createDocument('premises_registrations', {
+        ...record, ownerNic: form.nic.trim().toUpperCase(), gnDivision: form.gn.trim(),
+        lat: form.lat ? parseFloat(form.lat) : null, lng: form.lng ? parseFloat(form.lng) : null,
+      });
+      toast.success(`Registered ${record.name} — ${id}.`);
+    } catch {
+      toast.message(`Saved locally as ${id} (sign in & deploy rules to persist).`);
+    }
+    setExtra((prev) => [record, ...prev]);
+    setForm(EMPTY_FORM); setShowForm(false); setSaving(false);
+  };
+
+  const allPremises = [...extra, ...registeredPremises];
+  const filtered = allPremises.filter((p) =>
     [p.name, p.owner, p.id, p.type, p.address].some((f) => f.toLowerCase().includes(search.toLowerCase())),
   );
 
@@ -69,24 +122,31 @@ export default function FoodRegistrationPage() {
 
       {showForm && (
         <Card>
-          <CardHeader><CardTitle>New registration</CardTitle></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>New registration</CardTitle>
+            <Button variant="outline" size="sm" onClick={useMyLocation} disabled={locating}>
+              {locating ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Crosshair className="mr-1.5 h-3.5 w-3.5" />}
+              {locating ? 'Locating…' : 'Use my location'}
+            </Button>
+          </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="space-y-2"><Label>Premises name *</Label><Input placeholder="Business name" /></div>
-              <div className="space-y-2"><Label>Owner name *</Label><Input placeholder="Full name" /></div>
-              <div className="space-y-2"><Label>Owner NIC *</Label><Input placeholder="National ID" /></div>
-              <div className="space-y-2"><Label>Phone</Label><Input type="tel" placeholder="+94..." /></div>
-              <div className="space-y-2"><Label>Address *</Label><Input placeholder="Full address" /></div>
-              <div className="space-y-2"><Label>GN Division</Label><Input placeholder="GN code" /></div>
+              <div className="space-y-2"><Label>Premises name *</Label><Input value={form.name} onChange={(e) => setF('name', e.target.value)} placeholder="Business name" /></div>
+              <div className="space-y-2"><Label>Owner name *</Label><Input value={form.owner} onChange={(e) => setF('owner', e.target.value)} placeholder="Full name" /></div>
+              <div className="space-y-2"><Label>Owner NIC *</Label><Input value={form.nic} onChange={(e) => setF('nic', e.target.value)} placeholder="National ID" /></div>
+              <div className="space-y-2"><Label>Phone</Label><Input type="tel" value={form.phone} onChange={(e) => setF('phone', e.target.value)} placeholder="+94..." /></div>
+              <div className="space-y-2"><Label>Address *</Label><Input value={form.address} onChange={(e) => setF('address', e.target.value)} placeholder="Full address" /></div>
+              <div className="space-y-2"><Label>GN Division</Label><Input value={form.gn} onChange={(e) => setF('gn', e.target.value)} placeholder="GN code" /></div>
               <div className="space-y-2">
                 <Label>Food type</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option>Restaurant</option><option>Bakery</option><option>Grocery</option><option>Meat/Fish</option><option>Tea Shop</option><option>Street Vendor</option></select>
+                <select value={form.foodType} onChange={(e) => setF('foodType', e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option>Restaurant</option><option>Bakery</option><option>Grocery</option><option>Meat/Fish</option><option>Tea Shop</option><option>Street Vendor</option></select>
               </div>
               <div className="space-y-2">
                 <Label>Risk level</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="HIGH">High (Quarterly)</option><option value="MEDIUM">Medium (Biannual)</option><option value="LOW">Low (Annual)</option></select>
+                <select value={form.risk} onChange={(e) => setF('risk', e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="HIGH">High (Quarterly)</option><option value="MEDIUM">Medium (Biannual)</option><option value="LOW">Low (Annual)</option></select>
               </div>
-              <div className="flex items-end"><Button className="w-full bg-emerald-700 hover:bg-emerald-800">Register &amp; issue certificate</Button></div>
+              <div className="space-y-2"><Label>GPS coordinates</Label><Input value={form.lat && form.lng ? `${form.lat}, ${form.lng}` : ''} readOnly placeholder="Use my location" className="font-mono text-xs" /></div>
+              <div className="flex items-end lg:col-span-3"><Button onClick={register} disabled={saving} className="w-full bg-emerald-700 hover:bg-emerald-800">{saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</> : 'Register & issue certificate'}</Button></div>
             </div>
           </CardContent>
         </Card>
