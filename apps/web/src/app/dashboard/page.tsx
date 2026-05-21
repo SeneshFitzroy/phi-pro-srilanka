@@ -17,6 +17,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { UserRole } from '@phi-pro/shared';
 import { UnifiedCalendar } from '@/components/unified-calendar';
 import { AdministrationPanel } from '@/components/administration-panel';
 import { ComplaintsManager } from '@/components/complaints-manager';
@@ -95,13 +96,22 @@ export default function DashboardPage() {
   const visibleActivity = recentActivity.filter((a) => activityDomain === 'all' || a.domain === activityDomain);
   const visibleTasks = upcomingTasks.filter((task) => taskPriority === 'all' || task.priority === taskPriority);
 
+  // Role policy:
+  //  • PHI (field officer) — Overview only; the Administration tab is owned
+  //    by supervisory staff and is hidden from PHIs.
+  //  • SPHI / MOH_ADMIN — full Overview + Administration access.
+  const role = user?.role ?? UserRole.PHI;
+  const canSeeAdmin = role === UserRole.SPHI || role === UserRole.MOH_ADMIN;
+
   // Deep-link support: /dashboard?tab=administration. ?tab=complaints is kept
   // as an alias (complaints now lives inside Administration) so existing
-  // sidebar/search/voice links keep working. Plain "Dashboard" → Overview.
+  // sidebar/search/voice links keep working. PHIs never land on the admin
+  // tab — the URL is normalised back to overview.
   useEffect(() => {
     const q = searchParams.get('tab');
-    setTab(q === 'administration' || q === 'complaints' ? 'administration' : 'overview');
-  }, [searchParams]);
+    const wantsAdmin = q === 'administration' || q === 'complaints';
+    setTab(wantsAdmin && canSeeAdmin ? 'administration' : 'overview');
+  }, [searchParams, canSeeAdmin]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -128,21 +138,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Tab switcher — Overview · Administration (reporting + complaints) */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800">
-        {([
-          { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
-          { id: 'administration' as const, label: 'Administration', icon: ClipboardList },
-        ]).map((tb) => (
-          <button
-            key={tb.id}
-            onClick={() => setTab(tb.id)}
-            className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${tab === tb.id ? 'border-blue-600 text-blue-700 dark:text-blue-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
-          >
-            <tb.icon className="h-4 w-4" /> {tb.label}
-          </button>
-        ))}
-      </div>
+      {/* Tab switcher — Overview · Administration (reporting + complaints).
+          The Administration tab is supervisory-only; hidden from PHI officers. */}
+      {canSeeAdmin && (
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800">
+          {([
+            { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
+            { id: 'administration' as const, label: 'Administration', icon: ClipboardList },
+          ]).map((tb) => (
+            <button
+              key={tb.id}
+              onClick={() => setTab(tb.id)}
+              className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${tab === tb.id ? 'border-blue-600 text-blue-700 dark:text-blue-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            >
+              <tb.icon className="h-4 w-4" /> {tb.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {tab === 'administration' ? (
         <div className="space-y-8">
