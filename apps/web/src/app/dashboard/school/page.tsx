@@ -4,11 +4,13 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   School, FileText, Syringe, Droplets, Activity, ClipboardList, Search, TrendingUp,
-  Users, AlertTriangle, ArrowRight, X, Plus, CheckCircle2, Circle,
+  Users, AlertTriangle, ArrowRight, X, Plus, CheckCircle2, Circle, Trash2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { COLOMBO_SCHOOLS } from '@/data/colombo-schools';
 
 const quickActions = [
   { title: 'Monthly Summary',  code: 'H1214', icon: FileText,       href: '/dashboard/school/monthly',  desc: 'Roll up the month\'s school-health activity.',         accent: 'from-blue-600 to-indigo-700' },
@@ -24,27 +26,42 @@ interface SchoolRow {
   grade1Done: boolean; grade4Done: boolean; grade7Done: boolean; grade10Done: boolean;
 }
 
-const recentSchools: SchoolRow[] = [
-  { id: 'SCH-001', name: 'Ananda College',         type: 'National',   students: 3200, lastVisit: '2026-02-10', grade1Done: true,  grade4Done: true,  grade7Done: false, grade10Done: false },
-  { id: 'SCH-002', name: 'Rathnavali Balika',      type: 'Provincial', students: 1800, lastVisit: '2026-02-08', grade1Done: true,  grade4Done: false, grade7Done: false, grade10Done: false },
-  { id: 'SCH-003', name: 'St. Thomas College',     type: 'National',   students: 2500, lastVisit: '2026-02-05', grade1Done: true,  grade4Done: true,  grade7Done: true,  grade10Done: false },
-  { id: 'SCH-004', name: 'Muslim Ladies College',  type: 'Provincial', students: 1200, lastVisit: '2026-01-28', grade1Done: true,  grade4Done: true,  grade7Done: true,  grade10Done: true  },
-  { id: 'SCH-005', name: 'Dharmaraja College',     type: 'National',   students: 2800, lastVisit: '2026-01-20', grade1Done: false, grade4Done: false, grade7Done: false, grade10Done: false },
-  { id: 'SCH-006', name: 'Royal College Colombo',  type: 'National',   students: 7800, lastVisit: '2026-02-12', grade1Done: true,  grade4Done: true,  grade7Done: false, grade10Done: false },
-  { id: 'SCH-007', name: 'Visakha Vidyalaya',      type: 'National',   students: 3900, lastVisit: '2026-02-01', grade1Done: true,  grade4Done: true,  grade7Done: true,  grade10Done: false },
-];
+// Colombo school register — seeded from the shared Colombo schools dataset.
+const SEED_SCHOOLS: SchoolRow[] = COLOMBO_SCHOOLS.map((s, i) => ({
+  id: s.id, name: s.name, type: s.type, students: s.students,
+  lastVisit: `2026-0${(i % 2) + 1}-${String(((i * 3) % 27) + 1).padStart(2, '0')}`,
+  grade1Done: i % 2 === 0, grade4Done: i % 3 === 0, grade7Done: i % 4 === 0, grade10Done: i % 5 === 0,
+}));
 
 type TypeFilter = 'All' | SchoolRow['type'];
 type ProgressFilter = 'All' | 'Complete' | 'Partial' | 'Not started';
+type SortKey = 'name' | 'students' | 'lastVisit';
 
 export default function SchoolHealthPage() {
+  const [schools, setSchools] = useState<SchoolRow[]>(SEED_SCHOOLS);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('All');
   const [progressFilter, setProgressFilter] = useState<ProgressFilter>('All');
+  const [sortBy, setSortBy] = useState<SortKey>('name');
+  const [showAdd, setShowAdd] = useState(false);
+  const [draft, setDraft] = useState({ name: '', type: 'National' as SchoolRow['type'], students: '' });
+
+  const addSchool = () => {
+    if (!draft.name.trim()) { toast.error('School name is required.'); return; }
+    setSchools((prev) => [{
+      id: `SCH-${String(prev.length + 1).padStart(3, '0')}-${Date.now().toString().slice(-4)}`,
+      name: draft.name.trim(), type: draft.type, students: Number(draft.students) || 0,
+      lastVisit: new Date().toISOString().slice(0, 10),
+      grade1Done: false, grade4Done: false, grade7Done: false, grade10Done: false,
+    }, ...prev]);
+    toast.success(`Added ${draft.name.trim()}.`);
+    setDraft({ name: '', type: 'National', students: '' }); setShowAdd(false);
+  };
+  const removeSchool = (id: string) => setSchools((prev) => prev.filter((s) => s.id !== id));
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return recentSchools.filter((s) => {
+    const rows = schools.filter((s) => {
       if (typeFilter !== 'All' && s.type !== typeFilter) return false;
       const flags = [s.grade1Done, s.grade4Done, s.grade7Done, s.grade10Done];
       const done = flags.filter(Boolean).length;
@@ -53,9 +70,13 @@ export default function SchoolHealthPage() {
       if (!q) return true;
       return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
     });
-  }, [search, typeFilter, progressFilter]);
+    return [...rows].sort((a, b) =>
+      sortBy === 'students' ? b.students - a.students
+      : sortBy === 'lastVisit' ? b.lastVisit.localeCompare(a.lastVisit)
+      : a.name.localeCompare(b.name));
+  }, [schools, search, typeFilter, progressFilter, sortBy]);
 
-  const filtersActive = typeFilter !== 'All' || progressFilter !== 'All' || Boolean(search);
+  const filtersActive = typeFilter !== 'All' || progressFilter !== 'All' || sortBy !== 'name' || Boolean(search);
 
   return (
     <div className="space-y-6">
@@ -168,15 +189,42 @@ export default function SchoolHealthPage() {
                 <option value="Partial">Partial</option>
                 <option value="Not started">Not started</option>
               </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortKey)}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                aria-label="Sort schools"
+              >
+                <option value="name">Sort: Name</option>
+                <option value="students">Sort: Students</option>
+                <option value="lastVisit">Sort: Last visit</option>
+              </select>
               {filtersActive && (
-                <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setTypeFilter('All'); setProgressFilter('All'); }}>
+                <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setTypeFilter('All'); setProgressFilter('All'); setSortBy('name'); }}>
                   <X className="mr-1 h-3 w-3" /> Clear
                 </Button>
               )}
+              <Button size="sm" onClick={() => setShowAdd((v) => !v)} className="bg-blue-700 hover:bg-blue-800">
+                <Plus className="mr-1 h-3.5 w-3.5" /> Add school
+              </Button>
             </div>
           </div>
+          {showAdd && (
+            <div className="grid gap-2 rounded-lg border border-dashed border-slate-300 p-3 sm:grid-cols-4 dark:border-slate-700">
+              <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="School name" className="sm:col-span-2" />
+              <select value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as SchoolRow['type'] })} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="National">National</option>
+                <option value="Provincial">Provincial</option>
+                <option value="Private">Private</option>
+              </select>
+              <div className="flex gap-2">
+                <Input type="number" value={draft.students} onChange={(e) => setDraft({ ...draft, students: e.target.value })} placeholder="Students" />
+                <Button onClick={addSchool} className="shrink-0 bg-blue-700 hover:bg-blue-800">Add</Button>
+              </div>
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">
-            Showing <strong>{filtered.length}</strong> of {recentSchools.length} schools
+            Showing <strong>{filtered.length}</strong> of {schools.length} schools
           </p>
         </CardHeader>
         <CardContent>
@@ -191,13 +239,14 @@ export default function SchoolHealthPage() {
                   <th className="pb-3 pr-2 text-center font-semibold">G1</th>
                   <th className="pb-3 pr-2 text-center font-semibold">G4</th>
                   <th className="pb-3 pr-2 text-center font-semibold">G7</th>
-                  <th className="pb-3 text-center font-semibold">G10</th>
+                  <th className="pb-3 pr-2 text-center font-semibold">G10</th>
+                  <th className="pb-3 text-right font-semibold"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-10 text-center text-sm text-muted-foreground">
+                    <td colSpan={9} className="py-10 text-center text-sm text-muted-foreground">
                       No schools match the current filters.
                     </td>
                   </tr>
@@ -221,6 +270,11 @@ export default function SchoolHealthPage() {
                           : <Circle className="mx-auto h-5 w-5 text-slate-300 dark:text-slate-700" />}
                       </td>
                     ))}
+                    <td className="py-3 text-right">
+                      <button onClick={() => removeSchool(s.id)} aria-label={`Remove ${s.name}`} title="Remove school" className="rounded p-1 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
