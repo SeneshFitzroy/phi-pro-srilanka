@@ -8,14 +8,25 @@
 // Offline : answers from the cached pairs + a built-in bank of ~20 key Q&As,
 //           using a lightweight keyword-overlap match — so the assistant still
 //           works in the field with no connectivity.
-// Full screen version lives at /dashboard/copilot.
+// This is the single agentic assistant (the old /dashboard/copilot is merged
+// in here): it answers health-law questions AND drives the app — navigate to
+// any module, open forms, switch theme, open search.
 // ============================================================================
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { Bot, Send, User, X, Loader2, Sparkles, WifiOff, Maximize2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Bot, Send, User, X, Loader2, Sparkles, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/i18n-context';
+
+const THEME_KEY = 'phi-pro-theme';
+function applyTheme(theme: 'light' | 'dark' | 'system') {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+    const wantDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', wantDark);
+  } catch { /* ignore */ }
+}
 
 interface ChatMessage {
   id: string;
@@ -25,10 +36,10 @@ interface ChatMessage {
 }
 
 const STARTERS = [
+  'Open a new H800 inspection',
+  'Go to Epidemiology',
   'What score triggers a Court Summons under H800?',
   'Which violations auto-cap an inspection to Grade C?',
-  'How long until a follow-up after a Grade C?',
-  'What is the legal basis for a Closure Notice?',
 ];
 
 // Built-in offline knowledge bank (concise — the full RAG copilot is online).
@@ -79,7 +90,7 @@ function offlineAnswer(question: string, cache: Record<string, string>): string 
   if (cache[norm]) return cache[norm];
 
   const qTokens = new Set(tokenize(question));
-  if (qTokens.size === 0) return 'I could not match that offline. Please try again when you have a connection, or open the full Compliance Copilot.';
+  if (qTokens.size === 0) return 'I could not match that offline. Please try again when you have a connection.';
 
   let best = { score: 0, a: '' };
   // cached questions
@@ -93,12 +104,13 @@ function offlineAnswer(question: string, cache: Record<string, string>): string 
     if (overlap > best.score) best = { score: overlap, a: item.a };
   }
 
-  if (best.score >= 2) return best.a + '\n\n(Offline answer — verify against current MOH circulars; the full Copilot is available when online.)';
-  return 'No offline match for that question. Connect to the internet and ask again, or open the full Compliance Copilot for the complete legal knowledge base.';
+  if (best.score >= 2) return best.a + '\n\n(Offline answer — verify against current MOH circulars; full AI answers resume when online.)';
+  return 'No offline match for that question. Connect to the internet and ask again for the complete legal knowledge base.';
 }
 
 export function AiAssistantFab() {
   const { language } = useLanguage();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -119,6 +131,41 @@ export function AiAssistantFab() {
 
   useEffect(() => { if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, open]);
 
+  // Agentic layer — the assistant can drive the app: navigate, switch theme,
+  // open search, jump to any module/form. Returns a confirmation string when it
+  // handled the message, or null to fall through to the knowledge Q&A.
+  function tryAgentic(text: string): string | null {
+    const t = text.toLowerCase().trim();
+    const go = (label: string, href: string) => { router.push(href); return `Opening ${label}…`; };
+
+    if (/\b(dark mode|dark theme|night mode)\b/.test(t)) { applyTheme('dark'); return 'Switched to dark mode.'; }
+    if (/\b(light mode|light theme|day mode)\b/.test(t)) { applyTheme('light'); return 'Switched to light mode.'; }
+    if (/\b(system theme|auto theme)\b/.test(t)) { applyTheme('system'); return 'Theme set to follow your system.'; }
+    if (/^(search|find)\b/.test(t)) {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+      return 'Opening the dashboard search — type your query.';
+    }
+    if (/\b(open|go to|goto|navigate|take me to|show|start|create|new)\b/.test(t)) {
+      if (/new inspection|h800/.test(t)) return go('a new H800 inspection', '/dashboard/food/inspection/new');
+      if (/registration|register premises|h801/.test(t)) return go('food premises registration', '/dashboard/food/registration');
+      if (/sampling|h802/.test(t)) return go('food sampling', '/dashboard/food/sampling');
+      if (/food/.test(t)) return go('Food Safety', '/dashboard/food');
+      if (/school|vaccine|defect/.test(t)) return go('School Health', '/dashboard/school');
+      if (/epidem|disease|outbreak|dengue/.test(t)) return go('Epidemiology', '/dashboard/epidemiology');
+      if (/occupation|factory|worker|safety/.test(t)) return go('Occupational Health', '/dashboard/occupational');
+      if (/complaint/.test(t)) return go('Complaints', '/dashboard?tab=administration');
+      if (/inventory|stock/.test(t)) return go('Inventory', '/dashboard/administration/inventory');
+      if (/administ|report|gn |grama/.test(t)) return go('Administration', '/dashboard?tab=administration');
+      if (/calendar|schedule|task/.test(t)) return go('the unified calendar', '/dashboard#calendar');
+      if (/setting/.test(t)) return go('Settings', '/dashboard/settings');
+      if (/profile/.test(t)) return go('your Profile', '/dashboard/profile');
+      if (/resource|download|duty/.test(t)) return go('Officer Resources', '/dashboard/resources');
+      if (/dashboard|home|overview/.test(t)) return go('the Dashboard', '/dashboard');
+    }
+    return null;
+  }
+
   async function send(text: string) {
     const q = text.trim();
     if (!q || loading) return;
@@ -126,6 +173,14 @@ export function AiAssistantFab() {
     setMessages((m) => [...m, userMsg]);
     setInput('');
     setLoading(true);
+
+    // Agentic action first — if it's a "do this" command, execute and reply.
+    const action = tryAgentic(q);
+    if (action) {
+      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content: `✓ ${action}` }]);
+      setLoading(false);
+      return;
+    }
 
     const cache = loadCache();
 
@@ -189,16 +244,16 @@ export function AiAssistantFab() {
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15"><Bot className="h-5 w-5" /></div>
                 <div className="leading-tight">
-                  <p className="text-sm font-bold">PHI Assistant</p>
+                  <p className="flex items-center gap-1.5 text-sm font-bold">
+                    PHI Assistant
+                    <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider">Agentic</span>
+                  </p>
                   <p className="text-[10px] text-indigo-100">
-                    {online ? 'Sri Lanka health-law copilot' : 'Offline mode — cached knowledge'}
+                    {online ? 'Ask, or tell me to navigate & run tasks' : 'Offline mode — cached knowledge'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <Link href="/dashboard/copilot" title="Open full Copilot" className="rounded-md p-1.5 hover:bg-white/15">
-                  <Maximize2 className="h-4 w-4" />
-                </Link>
                 <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-md p-1.5 hover:bg-white/15">
                   <X className="h-4 w-4" />
                 </button>

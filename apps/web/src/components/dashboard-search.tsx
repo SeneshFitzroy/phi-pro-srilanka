@@ -44,7 +44,7 @@ const INDEX: Entry[] = [
   { label: 'Area survey',                    href: '/dashboard/administration/area-survey', group: 'Administration',  keywords: 'area survey administration' },
   { label: 'Spot map',                       href: '/dashboard/administration/spot-map',    group: 'Administration',  keywords: 'spot map gis cases administration' },
   // Tools / account
-  { label: 'AI Copilot',                     href: '/dashboard/copilot',                    group: 'Tools',           keywords: 'copilot ai assistant help' },
+  { label: 'PHI Assistant (agentic — floating button)', href: '/dashboard', group: 'Tools', keywords: 'copilot ai assistant help agentic' },
   { label: 'Activity & tasks calendar',      href: '/dashboard#calendar',                   group: 'Tools',           keywords: 'activity calendar tasks recent schedule' },
   { label: 'Profile & settings',             href: '/dashboard/profile',                    group: 'Account',         keywords: 'profile account settings' },
 ];

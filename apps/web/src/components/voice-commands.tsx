@@ -47,7 +47,7 @@ export function VoiceCommands() {
     { phrases: ['administration', 'admin', 'reports', 'reporting'], label: 'Administration', run: () => router.push('/dashboard?tab=administration') },
     { phrases: ['complaints', 'complaint', 'open complaints'], label: 'Complaints', run: () => router.push('/dashboard?tab=complaints') },
     { phrases: ['inventory', 'stock'], label: 'Inventory', run: () => router.push('/dashboard/administration/inventory') },
-    { phrases: ['copilot', 'assistant', 'ai assistant'], label: 'Compliance Copilot', run: () => router.push('/dashboard/copilot') },
+    { phrases: ['copilot', 'assistant', 'ai assistant'], label: 'Dashboard (PHI Assistant is the floating button)', run: () => router.push('/dashboard') },
     { phrases: ['resources', 'officer resources', 'duty', 'downloads'], label: 'Officer Resources', run: () => router.push('/dashboard/resources') },
     { phrases: ['management', 'console'], label: 'Management', run: () => router.push('/dashboard/management') },
     { phrases: ['analytics', 'statistics'], label: 'Analytics', run: () => router.push('/dashboard/management/analytics') },

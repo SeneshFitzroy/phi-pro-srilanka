@@ -64,17 +64,10 @@ const adminManagementItems = [
 
 // AI & monitoring items shown to ALL field/supervisory roles. The "System Status"
 // monitoring item is admin-only — split out so it can be appended for MOH only.
-const baseAiNavItems = [
-  { href: '/dashboard/copilot', icon: Sparkles, label: 'Compliance Copilot' },
-  // Every other AI/monitoring engine now runs inside the domain where the
-  // officer already works (DSRM — no data silos, no duplicate entry):
-  //   • SIR Epidemic Model + Contact Tracing Graph + H399 Collaborative
-  //     → embedded in /dashboard/epidemiology
-  //   • IoT Cold Chain (Live HACCP Telemetry) + ZKP Grade Proof
-  //     → embedded in /dashboard/food
-  //   • Edge AI Classifier → embedded in the H800 inspection form
-  // None have standalone sidebar items / routes anymore.
-];
+// The Compliance Copilot is now the single agentic PHI Assistant (floating
+// button on every page) — no sidebar entry. Every other AI/monitoring engine
+// runs inside its domain (epi / food / H800), so there are no standalone items.
+const baseAiNavItems: { href: string; icon: typeof Sparkles; label: string }[] = [];
 const adminOnlyAiNavItem = { href: '/dashboard/status', icon: HeartPulse, label: 'System Status' };
 
 // Officer-only reference resources — ONE sidebar entry. The single
@@ -258,36 +251,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </>
             )}
 
-            <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
+            {toolsItems.length > 0 && (
+              <>
+                <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800" />
 
-            {!collapsed && (
-              <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Tools
-              </div>
+                {!collapsed && (
+                  <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Tools
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {toolsItems.map((item) => {
+                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
+                          isActive
+                            ? 'bg-violet-500/10 text-violet-700 dark:text-violet-400'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
+                          collapsed && 'justify-center px-2',
+                        )}
+                        title={collapsed ? item.label : undefined}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <item.icon className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300')} />
+                        {!collapsed && <span>{item.label}</span>}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </>
             )}
-            <div className="space-y-0.5">
-              {toolsItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150',
-                      isActive
-                        ? 'bg-violet-500/10 text-violet-700 dark:text-violet-400'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
-                      collapsed && 'justify-center px-2',
-                    )}
-                    title={collapsed ? item.label : undefined}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <item.icon className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300')} />
-                    {!collapsed && <span>{item.label}</span>}
-                  </Link>
-                );
-              })}
-            </div>
           </nav>
 
           {/* Bottom User Section */}
