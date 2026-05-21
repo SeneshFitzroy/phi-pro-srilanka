@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Graph from 'graphology';
-import { GitFork, Plus, Trash2, Users, MapPin, Truck, ZoomIn, ZoomOut, RefreshCw, Info } from 'lucide-react';
+import { GitFork, Trash2, Users, MapPin, Truck, ZoomIn, ZoomOut, RefreshCw, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ── Node / Edge types ─────────────────────────────────────────────────────────
@@ -134,7 +134,6 @@ export function ContactTracingGraph({ embedded = false }: { embedded?: boolean }
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [simulating, setSimulating] = useState(false);
-  const [addMode, setAddMode] = useState<NodeType | null>(null);
   const [stats, setStats] = useState({ nodes: 0, edges: 0, clusters: 0 });
 
   const buildGraph = useCallback(() => {
@@ -176,7 +175,6 @@ export function ContactTracingGraph({ embedded = false }: { embedded?: boolean }
     });
     setStats({ nodes: g.order, edges: g.size, clusters: Math.ceil(g.order / 4) });
     forceUpdate(v => v + 1);
-    setAddMode(null);
   };
 
   const removeSelected = () => {
