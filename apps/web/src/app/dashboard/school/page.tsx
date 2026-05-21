@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-  School, FileText, Syringe, Droplets, Activity, ClipboardList, Search, TrendingUp,
+  School, FileText, Syringe, Droplets, ClipboardList, Search, TrendingUp,
   Users, AlertTriangle, ArrowRight, X, Plus, CheckCircle2, Circle, Trash2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,9 +16,17 @@ const quickActions = [
   { title: 'Monthly Summary',  code: 'H1214', icon: FileText,       href: '/dashboard/school/monthly',  desc: 'Roll up the month\'s school-health activity.',         accent: 'from-blue-600 to-indigo-700' },
   { title: 'Student Defects',  code: 'H1046', icon: ClipboardList,  href: '/dashboard/school/defects',  desc: 'Record defects found at the grade-level exam.',         accent: 'from-rose-600 to-red-700' },
   { title: 'WASH Survey',      code: 'H1015', icon: Droplets,       href: '/dashboard/school/wash',     desc: 'Water, sanitation and hygiene audit.',                  accent: 'from-cyan-600 to-sky-700' },
-  { title: 'Vaccine Program',  code: 'H1247', icon: Syringe,        href: '/dashboard/school/vaccine',  desc: 'HPV & aP/dT campaign tracker.',                         accent: 'from-purple-600 to-fuchsia-700' },
-  { title: 'Activity Log',     code: 'H1014', icon: Activity,       href: '/dashboard/school/activity', desc: 'Field activity diary.',                                 accent: 'from-emerald-600 to-teal-700' },
 ];
+
+// HPV + aP/dT campaign stats are surfaced *inside* the H1247 Vaccine Program
+// card below — no longer a separate row of Vaccination Info cards.
+const VACCINE_CARD = {
+  title: 'Vaccine Program',
+  code: 'H1247',
+  href: '/dashboard/school/vaccine',
+  desc: 'HPV & aP/dT campaign tracker.',
+  accent: 'from-purple-600 to-fuchsia-700',
+};
 
 interface SchoolRow {
   id: string; name: string; type: 'National' | 'Provincial' | 'Private';
@@ -109,11 +117,12 @@ export default function SchoolHealthPage() {
         <StatCard icon={<Syringe       className="h-5 w-5" />} label="Vaccines administered" value="856" tone="purple" sub="across HPV + aP/dT" />
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions — H1214 / H1046 / H1015 + the Vaccine Program (H1247)
+          card which now hosts the HPV + aP/dT campaign stats inline. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {quickActions.map((action) => (
           <Link key={action.href} href={action.href} className="group">
-            <Card className="overflow-hidden border-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800">
+            <Card className="h-full overflow-hidden border-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800">
               <div className={`h-1 w-full bg-gradient-to-r ${action.accent}`} />
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
@@ -133,28 +142,53 @@ export default function SchoolHealthPage() {
             </Card>
           </Link>
         ))}
-      </div>
 
-      {/* Vaccination Info */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <VaccineCard
-          tone="purple"
-          name="HPV vaccine"
-          cohort="Girls — Grade 6 — 2 doses (0, 6 months)"
-          rows={[
-            { label: 'Dose 1', value: '142 / 156', pct: Math.round((142 / 156) * 100) },
-            { label: 'Dose 2', value: '128 / 156', pct: Math.round((128 / 156) * 100) },
-          ]}
-        />
-        <VaccineCard
-          tone="indigo"
-          name="aP / dT vaccine"
-          cohort="All students — Grade 7 — 1 dose"
-          rows={[
-            { label: 'Administered', value: '189 / 203', pct: Math.round((189 / 203) * 100) },
-            { label: 'Coverage',     value: '93.1 %',    pct: 93 },
-          ]}
-        />
+        {/* Vaccine Program — spans 2 columns and hosts the HPV + aP/dT
+            sub-cards directly inside its body. */}
+        <Card className="sm:col-span-2 overflow-hidden border-slate-200 dark:border-slate-800">
+          <div className={`h-1 w-full bg-gradient-to-r ${VACCINE_CARD.accent}`} />
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <Link href={VACCINE_CARD.href} className="group inline-flex items-center gap-2">
+                <div className={`rounded-lg bg-gradient-to-br ${VACCINE_CARD.accent} p-2 text-white shadow-sm`}>
+                  <Syringe className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold leading-tight group-hover:text-blue-700">{VACCINE_CARD.title}</p>
+                  <p className="text-[11px] text-muted-foreground">{VACCINE_CARD.desc}</p>
+                </div>
+              </Link>
+              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                {VACCINE_CARD.code}
+              </span>
+            </div>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <VaccineCard
+                tone="purple"
+                name="HPV vaccine"
+                cohort="Girls — Grade 6 — 2 doses (0, 6 months)"
+                rows={[
+                  { label: 'Dose 1', value: '142 / 156', pct: Math.round((142 / 156) * 100) },
+                  { label: 'Dose 2', value: '128 / 156', pct: Math.round((128 / 156) * 100) },
+                ]}
+              />
+              <VaccineCard
+                tone="indigo"
+                name="aP / dT vaccine"
+                cohort="All students — Grade 7 — 1 dose"
+                rows={[
+                  { label: 'Administered', value: '189 / 203', pct: Math.round((189 / 203) * 100) },
+                  { label: 'Coverage',     value: '93.1 %',    pct: 93 },
+                ]}
+              />
+            </div>
+
+            <Link href={VACCINE_CARD.href} className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 dark:text-blue-300">
+              Open H1247 vaccine programme <ArrowRight className="h-3 w-3" />
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Schools Table */}

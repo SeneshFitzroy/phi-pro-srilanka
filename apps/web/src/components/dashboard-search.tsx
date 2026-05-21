@@ -26,7 +26,6 @@ const INDEX: Entry[] = [
   { label: 'Student defects (H1046)',        href: '/dashboard/school/defects',             group: 'School Health',   keywords: 'h1046 defects students medical examination' },
   { label: 'WASH school survey (H1015)',     href: '/dashboard/school/wash',                group: 'School Health',   keywords: 'h1015 wash water sanitation hygiene' },
   { label: 'School vaccine program (H1247)', href: '/dashboard/school/vaccine',             group: 'School Health',   keywords: 'h1247 vaccine hpv apdt immunisation' },
-  { label: 'School activity log (H1014)',    href: '/dashboard/school/activity',            group: 'School Health',   keywords: 'h1014 activity log school' },
   // Epidemiology
   { label: 'Epidemiology overview',          href: '/dashboard/epidemiology',               group: 'Epidemiology',    keywords: 'epidemiology dengue outbreak surveillance' },
   { label: 'Contact tracing network',        href: '/dashboard/epidemiology', group: 'Epidemiology',  keywords: 'contact tracing outbreak case investigation cluster transmission graph' },
