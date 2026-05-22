@@ -54,6 +54,7 @@ const sphiManagementItems = [
   { href: '/dashboard/management/approvals', icon: FileText, label: 'Approvals' },
   { href: '/dashboard/management/permits', icon: ClipboardList, label: 'Permits' },
   { href: '/dashboard/management/analytics', icon: BarChart3, label: 'Analytics' },
+  { href: '/dashboard/management/users', icon: MessageSquare, label: 'Officers' },
 ];
 
 const adminManagementItems = [
@@ -107,9 +108,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     : role === UserRole.SPHI    ? sphiManagementItems
     : phiManagementItems;
 
-  // Field-form domains: hidden for SPHI (supervisory role) — they manage via Approvals/Permits/Analytics
-  // Always-on for PHI (field officer) and MOH_ADMIN (full oversight)
-  const visibleMainNavItems = role === UserRole.SPHI
+  // Field-form domains: hidden for SPHI + MOH_ADMIN (supervisory/admin roles)
+  // Always-on for PHI (field officer)
+  const visibleMainNavItems = (role === UserRole.SPHI || role === UserRole.MOH_ADMIN)
     ? mainNavItems.filter((i) => i.href === '/dashboard')
     : mainNavItems;
 
